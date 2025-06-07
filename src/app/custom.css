@@ -1,7 +1,23 @@
-.btn-icon{
-	width: 20px;
-	height: 20px;
+.btn-icon-google::before{
+	content: '';
+	position: absolute;
+	width: 26px;
+	height: 26px;
+	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1749267296/icons8-google%E3%81%AE%E3%83%AD%E3%82%B4_ldlqhq.svg");
 	background-size: contain;
 	background-position: center;
 	background-repeat: no-repeat;
+	left: 20px;
+}
+
+.btn-icon-mail::before{
+	content: '';
+	position: absolute;
+	width: 24px;
+	height: 24px;
+	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1749268482/envelope-regular_hls6il.svg");
+	background-size: contain;
+	background-position: center;
+	background-repeat: no-repeat;
+	left: 22px;
 }
