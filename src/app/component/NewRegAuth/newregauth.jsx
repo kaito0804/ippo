@@ -4,10 +4,18 @@ import { supabase } from "@/app/utils/supabase/supabaseClient";
 
 export default function AuthButtons({authBtn, setAuthBtn}) {
 	const [email, setEmail] = useState("");
+	
+	const redirectTo =
+	process.env.NODE_ENV === 'development'
+		? 'http://localhost:3000/top'
+		: 'https://ippo-sampo.vercel.app/top';
 
 	const signInWithGoogle = async () => {
 		await supabase.auth.signInWithOAuth({
-		provider: 'google',
+			provider: 'google',
+			options: {
+				redirectTo
+			}
 		});
 	};
 
@@ -17,7 +25,12 @@ export default function AuthButtons({authBtn, setAuthBtn}) {
 			return;
 		}
 
-		const { error } = await supabase.auth.signInWithOtp({ email });
+		const { error } = await supabase.auth.signInWithOtp({
+			email,
+			options: {
+				redirectTo
+			}
+		});
 
 		if (error) {
 			alert("送信に失敗しました：" + error.message);

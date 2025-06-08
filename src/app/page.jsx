@@ -25,6 +25,7 @@ export default function Home() {
 			</div>	
 
 			<AuthButtons authBtn={authBtn} setAuthBtn={setAuthBtn}/>
+
 		</div>
 	);
 }
