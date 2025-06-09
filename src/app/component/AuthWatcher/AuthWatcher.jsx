@@ -5,17 +5,18 @@ import { useRouter, usePathname } from 'next/navigation';
 import { supabase } from '@/app/utils/supabase/supabaseClient';
 
 export default function AuthWatcher() {
-  const router = useRouter();
+  const router   = useRouter();
   const pathname = usePathname();
 
   useEffect(() => {
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-
-      // もしログイン済み かつ 今がログイン画面なら /top に飛ばす
-      if (session && pathname === '/') {
-        router.push('/top');
-      }
+        const { data: { session } } = await supabase.auth.getSession();
+        // もしログイン済み かつ 今がログイン画面なら /top に飛ばす
+        if (session && pathname === '/') {
+          router.push('/top');
+        }else if(!session){
+          router.push('/');
+        }
     };
 
     checkSession();
