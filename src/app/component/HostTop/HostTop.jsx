@@ -2,7 +2,7 @@
 
 //react/next.js用ライブラリ
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import MyEditor from '@/app/component/MyEditor/myEditor';
 
 //cloudinary関連
@@ -16,14 +16,17 @@ export default function HostTop() {
 
 	const { userId }                    = useUserContext();
 	const [name, setName]               = useState('');
-	const [startDate, setStartDate] = useState('');
-	const [startTime, setStartTime] = useState('');
-	const [endDate, setEndDate] = useState('');
-	const [endTime, setEndTime] = useState('');
+	const [startDate, setStartDate]     = useState('');
+	const [startTime, setStartTime]     = useState('');
+	const [endDate, setEndDate]         = useState('');
+	const [endTime, setEndTime]         = useState('');
 	const [venue, setVenue]             = useState('');
 	const [description, setDescription] = useState('');
 	const [memberCount, setmemberCount] = useState(0);
 	const [thumImage, setThumImage]     = useState(null);
+	const [editorKey, setEditorKey]     = useState(0);
+	const fileInputRef = useRef(null);
+
 
 	const fileChange = async (event) => {
 		const selectedFile = event.target.files?.[0];
@@ -73,7 +76,23 @@ export default function HostTop() {
 			return;
 		}
 
-		alert('グループを登録しました');
+		alert('登録完了！');
+
+		// フォーム初期化
+		setName('');
+		setStartDate('');
+		setStartTime('');
+		setEndDate('');
+		setEndTime('');
+		setVenue('');
+		setDescription('');
+		setEditorKey(prev => prev + 1);
+		setmemberCount(0);
+		setThumImage(null);
+		if (fileInputRef.current) {
+			fileInputRef.current.value = '';
+		}
+
 	};
 
 	return (
@@ -115,11 +134,11 @@ export default function HostTop() {
 			<label htmlFor="file" className="flex flex-col justify-center w-[100%] gap-[10px]">
 				<p className="text-[16px] font-bold">サムネイル:</p>
 				<input 
-					type="file" name="file" id="file" accept="image/*" onChange={fileChange} required
+					type="file" name="file" id="file" accept="image/*" onChange={fileChange} ref={fileInputRef} required
 					className="px-[10px] py-[5px] border-[1px] rounded-[5px]"/>
 			</label>
 
- 			<MyEditor content={description} onChange={setDescription} />
+ 			<MyEditor  key={editorKey} content={description} onChange={setDescription} />
 
 			<label className="flex flex-col justify-center w-[100%] gap-[10px]">
 				<p className="text-[16px] font-bold">参加人数:</p>

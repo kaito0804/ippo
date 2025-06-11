@@ -14,6 +14,7 @@ import HostTop from "@/app/component/HostTop/HostTop";
 import Footer from "@/app/component/Footer/Footer";
 
 
+
 export default function Home() {
 
     const { userId, isHost, nowStatus, setNowStatus } = useUserContext();
@@ -44,12 +45,12 @@ export default function Home() {
                 </div>
             )}
 
-            {nowStatus == 'host' && (
-                <HostTop/>
+            {nowStatus == 'host' && (                
+				<HostTop/>
             )}
 
-            {nowStatus == 'member' && (
-                <div>参加者</div>
+			{nowStatus == 'member' && (                
+				参加者
             )}
             <Footer/>
         </div>
