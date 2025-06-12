@@ -56,14 +56,13 @@ export default function HostTop() {
 		}
 
 		// groupsテーブルへのINSERT
-		const startDateTime = `${startDate}T${startTime}:00`;
-		const endDateTime   = `${endDate}T${endTime}:00`;
-
 		const { data, error } = await supabase.from('groups').insert({
 			name,
 			created_by: userId,
-			start_date: startDateTime,     
-			end_date  : endDateTime,         
+			start_date: startDate,
+			start_time: startTime,  
+			end_date: endDate,
+			end_time: endTime,         
 			venue     : venue,     
 			image_url : imageUrl,         
 			description,                
