@@ -7,6 +7,7 @@ import Footer from "@/app/component/Footer/Footer";
 export default function ListBox() {
 
 	const [groups, setGroups] = useState([]);
+	const formatDate = (dateStr) => dateStr?.replace(/-/g, '/');
 
 	useEffect(() => {
 		const fetchGroups = async () => {
@@ -36,9 +37,13 @@ export default function ListBox() {
 						<div style={{ backgroundImage: `url(${group.image_url})`,backgroundSize: 'cover',backgroundPosition: 'center', backgroundRepeat: 'no-repeat', width: '100%',height: '200px', borderRadius: '8px 8px 0 0',}}></div>
 						<div className="py-[10px] px-[15px]">
 							<p className="text-[15px] font-bold">{group.name}</p>
-							<p>開始: {group.start_date}</p>
-							<p>終了: {group.end_date}</p>
-							{/* <div dangerouslySetInnerHTML={{ __html: group.description }} /> */}
+							<div className="flex items-center gap-[14px] mt-[8px]">
+								<p className="date-icon-text flex items-center text-[12px] text-[#888]">{group.start_date === group.end_date ? formatDate(group.start_date) : `${formatDate(group.start_date)} ~ ${formatDate(group.end_date)}`}</p>
+								<p className="time-icon-text flex items-center text-[12px] text-[#888]">{group.start_time.slice(0, 5)} ~ {group.end_time.slice(0, 5)}</p>
+							</div>
+							<p className="locate-icon-text flex items-center text-[12px] text-[#888] mt-[8px]">{group.venue}</p>
+							<div dangerouslySetInnerHTML={{ __html: group.description }} className="text-[14px] text-[#333] mt-[8px]" />
+							<div className="flex justify-center align-center w-[80px] mt-[10px] py-[3px] bg-[#3B82F6] text-white rounded-[4px] text-[12px] font-bold">参加応募</div>
 						</div>
 					</li>
 				))}

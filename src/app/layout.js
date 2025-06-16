@@ -30,10 +30,12 @@ export default function RootLayout({ children }) {
 	return (
 		<html lang="jp">
 		<body className={`${geistSans.variable} ${geistMono.variable} ${notoSansJp.variable} antialiased`}>
-			<UserProvider>
-				<AuthWatcher />
-				{children}
-			</UserProvider>
+			<div id="contents" className="w-[100%] pb-[50px]">
+        <UserProvider>
+          <AuthWatcher />
+          {children}
+        </UserProvider>
+      </div>
 		</body>
 		</html>
 	);

@@ -21,3 +21,39 @@
 	background-repeat: no-repeat;
 	left: 22px;
 }
+
+.date-icon-text::before{
+	content: '';
+	display: inline-flex;
+	width: 15px;
+	height: 15px;
+	margin-right: 5px;
+	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1749995545/clock_gray_ssfqt1.svg");
+	background-size: contain;
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+.time-icon-text::before{
+	content: '';
+	display: inline-flex;
+	width: 15px;
+	height: 15px;
+	margin-right: 5px;
+	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1749995544/calendar_gray_isonee.svg");
+	background-size: contain;
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+.locate-icon-text::before{
+	content: '';
+	display: inline-flex;
+	width: 15px;
+	height: 15px;
+	margin-right: 5px;
+	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1749996016/map-pin_gray_heiv4z.svg");
+	background-size: contain;
+	background-position: center;
+	background-repeat: no-repeat;
+}
