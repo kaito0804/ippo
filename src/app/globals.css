@@ -26,5 +26,5 @@ body {
   color: #333;
   font-family: var(--font-noto-sans-jp), sans-serif;
   height: 100dvh;
-  overflow-x: hidden;
+  overflow: hidden;
 }

@@ -2,11 +2,14 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/app/utils/supabase/supabaseClient";
 import Footer from "@/app/component/Footer/Footer";
+import { useSearchParams } from "next/navigation";
+
 
 export default function MessageDetail() {
+const searchParams            = useSearchParams();
+const groupId                 = searchParams.get("groupId")
 const [messages, setMessages] = useState([]);
 const [newMsg, setNewMsg]     = useState("");
-const groupId                 = "2c781928-e3b7-4935-931b-14961e947678"; // URLから取得するのが理想です
 
 useEffect(() => {
 // 初回読み込み
