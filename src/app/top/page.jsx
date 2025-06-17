@@ -2,7 +2,7 @@
 
 //react/next.js用ライブラリ
 import Image from "next/image";
-import { useState } from "react";
+import { useStat, useEffect} from "react";
 
 //データベース関連
 import { supabase } from '@/app/utils/supabase/supabaseClient';
@@ -20,6 +20,30 @@ export default function Home() {
 
     const { userId, isHost, nowStatus, setNowStatus } = useUserContext();
     
+    useEffect(() => {
+        const registerUserProfile = async () => {
+          const { data: { user } } = await supabase.auth.getUser();
+    
+          if (user) {
+            const { id, email, user_metadata } = user;
+            const display_name = user_metadata?.full_name || user_metadata?.name || "No Name";
+    
+            // user_profiles に upsert
+            const { error } = await supabase.from('user_profiles').upsert({
+              id,
+              email,
+              display_name
+            });
+    
+            if (error) {
+              console.error("プロフィール登録エラー:", error.message);
+            }
+          }
+        };
+    
+        registerUserProfile();
+      }, []);
+
     const handleClickHost =  async (status) => {
         if (!isHost && status === 'host') {
             alert('主催者のみ操作できます');
