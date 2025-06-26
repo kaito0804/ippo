@@ -2,7 +2,7 @@
 
 //react/next.js用ライブラリ
 import Image from "next/image";
-import { useStat, useEffect} from "react";
+import { useState, useEffect} from "react";
 
 //データベース関連
 import { supabase } from '@/app/utils/supabase/supabaseClient';
@@ -19,6 +19,8 @@ import HostTop from "@/app/component/HostTop/HostTop";
 export default function Home() {
 
     const { userId, isHost, nowStatus, setNowStatus } = useUserContext();
+    const [postBtn, setPostBtn]                       = useState(false);
+    const [openDialog, setOpenDialog]                 = useState(false);
     
     useEffect(() => {
         const registerUserProfile = async () => {
@@ -75,7 +77,7 @@ export default function Home() {
                 )}
 
                 {nowStatus == 'host' && (                
-                    <HostTop/>
+                    <HostTop openDialog={openDialog} setOpenDialog={setOpenDialog} setPostBtn={() => setPostBtn(true)}/>
                 )}
 
                 {nowStatus == 'member' && (                
@@ -83,7 +85,7 @@ export default function Home() {
                 )}
             </div>
 
-            <Footer/>
+            <Footer postBtn={postBtn} openDialog={() => setOpenDialog(true)}/>
 
         </div>
     );

@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@react-google-maps/api": "^2.20.7",
     "@supabase/supabase-js": "^2.49.10",
     "@tiptap/core": "^2.14.0",
     "@tiptap/react": "^2.14.0",

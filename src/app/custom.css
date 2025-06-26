@@ -26,6 +26,120 @@
 	left: 22px;
 }
 
+.close-icon{
+	position: absolute;
+	width: 40px;
+	height: 40px;
+	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1750818660/xmark_dv4bnv.svg");
+	background-size: contain;
+	background-position: center;
+	background-repeat: no-repeat;
+	top: 12px;
+	right: 12px;
+}
+
+/*HOME*/
+.post-marker {	
+	transform: translate(-50%, -100%);
+	position: relative;
+	display: inline-block;
+	margin-bottom: 11px;
+	padding: 20px;
+	border: 3px solid #ffb169;
+	border-radius: 9999px;
+	background-color: #fff;
+	text-align: left;
+	font-size: 16px;
+	font-weight: 400;
+	line-height: 1.5;
+	color: #ffb169;
+}
+
+.post-marker::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  border-style: solid;
+  border-width: 11px 8px 0 8px;
+  border-color: #ffb169 transparent transparent;
+  translate: -50% 100%;
+}
+
+.post-marker::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  border-style: solid;
+  border-width: 7.6px 5.5px 0 5.5px;
+  border-color: #ffffff transparent transparent;
+  translate: -50% 100%;
+}
+
+.post-image{
+	position: absolute;
+	width: 34px;
+	height: 34px;
+	background-size: cover;
+	background-repeat: no-repeat;
+	background-position: top center;
+	top: 3px;
+	left: 3px;
+	border-radius: 50%;
+}
+
+.now-location-button{
+	position: absolute;
+	display: flex;
+    align-items: center;
+    justify-content: center;
+	width: 48px;
+    height: 48px;
+    background-color: #fff;
+	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1750821278/position_ya9p1s.svg");
+	background-size: 26px;
+	background-position: center;
+	background-repeat: no-repeat;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+	bottom: 35px;
+    right: 10px;
+	z-index: 10;
+}
+
+.loading-overlay{
+	position: fixed;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	height: 100dvh;
+	background-color: rgba(0, 0, 0, 0.6);
+	top: 0;
+	left: 0;
+	z-index: 9999;
+}
+
+.loading-icon{
+	color: #fff;
+	font-size: 13px;
+}
+
+.loading-icon::before{
+	content: '';
+	width: 50px;
+	height: 50px;
+	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1747798532/ajax-loader_1_dwfbcq.gif");
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+	display: block;
+	margin-bottom: 10px;
+}
+
 .date-icon-text::before{
 	content: '';
 	display: inline-flex;
@@ -60,4 +174,95 @@
 	background-size: contain;
 	background-position: center;
 	background-repeat: no-repeat;
+}
+
+.footer-icon{
+	background-size: 24px;
+	background-repeat: no-repeat;
+	background-position: center;
+	border-radius: 50%;
+	box-sizing: border-box;
+}
+
+.footer-icon::after{
+	font-size: 10px;
+}
+
+.footer-icon.home{
+	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1750917826/home-alt-slim-gray_vurm6c.svg");
+}
+.footer-icon.home::after{
+	content: 'HOME';
+}
+
+.footer-icon.list{
+	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1750907289/list-gray_t47ppu.svg");
+}
+.footer-icon.list::after{
+	content: 'LIST';
+}
+
+.footer-icon.message{
+	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1750917948/message-text-gray_jbzu45.svg");
+}
+.footer-icon.message::after{
+	content: 'MESSAGE';
+}
+
+.footer-icon.user{
+	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1750917949/user-middle-gray_z3eql3.svg");
+}
+.footer-icon.user::after{
+	content: 'MY';
+}
+
+.footer-icon-center::before{
+	content: '';
+	position: absolute;
+	width: 50px;
+	height: 50px;
+	background-image: none;
+	background-color: #ccc;
+	border-radius: 50%;
+	top: -15px;
+}
+
+.footer-icon-center.active::before{
+	background: linear-gradient(#fd9826 30%, #fdd867 100%);
+	box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.footer-icon-center::after{
+	content: '';
+	position: absolute;
+	width: 50px;
+	height: 50px;
+	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1750736914/plus_white_mivdcv.svg");
+	background-size: 40px;
+	background-repeat: no-repeat;
+	background-position: center;
+	border-radius: 50%;
+	top: -15px;
+}
+
+.footer-icon-center.active{
+	animation: button-bound-anime 1.3s linear infinite;
+}
+
+@keyframes button-bound-anime{
+	0%,33%,100% {
+		transform: scale(1.0, 1.0) translate(0, 0);
+	}
+	46% {
+		transform: scale(0.98, 0.9) translate(0, 5px);
+	}
+	59% {
+		transform: scale(1.02, 1.0) translate(0, 8px);
+	}
+	72% {
+		transform: scale(0.98, 1.05) translate(0, -8px);
+	}
+	85% {
+		transform: scale(1.0, 0.9) translate(0, 5px);
+	}
 }

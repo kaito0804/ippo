@@ -2,153 +2,310 @@
 
 //react/next.js用ライブラリ
 import Image from "next/image";
-import { useState, useRef } from "react";
-import MyEditor from '@/app/component/MyEditor/myEditor';
+import { useState, useEffect, useRef } from "react";
+import NewPostDialog from '@/app/component/NewPostDialog/NewPostDialog';
 
-//cloudinary関連
-import { uploadToCloudinary } from "@/app/utils/cloudinary/cloudinary";
+import {
+GoogleMap,
+Marker,
+OverlayView,
+useJsApiLoader,
+} from "@react-google-maps/api";
 
 //データベース関連
 import { supabase } from '@/app/utils/supabase/supabaseClient';
 import { useUserContext } from '@/app/utils/userContext';
 
-export default function HostTop() {
+const mapContainerStyle = { width: "100%", height: "100%" };
 
-	const { userId }                    = useUserContext();
-	const [name, setName]               = useState('');
-	const [startDate, setStartDate]     = useState('');
-	const [startTime, setStartTime]     = useState('');
-	const [endDate, setEndDate]         = useState('');
-	const [endTime, setEndTime]         = useState('');
-	const [venue, setVenue]             = useState('');
-	const [description, setDescription] = useState('');
-	const [memberCount, setmemberCount] = useState(0);
-	const [thumImage, setThumImage]     = useState(null);
-	const [editorKey, setEditorKey]     = useState(0);
-	const fileInputRef = useRef(null);
+export default function HostTop({ setPostBtn, openDialog, setOpenDialog }) {
 
+	const { isLoaded } = useJsApiLoader({
+		googleMapsApiKey: "AIzaSyA1pKp1urhDvyKNJfX22TPMTf9PNrkGO6c",
+		libraries: ["places"],
+		language: "ja",
+	});
 
-	const fileChange = async (event) => {
-		const selectedFile = event.target.files?.[0];
-		if (selectedFile) {
-			setThumImage(selectedFile);
-		}
+	const [currentPosition, setCurrentPosition] = useState(null);
+	const [clickPosition, setClickPosition]     = useState(null);
+	const [placeName, setPlaceName]             = useState(""); 
+	const [mapCenter, setMapCenter]             = useState(null);
+	const [allPosts, setAllPosts]               = useState([]);
+	const mapRef                                = useRef(null);
+	const inputRef                              = useRef(null);
+	const autocompleteRef                       = useRef(null);
+	const mapOptions                            = {
+		disableDefaultUI: true, 
 	};
 
-	const submit = async (e) => {
-		e.preventDefault();
-
-		// バリデーション
-		if (!name) {
-			alert('グループ名は必須です');
+	// 現在地リアルタイム監視（上記で説明したwatchPosition）
+	useEffect(() => {
+		if (!navigator.geolocation) {
+			// 位置情報非対応ブラウザ用：東京駅を中心に
+			setMapCenter({ lat: 35.681236, lng: 139.767125 }); 
 			return;
 		}
 
-		let imageUrl = ''; 
-		if (thumImage) {
-			try {
-				imageUrl = await uploadToCloudinary(thumImage);
-			} catch (err) {
-				console.error('画像アップロード失敗:', err);
-				alert('画像のアップロードに失敗しました');
-				return;
+		const watchId = navigator.geolocation.watchPosition(
+			(position) => {
+				const newPos = {
+					lat: position.coords.latitude,
+					lng: position.coords.longitude,
+				};
+				setCurrentPosition(newPos);
+				setMapCenter(newPos);
+			},
+			(error) => {
+				console.error("位置情報エラー:", error);
+
+				// タイムアウトなどで位置取得できなかった場合も、地図は表示
+				setMapCenter({ lat: 35.681236, lng: 139.767125 }); // 例: 東京駅
+			},
+			{ enableHighAccuracy: false, timeout: 10000, maximumAge: 0 }
+		);
+
+		return () => navigator.geolocation.clearWatch(watchId);
+	}, []);
+
+
+	// Google Maps API読み込み完了後にAutocompleteセットアップ
+	useEffect(() => {
+		if (isLoaded && window.google && inputRef.current) {
+			autocompleteRef.current = new window.google.maps.places.Autocomplete(
+				inputRef.current,
+				{
+					// types: ["establishment"], // 必要に応じて絞り込み
+					// componentRestrictions: { country: "jp" }, // 日本国内に絞る場合
+				}
+			);
+
+			autocompleteRef.current.addListener("place_changed", () => {
+				const place = autocompleteRef.current.getPlace();
+				if (!place.geometry || !place.geometry.location) {
+					alert("検索結果に場所が見つかりませんでした");
+					return;
+				}
+
+				const location = {
+					lat: place.geometry.location.lat(),
+					lng: place.geometry.location.lng(),
+				};
+				setMapCenter(location);
+				// クリック位置もリセット
+				setClickPosition(null);
+			});
+		}	
+	}, [isLoaded]);
+
+	useEffect(() => {
+		const fetchPosts = async () => {
+			const { data, error } = await supabase.from("groups").select("*");
+			if (error) {
+				console.error("投稿データ取得エラー:", error);
+			} else {
+				setAllPosts(data);
 			}
+		};
+
+		fetchPosts();
+	}, []);
+
+	// 店舗名を取得する関数
+	const getPlaceName = async (latLng) => {
+		// mapRefがない場合は即座にデフォルトを返す
+		if (!mapRef.current) {
+			return "ランチ候補地点！";
 		}
+		
+		try {
+			const service = new window.google.maps.places.PlacesService(mapRef.current);
+			
+			return new Promise((resolve) => {
+				// まず近くの店舗を検索（範囲を少し大きくして検索精度を上げる）
+				const request = {
+					location: latLng,
+					radius: 100, // 100m以内の店舗を検索
+					type: ['restaurant', 'store', 'establishment', 'food', 'cafe'] // より多くのタイプを検索
+				};
 
-		// groupsテーブルへのINSERT
-		const { data, error } = await supabase.from('groups').insert({
-			name,
-			created_by: userId,
-			start_date: startDate,
-			start_time: startTime,  
-			end_date  : endDate,
-			end_time  : endTime,         
-			venue     : venue,     
-			image_url : imageUrl,         
-			description,                
-			member_count: memberCount
-		});
-
-		if (error) {
-			console.error('登録エラー:', error);
-			alert('登録に失敗しました');
-			return;
+				service.nearbySearch(request, (results, status) => {
+					try {
+						console.log('nearbySearch status:', status, 'results:', results); // デバッグ用
+						
+						if (status === window.google.maps.places.PlacesServiceStatus.OK && results && results.length > 0) {
+							// クリック位置に最も近い店舗を見つける
+							let closestPlace = results[0];
+							let minDistance = calculateDistance(latLng, results[0].geometry.location);
+							
+							for (let i = 1; i < results.length; i++) {
+								const distance = calculateDistance(latLng, results[i].geometry.location);
+								if (distance < minDistance) {
+									minDistance = distance;
+									closestPlace = results[i];
+								}
+							}
+							
+							// 距離が50m以内の場合のみ店舗名を使用
+							if (minDistance < 50) {
+								console.log('Found nearby place:', closestPlace.name); // デバッグ用
+								resolve(closestPlace.name);
+								return;
+							}
+						}
+						
+						// 店舗が見つからない場合、エラーの場合、または距離が離れている場合
+						console.log('No nearby places found, using default'); // デバッグ用
+						resolve("ランチ候補地点！");
+					} catch (error) {
+						console.error('Error in nearbySearch callback:', error);
+						resolve("ランチ候補地点！");
+					}
+				});
+			});
+		} catch (error) {
+			console.error('Error in getPlaceName:', error);
+			return "ランチ候補地点！";
 		}
-
-		alert('登録完了！');
-
-		// フォーム初期化
-		setName('');
-		setStartDate('');
-		setStartTime('');
-		setEndDate('');
-		setEndTime('');
-		setVenue('');
-		setDescription('');
-		setEditorKey(prev => prev + 1);
-		setmemberCount(0);
-		setThumImage(null);
-		if (fileInputRef.current) {
-			fileInputRef.current.value = '';
-		}
-
 	};
+
+	// 2つの座標間の距離を計算する関数（メートル単位）
+	const calculateDistance = (pos1, pos2) => {
+		const lat1 = pos1.lat;
+		const lng1 = pos1.lng;
+		const lat2 = pos2.lat();
+		const lng2 = pos2.lng();
+		
+		const R = 6371e3; // 地球の半径（メートル）
+		const φ1 = lat1 * Math.PI/180;
+		const φ2 = lat2 * Math.PI/180;
+		const Δφ = (lat2-lat1) * Math.PI/180;
+		const Δλ = (lng2-lng1) * Math.PI/180;
+
+		const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+				Math.cos(φ1) * Math.cos(φ2) *
+				Math.sin(Δλ/2) * Math.sin(Δλ/2);
+		const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+		return R * c;
+	};
+
+	const handleMapClick = async (e) => {
+		const latLng = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+		setClickPosition(latLng);
+		
+		// 新しい場所をクリックした際に、まず前の名前をクリア
+		setPlaceName("");
+		
+		// まずplaceIdが取得できるかチェック
+		if (e.placeId) {
+			// Place IDがある場合は、Place Details APIを使用
+			const service = new window.google.maps.places.PlacesService(mapRef.current);
+			const request = {
+				placeId: e.placeId,
+				fields: ['name', 'formatted_address', 'types']
+			};
+			
+			service.getDetails(request, (place, status) => {
+				if (status === window.google.maps.places.PlacesServiceStatus.OK && place) {
+					setPlaceName(place.name || place.formatted_address);
+				} else {
+					// Place Detailsが取得できない場合は従来の方法
+					getPlaceNameFallback(latLng);
+				}
+			});
+		} else {
+			// Place IDがない場合は従来の方法
+			getPlaceNameFallback(latLng);
+		}
+		setPostBtn(); //投稿ボタンを有効化
+	};
+
+	// フォールバック用の店舗名取得関数
+	const getPlaceNameFallback = async (latLng) => {
+		try {
+			// 3秒のタイムアウト処理
+			const timeoutPromise = new Promise((resolve) => 
+				setTimeout(() => resolve("集合地点！"), 1500)
+			);
+			
+			const name = await Promise.race([getPlaceName(latLng), timeoutPromise]);
+			setPlaceName(name);
+		} catch (error) {
+			console.error('Error getting place name:', error);
+			setPlaceName("ランチ候補地点！");
+		}
+	};
+
+	if (!isLoaded) return <div>マップを読み込み中...</div>;
+
+	// ✅ 修正後：mapCenterがあれば表示（位置取得失敗時も含む）
+	if (!mapCenter) return <div>地図の初期化中...</div>;
+
 
 	return (
-		<form onSubmit={submit} className="flex flex-col items-center w-full h-[calc(100vh-24px)] py-[30px] px-[20px] gap-[40px] overflow-y-scroll">
-			<label className="flex flex-col justify-center w-[100%] gap-[10px]">
-				<p className="text-[16px] font-bold">イベント名</p>
-				<input 
-					type="text" name="groupName" placeholder="グループ名"value={name} onChange={e => setName(e.target.value)} required 
-					className="px-[10px] py-[5px] border-[1px] rounded-[5px]" />
-			</label>
+		<div className="w-[100%] h-[100%] relative">
 
-			<label className="flex flex-col justify-center w-[100%] gap-[10px]">
-				<p className="text-[16px] font-bold">開始日:</p>
-				<input 
-					type="date" name="startDate" value={startDate} onChange={e => setStartDate(e.target.value)} required
-					className="px-[10px] py-[5px] border-[1px] rounded-[5px]"/>
-				<input 
-					type="time" name="startTime" value={startTime} onChange={e => setStartTime(e.target.value)} required
-					className="px-[10px] py-[5px] border-[1px] rounded-[5px]"/>
-			</label>
+			{/* 検索ボックス */}
+			<input
+				ref={inputRef}
+				type="text"
+				placeholder="場所を検索"
+				className="absolute top-[10px] left-[calc(50%-160px)] bg-[#fff] w-[320px] h-[40px] px-[20px] text-[14px] rounded-[100px] shadow-md z-10"
+			/>
 
-			<label  className="flex flex-col justify-center w-[100%] gap-[10px]">
-				<p className="text-[16px] font-bold">終了日:</p>
-				<input 
-					type="date" name="endDate" value={endDate} onChange={e => setEndDate(e.target.value)} required
-					className="px-[10px] py-[5px] border-[1px] rounded-[5px]" />
-				<input 
-					type="time" name="endTime" value={endTime} onChange={e => setEndTime(e.target.value)} required
-					className="px-[10px] py-[5px] border-[1px] rounded-[5px]" />
-			</label>
+			<GoogleMap
+			center={mapCenter}
+			zoom={15}
+			mapContainerStyle={mapContainerStyle}
+			onClick={handleMapClick}
+			onLoad={(map) => (mapRef.current = map)}
+			options={mapOptions}
+			>
+				{/* 現在地のマーカー */}
+				<Marker position={currentPosition} label="" />
 
-			<label className="flex flex-col justify-center w-[100%] gap-[10px]">
-				<p className="text-[16px] font-bold">会場名:</p>
-				<input 
-					type="text" name="venue" value={venue} onChange={e => setVenue(e.target.value)} required
-					className="px-[10px] py-[5px] border-[1px] rounded-[5px]" />
-			</label>
-
-			<label htmlFor="file" className="flex flex-col justify-center w-[100%] gap-[10px]">
-				<p className="text-[16px] font-bold">サムネイル:</p>
-				<input 
-					type="file" name="file" id="file" accept="image/*" onChange={fileChange} ref={fileInputRef} required
-					className="px-[10px] py-[5px] border-[1px] rounded-[5px]"/>
-			</label>
-
- 			<MyEditor  key={editorKey} content={description} onChange={setDescription} />
-
-			<label className="flex flex-col justify-center w-[100%] gap-[10px]">
-				<p className="text-[16px] font-bold">参加人数:</p>
-				<select name="memberCount" value={memberCount} onChange={e => setmemberCount(Number(e.target.value))} required>
-				{Array.from({ length: 31 }, (_, i) => (
-					<option key={i} value={i}>{i}</option>
+				{/* 投稿のマーカー */}
+				{allPosts.map((post) => (
+					<OverlayView
+						key={post.id}
+						position={{ lat: post.lat, lng: post.lng }}
+						mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+					>
+						<div className="post-marker">
+							<div className="post-image" style={{backgroundImage: `url(${post.image_url})`}}></div>
+						</div>
+					</OverlayView>
 				))}
-				</select>
-			</label>
 
-			<button type="submit" className="btn-submit w-[260px] my-[10px] py-[8px] bg-[#3048ff] text-white rounded-[100px] font-bold text-[15px]">登録する</button>
-		</form>
+
+				{/* クリック地点のOverlayView */}
+				{clickPosition && (
+				<OverlayView
+					position      = {clickPosition}
+					mapPaneName   = {OverlayView.OVERLAY_MOUSE_TARGET}
+					clickPosition = {clickPosition}
+					>
+					<div>
+						{placeName || "読み込み中..."}
+					</div>
+				</OverlayView>
+				)}
+
+				<div
+				onClick={() => {
+					if (mapRef.current && currentPosition) {
+					mapRef.current.setCenter(currentPosition); // 地図の中心を現在地へ
+					}
+				}}
+				className="now-location-button"
+				>
+				</div>
+
+			</GoogleMap>
+
+			<NewPostDialog openDialog={openDialog} closeDialog={() => setOpenDialog(false)} placeName={placeName} clickPosition={clickPosition}/>
+
+
+		</div>
 	);
 }
