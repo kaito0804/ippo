@@ -36,6 +36,7 @@ export default function HostTop({ setPostBtn, openDialog, setOpenDialog }) {
 	const autocompleteRef                       = useRef(null);
 	const mapOptions                            = {
 		disableDefaultUI: true, 
+		gestureHandling: "greedy"
 	};
 
 	// 現在地リアルタイム監視（上記で説明したwatchPosition）

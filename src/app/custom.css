@@ -179,7 +179,7 @@
 .footer-icon{
 	background-size: 24px;
 	background-repeat: no-repeat;
-	background-position: center;
+	background-position: center 8px;
 	border-radius: 50%;
 	box-sizing: border-box;
 }
@@ -219,12 +219,12 @@
 .footer-icon-center::before{
 	content: '';
 	position: absolute;
-	width: 50px;
-	height: 50px;
+	width: 60px;
+	height: 60px;
 	background-image: none;
 	background-color: #ccc;
 	border-radius: 50%;
-	top: -15px;
+	top: -25px;
 }
 
 .footer-icon-center.active::before{
@@ -235,14 +235,14 @@
 .footer-icon-center::after{
 	content: '';
 	position: absolute;
-	width: 50px;
-	height: 50px;
+	width: 60px;
+	height: 60px;
 	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1750736914/plus_white_mivdcv.svg");
-	background-size: 40px;
+	background-size: 60px;
 	background-repeat: no-repeat;
 	background-position: center;
 	border-radius: 50%;
-	top: -15px;
+	top: -25px;
 }
 
 .footer-icon-center.active{
