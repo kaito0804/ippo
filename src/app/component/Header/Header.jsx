@@ -42,11 +42,17 @@ export default function Header({title}) {
 	};
 
 	return (
-		<div>
-			<div className='flex justify-between items-center w-[100%] py-[14px] px-[15px] border-b border-gray-300'>
-                <p className='text-[18px] font-bold'>{title}</p>
+		<div className='fixed top-0 left-0 w-[100%] z-50'>
+			<div className='flex justify-between items-center w-[100%] py-[14px] px-[15px] bg-white border-b border-gray-300'>
+				<div className='flex items-baseline gap-[8px]'>
+					<div className='text-[#ff7a00] text-[30px] font-bold font-poppins leading-[1]'>IPPO</div>
+					
+				</div>
 				<p onClick={Logout} className='text-[14px] font-bold'>ログアウト</p>
             </div>
+			<div className='flex items-center w-[100%] py-[8px] px-[15px] bg-[rgba(255,148,49,0.8)] text-white'>
+				<p className='text-[14px] font-bold'>{title}</p>
+			</div>
 		</div>
 	);
 }

@@ -121,27 +121,29 @@ export default function ListBox() {
 	return (
 		<div>
 			<Header title={'散歩コース一覧'}/>
-			<ul className="flex flex-col w-[100%] h-adjust py-[40px] px-[20px] gap-[50px] overflow-y-scroll">
-				{groups.map((group) => (
-					<li key={group.id} className="w-[100%] shadow-lg rounded-[8px]">
-						<div style={{ backgroundImage: `url(${group.image_url})`,backgroundSize: 'cover',backgroundPosition: 'center', backgroundRepeat: 'no-repeat', width: '100%',height: '200px', borderRadius: '8px 8px 0 0',}}></div>
-						<div className="py-[10px] px-[15px]">
-							<p className="text-[15px] font-bold">{group.name}</p>
-							<div className="flex items-center gap-[14px] mt-[8px]">
-								<p className="date-icon-text flex items-center text-[12px] text-[#888]">{group.start_date === group.end_date ? formatDate(group.start_date) : `${formatDate(group.start_date)} ~ ${formatDate(group.end_date)}`}</p>
-								<p className="time-icon-text flex items-center text-[12px] text-[#888]">{group.start_time.slice(0, 5)} ~ {group.end_time.slice(0, 5)}</p>
-							</div>
-							<p className="locate-icon-text flex items-center text-[12px] text-[#888] mt-[8px]">{group.venue}</p>
-							<div dangerouslySetInnerHTML={{ __html: group.description }} className="text-[14px] text-[#333] mt-[8px]" />
-							{nowStatus == 'member' && (
-								<div onClick={() => handleJoin(group)} className="inline-flex justify-center align-center mt-[10px] py-[4px] px-[12px] bg-[#3B82F6] text-white rounded-[4px] text-[13px] font-bold">
-									{userJoinedGroups.has(group.id) ?  (<p>参加中 : {memberCounts[group.id] || 0}人 / {group.member_count}人</p>) : (joiningStatus[group.id] ? '処理中…' : '応募する')}
+			<div className="header-adjust">
+				<ul className="flex flex-col w-[100%] h-adjust py-[40px] px-[20px] gap-[50px] overflow-y-scroll ">
+					{groups.map((group) => (
+						<li key={group.id} className="w-[100%] shadow-lg rounded-[8px]">
+							<div style={{ backgroundImage: `url(${group.image_url})`,backgroundSize: 'cover',backgroundPosition: 'center', backgroundRepeat: 'no-repeat', width: '100%',height: '200px', borderRadius: '8px 8px 0 0',}}></div>
+							<div className="py-[10px] px-[15px]">
+								<p className="text-[15px] font-bold">{group.name}</p>
+								<div className="flex items-center gap-[14px] mt-[8px]">
+									<p className="date-icon-text flex items-center text-[12px] text-[#888]">{group.start_date === group.end_date ? formatDate(group.start_date) : `${formatDate(group.start_date)} ~ ${formatDate(group.end_date)}`}</p>
+									<p className="time-icon-text flex items-center text-[12px] text-[#888]">{group.start_time.slice(0, 5)} ~ {group.end_time.slice(0, 5)}</p>
 								</div>
-							)}
-						</div>
-					</li>
-				))}
-			</ul>
+								<p className="locate-icon-text flex items-center text-[12px] text-[#888] mt-[8px]">{group.venue}</p>
+								<div dangerouslySetInnerHTML={{ __html: group.description }} className="text-[14px] text-[#333] mt-[8px]" />
+								{nowStatus == 'member' && (
+									<div onClick={() => handleJoin(group)} className="inline-flex justify-center align-center mt-[10px] py-[4px] px-[12px] bg-[#3B82F6] text-white rounded-[4px] text-[13px] font-bold">
+										{userJoinedGroups.has(group.id) ?  (<p>参加中 : {memberCounts[group.id] || 0}人 / {group.member_count}人</p>) : (joiningStatus[group.id] ? '処理中…' : '応募する')}
+									</div>
+								)}
+							</div>
+						</li>
+					))}
+				</ul>
+			</div>
 			<Footer/>
 		</div>
 	);

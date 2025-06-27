@@ -1,5 +1,10 @@
+.header-adjust{
+	margin-top: 59px;
+	padding-top: 37px;
+}
+
 .h-adjust{
-	height: calc(100vh - 80px);
+	height: calc(100dvh - 109px);
 }
 
 .btn-icon-google::before{

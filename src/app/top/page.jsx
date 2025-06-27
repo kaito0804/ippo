@@ -64,7 +64,7 @@ export default function Home() {
 
             <Header title="HOME"/>
 
-            <div className="flex flex-col justify-center items-center w-[100%] h-adjust">
+            <div className="flex flex-col justify-center items-center w-[100%] h-adjust header-adjust">
                 {!nowStatus && (
                     <div className="flex items-center justify-center gap-[50px]">
                         <div onClick={() => handleClickHost('host')} className="flex flex-col items-center justify-center w-[120px] h-[120px] bg-[#459fff] rounded-[10px] text-white">

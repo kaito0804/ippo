@@ -11,7 +11,7 @@ export default function Home() {
 		<div>
 			<div onClick={() => setAuthBtn('')} className="flex flex-col justify-center items-center">
 
-				<div className="flex flex-col justify-center items-center w-[100%] h-[100vh] bg-[#fffcfa]">
+				<div className="flex flex-col justify-center items-center w-[100%] h-[100dvh] bg-[#fffcfa]">
 					<div className="absolute top-[calc(50%-120px)] flex flex-col justify-center items-center text-[#ff7a00]">
 						<p className="font-bold text-[60px]">IPPO</p>
 						<p className="font-bold text-[18px]">散歩コミュニティ</p>
