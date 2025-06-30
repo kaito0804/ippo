@@ -1,10 +1,9 @@
 .header-adjust{
-	margin-top: 59px;
-	padding-top: 37px;
+	padding-top: 96px;
 }
 
 .h-adjust{
-	height: calc(100dvh - 109px);
+	height: calc(100dvh - 50px);
 }
 
 .btn-icon-google::before{
@@ -181,6 +180,51 @@
 	background-repeat: no-repeat;
 }
 
+/*message-detail*/
+.message-text{
+	position: relative;
+	max-width: 80%;
+	padding: 12px;
+}
+
+.message-text.mine{
+	margin-left: auto;
+	background-color: #ff9a49;
+	color: #fff;
+	text-align: right;
+	border-radius: 30px 0 30px 30px;
+}
+
+.message-text.others{
+	margin-right: auto;
+	background-color: #858585;
+	color: #fff;
+	text-align: left;
+	border-radius: 0 30px 30px 30px;
+}
+
+.message-text.mine:after{
+	content: "";
+	position: absolute;
+	top: -8px; 
+	right: -9px;
+	border: 6px solid transparent;
+	border-left: 12px solid #ff9a49;
+	-webkit-transform: rotate(-50deg);
+	transform: rotate(-50deg);
+}
+
+.message-text.others:after{
+	content: "";
+	position: absolute;
+	top: -8px; 
+	left: -9px;
+	border: 6px solid transparent;
+	border-right: 12px solid #858585;
+	-webkit-transform: rotate(50deg);
+	transform: rotate(50deg);
+}
+
 .footer-icon{
 	background-size: 24px;
 	background-repeat: no-repeat;
@@ -243,7 +287,7 @@
 	width: 60px;
 	height: 60px;
 	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1750736914/plus_white_mivdcv.svg");
-	background-size: 60px;
+	background-size: 50px;
 	background-repeat: no-repeat;
 	background-position: center;
 	border-radius: 50%;

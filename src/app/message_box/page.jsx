@@ -53,18 +53,34 @@ export default function MessageBox() {
 	return (
 		<div>
 			<Header title={'メッセージリスト'}/>
-			<ul>
-			{joinedGroups.length ? (
-				joinedGroups.map((group) => (
-					<Link href={`/message_detail?groupId=${group.id}`} key={group.id}>
-						<li>{group.name}</li>
-					</Link>
-				))
-			) : (
-				<p className="text-gray-500 text-sm mt-4">参加しているグループはありません。</p>
-			)}
+			<div className="header-adjust">
+				<ul >
+				{joinedGroups.length ? (
+					joinedGroups.map((group) => (
+						<li key={group.id}>
+							<Link href={`/message_detail?groupId=${group.id}`} key={group.id}
+								  className="flex items-center justify-between border-b border-gray-200 py-[14px] px-[14px]">
+								<div className="flex items-center">
+									<div className="w-[50px] h-[50px] mr-[12px] bg-cover bg-center bg-no-repeat rounded-full" style={{ backgroundImage: `url(${group.image_url})` }}></div>
+								
+									<div>
+										<p className="text-[15px] font-bold">{group.name}</p>
+										<p className="text-[13px] text-gray-500">メッセージが届いています</p>
+									</div>
+								</div>
+								<div className="flex flex-col items-end justify-right">
+									<p className="text-[11px] text-gray-500">2時間前</p>
+									<p className="text-[12px] text-white bg-[#ff4343] rounded-full w-[20px] h-[20px] mt-[5px] flex justify-center items-center">1</p>
+								</div>
+							</Link>
+						</li>
+					))
+				) : (
+					<p className="text-gray-500 text-sm mt-4">参加しているグループはありません。</p>
+				)}
 
-			</ul>
+				</ul>
+			</div>
 			<Footer/>
 		</div>
 	);

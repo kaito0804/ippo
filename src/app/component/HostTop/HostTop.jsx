@@ -239,8 +239,8 @@ export default function HostTop({ setPostBtn, openDialog, setOpenDialog }) {
 
 	if (!isLoaded) return <div>マップを読み込み中...</div>;
 
-	// ✅ 修正後：mapCenterがあれば表示（位置取得失敗時も含む）
-	if (!mapCenter) return <div>地図の初期化中...</div>;
+	//修正後：mapCenterがあれば表示（位置取得失敗時も含む）
+	if (!mapCenter) return <div>地図を読み込み中...</div>;
 
 
 	return (

@@ -36,14 +36,14 @@ export const metadata = {
 export default function RootLayout({ children }) {
 	return (
 		<html lang="jp">
-		<body className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${notoSansJp.variable} antialiased`}>
-			<div id="contents" className="w-[100%]">
-        <UserProvider>
-          <AuthWatcher />
-          {children}
-        </UserProvider>
-      </div>
-		</body>
+			<body className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${notoSansJp.variable} antialiased`}>
+				<div id="contents" className="w-[100%]">
+					<UserProvider>
+						<AuthWatcher />
+						{children}
+					</UserProvider>
+				</div>
+			</body>
 		</html>
 	);
 }
