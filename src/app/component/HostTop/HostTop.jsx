@@ -62,7 +62,7 @@ export default function HostTop({ setPostBtn, openDialog, setOpenDialog }) {
 				// タイムアウトなどで位置取得できなかった場合も、地図は表示
 				setMapCenter({ lat: 35.681236, lng: 139.767125 }); // 例: 東京駅
 			},
-			{ enableHighAccuracy: false, timeout: 10000, maximumAge: 0 }
+			{ enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
 		);
 
 		return () => navigator.geolocation.clearWatch(watchId);

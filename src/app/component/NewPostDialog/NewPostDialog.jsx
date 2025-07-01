@@ -1,7 +1,6 @@
 "use client";
 
 //react/next.js用ライブラリ
-import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import MyEditor from '@/app/component/MyEditor/myEditor';
 

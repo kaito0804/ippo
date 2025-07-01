@@ -1,17 +1,16 @@
 "use client";
 
 //react/next.js用ライブラリ
-import Image from "next/image";
 import { useState, useEffect} from "react";
 
 //データベース関連
-import { supabase } from '@/app/utils/supabase/supabaseClient';
-import { useUserContext } from '@/app/utils/userContext';
+import { supabase }         from '@/app/utils/supabase/supabaseClient';
+import { useUserContext }   from '@/app/utils/userContext';
 import { updateUserStatus } from '@/app/utils/updateUserStatus';
 
 //コンポーネント
-import Header from "@/app/component/Header/Header";
-import Footer from "@/app/component/Footer/Footer";
+import Header  from "@/app/component/Header/Header";
+import Footer  from "@/app/component/Footer/Footer";
 import HostTop from "@/app/component/HostTop/HostTop";
 
 
