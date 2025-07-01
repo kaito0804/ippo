@@ -1,21 +1,29 @@
 "use client";
 
+//react/next.js用ライブラリ
 import { useEffect, useState, useRef } from "react";
+import { useUserContext } from '@/app/utils/userContext';
+
+//cloudinary関連
 import { uploadToCloudinary } from "@/app/utils/cloudinary/cloudinary";
+
+//データベース関連
 import { supabase } from "@/app/utils/supabase/supabaseClient";
+
+//コンポーネント
 import Header  from "@/app/component/Header/Header";
 import Footer  from "@/app/component/Footer/Footer";
-import { useUserContext } from '@/app/utils/userContext';
 
 export default function UserPage() {
 
 	const { userId, isHost, nowStatus, setNowStatus } = useUserContext();
-	const [profile, setProfile] = useState(null);
-	const [nameChangeTrigger, setNameChangeTrigger] = useState(false);
-	const [editName, setEditName] = useState(""); 
-	const [isEditing, setIsEditing] = useState(false);
-  	const [commentText, setCommentText] = useState(profile?.comment || "");
-	const [loading, setLoading] = useState(true);
+	const [profile, setProfile]                       = useState(null);
+	const [nameChangeTrigger, setNameChangeTrigger]   = useState(false);
+	const [editName, setEditName]                     = useState(""); 
+	const [isEditing, setIsEditing]                   = useState(false);
+  	const [commentText, setCommentText]               = useState(profile?.comment || "");
+	const textareaRef                                 = useRef(null);
+	const [loading, setLoading]                       = useState(true);
 
 	useEffect(() => {
 		if (!userId) return;
@@ -38,6 +46,14 @@ export default function UserPage() {
 
 		fetchProfile();
 	}, [userId]);
+
+	useEffect(() => {
+		if (isEditing && textareaRef.current) {
+			const el = textareaRef.current;
+			el.focus();
+			el.setSelectionRange(el.value.length, el.value.length); // カーソルを末尾に
+		}
+	}, [isEditing]);
 
 	const iconChange = async (e) => {
 		const file = e.target.files?.[0];
@@ -95,8 +111,13 @@ export default function UserPage() {
 		setNameChangeTrigger(false);
 	};
 
+	const setComment = () => {
+		setCommentText(profile?.comment || ""); // 保存されたコメントを初期値に
+		setIsEditing(true); 
+	}
 
 	const changeComment = async () => {
+		
 		try {
 		// Supabaseに保存
 		const { error } = await supabase
@@ -173,15 +194,15 @@ export default function UserPage() {
 						<div className="flex justify-center items-center w-[160px] py-[8px] px-[5px] bg-[#e1e1e1] rounded-[10px] text-[14px] font-bold">プロフィールを編集</div>
 					</div>
 					<div className="flex flex-col justify-center items-center w-[100%] mt-[20px]">
-						<p className="my-self-profile" onClick={() => setIsEditing(true)}>自己紹介文</p>
+						<p className="my-self-profile" onClick={setComment}>自己紹介文</p>
 						{isEditing ? (
 							<>
 							<textarea
+								ref={textareaRef}
 								className="w-full mt-[10px] border rounded p-2 text-[13px]"
 								rows={4}
 								value={commentText}
 								onChange={(e) => setCommentText(e.target.value)}
-								autoFocus
 							/>
 							<div className="flex justify-center items-center mt-[15px] gap-[20px]">
 								<div onClick={changeComment} className="flex justify-center items-center w-[100px] py-1 bg-blue-500 text-white text-[13px] rounded">保存</div>

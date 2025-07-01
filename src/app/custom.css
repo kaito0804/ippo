@@ -229,7 +229,7 @@
 	background-color: #cfcfcf;
 	padding: 12px;
 	border-radius: 10px;
-	top: -100px;
+	bottom: 50px;
 }
 
 .img-preview-box:after {
