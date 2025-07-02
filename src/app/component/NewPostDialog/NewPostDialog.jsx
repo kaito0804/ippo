@@ -24,7 +24,7 @@ export default function NewRegPost({openDialog, closeDialog, placeName, clickPos
 	const [memberCount, setmemberCount] = useState(0);
 	const [thumImage, setThumImage]     = useState(null);
 	const [editorKey, setEditorKey]     = useState(0);
-	const fileInputRef = useRef(null);
+	const fileInputRef                  = useRef(null);
 	const [isLoading, setIsLoading]     = useState(false);
 
 
@@ -56,7 +56,7 @@ export default function NewRegPost({openDialog, closeDialog, placeName, clickPos
 				imageUrl = await uploadToCloudinary(thumImage);
 			}
 
-			const { data, error } = await supabase.from('groups').insert({
+			const { data: groupData, error } = await supabase.from('groups').insert({
 				name,
 				created_by : userId,
 				start_date : startDate,
@@ -69,12 +69,28 @@ export default function NewRegPost({openDialog, closeDialog, placeName, clickPos
 				member_count : memberCount,
 				lat          : clickPosition?.lat || null,
 				lng          : clickPosition?.lng || null,
-			});
+			})
+			.select()
+			.single();
 
-			if (error) {
+			if (error || !groupData) {
 				console.error('登録エラー:', error);
 				alert('登録に失敗しました');
 				return;
+			}
+
+			const { error: memberError } = await supabase.from('group_members').insert({
+				group_id: groupData.id,
+				user_id: userId,
+				created_by: userId,
+				joined_at: new Date().toISOString(),
+				last_read_at: new Date().toISOString(),
+			});
+
+			if (memberError) {
+				console.error('ホスト登録エラー:', memberError);
+				alert('グループは作成されましたが、ホストの参加登録に失敗しました');
+				// ここで return せずに処理継続するかどうかはお好みで
 			}
 
 			setIsLoading(false);

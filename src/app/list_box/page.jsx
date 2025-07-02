@@ -122,7 +122,7 @@ export default function ListBox() {
 		<div>
 			<Header title={'散歩コース一覧'}/>
 			<div className="header-adjust">
-				<ul className="flex flex-col w-[100%] h-adjust py-[40px] px-[20px] gap-[50px] overflow-y-scroll ">
+				<ul className="flex flex-col w-[100%] h-adjust pt-[40px] pb-[140px] px-[20px] gap-[50px] overflow-y-scroll ">
 					{groups.map((group) => (
 						<li key={group.id} className="w-[100%] shadow-lg rounded-[8px]">
 							<div style={{ backgroundImage: `url(${group.image_url})`,backgroundSize: 'cover',backgroundPosition: 'center', backgroundRepeat: 'no-repeat', width: '100%',height: '200px', borderRadius: '8px 8px 0 0',}}></div>

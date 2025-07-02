@@ -1,5 +1,5 @@
 .header-adjust{
-	padding-top: 96px;
+	padding-top: 97px;
 }
 
 .h-adjust{
@@ -40,6 +40,17 @@
 	background-repeat: no-repeat;
 	top: 12px;
 	right: 12px;
+}
+
+/*header*/
+.logout{
+	width: 28px;
+	height: 28px;
+	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1751433532/log-out_u96vkj.svg");
+	background-size: contain;
+	background-position: center;
+	background-repeat: no-repeat;
+	transform: translateX(-2px);
 }
 
 /*HOME*/
@@ -181,6 +192,27 @@
 }
 
 /*message-detail*/
+.meeting-place-text{
+	display: inline-flex;
+	justify-content: left;
+	align-items: center;
+	margin-left: 4px;
+	font-size: 12px;
+	color: #858585;
+}
+
+.meeting-place-text::before{
+	content: '';
+	display: inline-flex;
+	width: 15px;
+	height: 15px;
+	margin-right: 2px;
+	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1749996016/map-pin_gray_heiv4z.svg");
+	background-size: contain;
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
 .message-text{
 	position: relative;
 	max-width: 80%;
