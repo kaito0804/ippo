@@ -24,6 +24,7 @@ export default function NewRegPost({openDialog, closeDialog, placeName, clickPos
 	const [memberCount, setmemberCount] = useState(0);
 	const [thumImage, setThumImage]     = useState(null);
 	const [editorKey, setEditorKey]     = useState(0);
+	const [price, setPrice]             = useState('');
 	const fileInputRef                  = useRef(null);
 	const [isLoading, setIsLoading]     = useState(false);
 
@@ -69,6 +70,7 @@ export default function NewRegPost({openDialog, closeDialog, placeName, clickPos
 				member_count : memberCount,
 				lat          : clickPosition?.lat || null,
 				lng          : clickPosition?.lng || null,
+				price        : price
 			})
 			.select()
 			.single();
@@ -106,6 +108,7 @@ export default function NewRegPost({openDialog, closeDialog, placeName, clickPos
 			setDescription('');
 			setEditorKey(prev => prev + 1);
 			setmemberCount(0);
+			setPrice('');
 			setThumImage(null);
 			if (fileInputRef.current) {
 				fileInputRef.current.value = '';
@@ -188,6 +191,14 @@ export default function NewRegPost({openDialog, closeDialog, placeName, clickPos
 					))}
 					</select>
 				</label>
+
+				<label className="flex flex-col justify-center w-[100%] gap-[10px]">
+					<p className="text-[16px] font-bold">値段</p>
+					<input 
+						type="number" min="0" step="100" inputMode="numeric" name="groupPrice" placeholder="100円" value={price} onChange={e => setPrice(e.target.value)} 
+						className="appearance-auto px-[10px] py-[5px] border-[1px] rounded-[5px]" />
+				</label>
+
 
 				<button type="submit" className="btn-submit w-[260px] my-[10px] py-[8px] bg-[#3048ff] text-white rounded-[100px] font-bold text-[15px]">登録する</button>
 			</form>

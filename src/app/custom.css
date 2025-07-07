@@ -6,6 +6,17 @@
 	height: calc(100dvh - 50px);
 }
 
+input[type="number"] {
+  -moz-appearance: textfield; /* Firefoxで矢印を消す */
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: inner-spin-button;
+  appearance: auto;
+}
+
+
 .btn-icon-google::before{
 	content: '';
 	position: absolute;
@@ -196,17 +207,25 @@
 	display: inline-flex;
 	justify-content: left;
 	align-items: center;
-	margin-left: 4px;
+	margin-top: 3px;
 	font-size: 12px;
 	color: #858585;
+	letter-spacing: 0.4px;
 }
 
-.meeting-place-text::before{
+.meeting-place-text span{
+	display: inline-flex;
+	justify-content: left;
+	align-items: center;
+	margin-right: 8px;
+}
+
+.meeting-place-text span::before{
 	content: '';
 	display: inline-flex;
 	width: 15px;
 	height: 15px;
-	margin-right: 2px;
+	margin-right: 1px;
 	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1749996016/map-pin_gray_heiv4z.svg");
 	background-size: contain;
 	background-position: center;

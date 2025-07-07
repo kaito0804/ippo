@@ -219,6 +219,20 @@ export default function MessageDetailClient() {
 		}
 	}, [messages]);
 
+	// 開催日付表示
+	function startDay(dateStr) {
+		const date = new Date(dateStr);
+		const days = ['日', '月', '火', '水', '木', '金', '土'];
+
+		const year = date.getFullYear();
+		const month = date.getMonth() + 1; // 月は0始まり
+		const day = date.getDate().toString().padStart(2, '0');
+		const dayOfWeek = days[date.getDay()];
+
+		return `${year}/${month}/${day}(${dayOfWeek})`;
+	}
+
+
 
 	return (
 		<div>
@@ -228,8 +242,11 @@ export default function MessageDetailClient() {
 					<div className="flex items-center">
 						<div className="w-[32px] h-[32px] mr-[10px] bg-cover bg-center bg-no-repeat rounded-full" style={{ backgroundImage: `url(${group.image_url})` }}></div>
 						<div className="flex flex-col">
-							<p className="flex items-center text-[12px] font-bold">{group.name}<span className="meeting-place-text">{group.venue}</span></p>
-							<p className="mt-[2px] text-[10px]"><span className="text-[11px] font-bold">{group.member_count}人</span>が参加中</p>
+							<div className="flex items-center justify-center">
+								<p className="flex items-center text-[13px] font-bold">{group.name}</p>
+								<p className="ml-[5px] text-[10px]"><span className="text-[11px] font-bold">{group.member_count}人</span>が参加中</p>
+							</div>
+							<p className="meeting-place-text"><span>{group.venue}</span>{startDay(group.start_date)} </p>
 						</div>
 					</div>
 				) : (
@@ -237,7 +254,7 @@ export default function MessageDetailClient() {
 				)}
 			</div>
 
-			<div className="w-[100%] h-[calc(100dvh-50px)] pt-[59px] px-[16px] overflow-y-scroll">
+			<div className="w-[100%] h-[calc(100dvh-50px)] pt-[60px] px-[16px] overflow-y-scroll">
 				<ul className="w-[100%] py-[20px]">
 					{(() => {
 
