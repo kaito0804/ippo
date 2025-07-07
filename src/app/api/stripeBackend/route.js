@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import Stripe from 'stripe';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
 export async function POST(req) {
 	try {
@@ -22,8 +23,8 @@ export async function POST(req) {
 			},
 			quantity: 1,
 		}],
-		success_url: `${APP_URL}/list_box`,
-		cancel_url: `${APP_URL}/list_box`,
+			success_url: `${APP_URL}/list_box`,
+			cancel_url: `${APP_URL}/list_box`,
 		});
 
 		return NextResponse.json({ id: session.id });
