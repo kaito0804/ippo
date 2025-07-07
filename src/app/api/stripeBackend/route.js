@@ -22,8 +22,8 @@ export async function POST(req) {
 			},
 			quantity: 1,
 		}],
-		success_url: `https://ippo-sampo.vercel.app/list_box`,
-		cancel_url: `https://ippo-sampo.vercel.app/list_box`,
+		success_url: `${APP_URL}/list_box`,
+		cancel_url: `${APP_URL}/list_box`,
 		});
 
 		return NextResponse.json({ id: session.id });
