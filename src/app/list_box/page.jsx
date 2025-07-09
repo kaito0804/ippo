@@ -72,61 +72,61 @@ export default function ListBox() {
 
 
 	const handleJoin = async (group) => {
-	if (!userId) {
-		alert("ログインが必要です");
-		return;
-	}
+		if (!userId) {
+			alert("ログインが必要です");
+			return;
+		}
 
-	// Stripe 決済が必要な場合
-	if (group.price !== "free") {
+		// Stripe 決済が必要な場合
+		if (group.price !== "free") {
+			try {
+			await handleStripeJoin(group); // Stripe Checkout へ遷移
+			} catch (e) {
+			console.error("Stripe決済エラー:", e);
+			alert("決済処理に失敗しました");
+			}
+			return;
+		}
+
+		// === 無料参加処理 ===
+		setJoiningStatus((prev) => ({ ...prev, [group.id]: true }));
+
 		try {
-		await handleStripeJoin(group); // Stripe Checkout へ遷移
-		} catch (e) {
-		console.error("Stripe決済エラー:", e);
-		alert("決済処理に失敗しました");
+			const { data: groupData, error: groupError } = await supabase
+			.from("groups")
+			.select("created_by")
+			.eq("id", group.id)
+			.single();
+
+			if (groupError) {
+			alert("グループ情報の取得に失敗しました。");
+			setJoiningStatus((prev) => ({ ...prev, [group.id]: false }));
+			return;
+			}
+
+			const { error } = await supabase.from("group_members").insert({
+			group_id: group.id,
+			user_id: userId,
+			created_by: groupData.created_by,
+			});
+
+			if (error) {
+			if (error.code === "23505") {
+				alert("すでに参加しています。");
+			} else {
+				alert("参加に失敗しました。");
+			}
+			} else {
+				alert("グループに参加しました！");
+				setUserJoinedGroups((prev) => new Set(prev).add(group.id));
+				setMemberCounts((prev) => ({
+					...prev,
+					[group.id]: (prev[group.id] || 0) + 1,
+				}));
+			}
+		} finally {
+			setJoiningStatus((prev) => ({ ...prev, [group.id]: false }));
 		}
-		return;
-	}
-
-	// === 無料参加処理 ===
-	setJoiningStatus((prev) => ({ ...prev, [group.id]: true }));
-
-	try {
-		const { data: groupData, error: groupError } = await supabase
-		.from("groups")
-		.select("created_by")
-		.eq("id", group.id)
-		.single();
-
-		if (groupError) {
-		alert("グループ情報の取得に失敗しました。");
-		setJoiningStatus((prev) => ({ ...prev, [group.id]: false }));
-		return;
-		}
-
-		const { error } = await supabase.from("group_members").insert({
-		group_id: group.id,
-		user_id: userId,
-		created_by: groupData.created_by,
-		});
-
-		if (error) {
-		if (error.code === "23505") {
-			alert("すでに参加しています。");
-		} else {
-			alert("参加に失敗しました。");
-		}
-		} else {
-		alert("グループに参加しました！");
-		setUserJoinedGroups((prev) => new Set(prev).add(group.id));
-		setMemberCounts((prev) => ({
-			...prev,
-			[group.id]: (prev[group.id] || 0) + 1,
-		}));
-		}
-	} finally {
-		setJoiningStatus((prev) => ({ ...prev, [group.id]: false }));
-	}
 	};
 
 

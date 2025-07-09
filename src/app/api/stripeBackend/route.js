@@ -23,7 +23,7 @@ export async function POST(req) {
 			},
 			quantity: 1,
 		}],
-			success_url: `${APP_URL}/list_box`,
+			success_url: `${APP_URL}/join_success?group=${groupId}`,
 			cancel_url: `${APP_URL}/list_box`,
 		});
 

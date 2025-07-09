@@ -115,7 +115,7 @@ export default function HostTop({ setPostBtn, openDialog, setOpenDialog }) {
 	const getPlaceName = async (latLng) => {
 		// mapRefがない場合は即座にデフォルトを返す
 		if (!mapRef.current) {
-			return "ランチ候補地点！";
+			return "集合地点！";
 		}
 		
 		try {
@@ -156,16 +156,16 @@ export default function HostTop({ setPostBtn, openDialog, setOpenDialog }) {
 						
 						// 店舗が見つからない場合、エラーの場合、または距離が離れている場合
 						console.log('No nearby places found, using default'); // デバッグ用
-						resolve("ランチ候補地点！");
+						resolve("集合地点！");
 					} catch (error) {
 						console.error('Error in nearbySearch callback:', error);
-						resolve("ランチ候補地点！");
+						resolve("集合地点！");
 					}
 				});
 			});
 		} catch (error) {
 			console.error('Error in getPlaceName:', error);
-			return "ランチ候補地点！";
+			return "集合地点！";
 		}
 	};
 
@@ -233,7 +233,7 @@ export default function HostTop({ setPostBtn, openDialog, setOpenDialog }) {
 			setPlaceName(name);
 		} catch (error) {
 			console.error('Error getting place name:', error);
-			setPlaceName("ランチ候補地点！");
+			setPlaceName("集合地点！");
 		}
 	};
 
@@ -286,7 +286,7 @@ export default function HostTop({ setPostBtn, openDialog, setOpenDialog }) {
 					mapPaneName   = {OverlayView.OVERLAY_MOUSE_TARGET}
 					clickPosition = {clickPosition}
 					>
-					<div>
+					<div className="inline-block max-w-[300px] bg-white py-[5px] px-[10px] rounded-[5px] text-[14px] shadow-md font-bold whitespace-nowrap break-words translate-x-[-1px] translate-y-[6px]">
 						{placeName || "読み込み中..."}
 					</div>
 				</OverlayView>
