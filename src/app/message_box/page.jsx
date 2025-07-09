@@ -119,7 +119,7 @@ export default function MessageBox() {
 											{group.last_message_at ? "メッセージが届いています" : "メッセージがまだありません"}
 										</p>
 										{group.unread_count > 0 && (
-											<p className="text-[12px] text-white bg-[#ff4343] rounded-full w-[20px] h-[20px] mt-[5px] flex justify-center items-center">
+											<p className="text-[12px] text-white bg-[#ff4343] rounded-full w-[20px] h-[20px] flex justify-center items-center">
 												{group.unread_count}
 											</p>
 										)}
