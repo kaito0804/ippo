@@ -34,7 +34,7 @@ export default function Footer({postBtn, openDialog}) {
 					)
 				)}
 				<Link href="/message_box" className='w-[20%] h-[100%] pb-[3px] relative flex flex-col-reverse justify-between items-center footer-icon message'></Link>
-				<Link href="/user_page" className='w-[20%] h-[100%] pb-[3px] relative flex flex-col-reverse justify-between items-center footer-icon user'></Link>
+				<Link href="/my_page" className='w-[20%] h-[100%] pb-[3px] relative flex flex-col-reverse justify-between items-center footer-icon user'></Link>
 			</div>
 		</div>
 	);

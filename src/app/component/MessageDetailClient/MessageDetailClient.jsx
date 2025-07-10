@@ -284,6 +284,7 @@ export default function MessageDetailClient() {
 										</div>
 									)}
 
+									{/* 自分のメッセージ*/}
 									{isOwnMessage && (
 										<div className={`flex items-center my-1 text-sm whitespace-pre-wrap`}>
 											
@@ -301,18 +302,20 @@ export default function MessageDetailClient() {
 										</div>
 									)}
 
+									{/* 他人のメッセージ*/}
 									{!isOwnMessage && (
 										<div className="flex items-start w-[100%] whitespace-pre-wrap">
-											<div
-											className="w-[30px] h-[30px] min-w-[30px] mr-[7px] bg-cover bg-center bg-no-repeat rounded-full border border-[#e0e0e0]"
-											style={{
-												backgroundImage: `url(${
-												msg.user_profiles?.icon_path
-													? msg.user_profiles.icon_path.replace('/upload/', '/upload/w_40,h_40,c_fill,q_auto/')
-													: 'https://res.cloudinary.com/dnehmdy45/image/upload/v1750917949/user-middle-gray_z3eql3.svg'
-												})`,
+											<Link
+												href={`/user_page/${msg.user_id}`}
+												className="w-[30px] h-[30px] min-w-[30px] mr-[7px] bg-cover bg-center bg-no-repeat rounded-full border border-[#e0e0e0]"
+												style={{
+													backgroundImage: `url(${
+													msg.user_profiles?.icon_path
+														? msg.user_profiles.icon_path.replace('/upload/', '/upload/w_40,h_40,c_fill,q_auto/')
+														: 'https://res.cloudinary.com/dnehmdy45/image/upload/v1750917949/user-middle-gray_z3eql3.svg'
+													})`,
 											}}
-											></div>
+											></Link>
 											<div className="w-[100%]">
 											<div className="text-[10px] text-gray-500 font-bold mb-[1px]">{msg.user_profiles?.display_name || "匿名"}</div>
 											<div className={`flex items-center my-1 text-sm`}>

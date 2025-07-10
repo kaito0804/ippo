@@ -1,6 +1,6 @@
 // src/app/api/joinGroup/route.js
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/app/utils/supabase/supabaseServer";
+import { supabase } from "@/app/utils/supabase/supabaseServer";
 import { getUserIdFromAccessToken } from '@/app/utils/supabase/supabaseBackend';
 
 export async function POST(req) {
@@ -17,7 +17,7 @@ export async function POST(req) {
 		}
 
 		// すでに参加済みか確認（任意）
-		const { data: existing, error: existError } = await supabaseAdmin
+		const { data: existing, error: existError } = await supabase
 		.from("group_members")
 		.select("*")
 		.eq("group_id", groupId)
@@ -29,7 +29,7 @@ export async function POST(req) {
 		}
 
 		// グループ作成者取得
-		const { data: groupData, error: groupError } = await supabaseAdmin
+		const { data: groupData, error: groupError } = await supabase
 		.from("groups")
 		.select("created_by")
 		.eq("id", groupId)
@@ -40,7 +40,7 @@ export async function POST(req) {
 		}
 
 		// 参加登録
-		const { error } = await supabaseAdmin.from("group_members").insert({
+		const { error } = await supabase.from("group_members").insert({
 		group_id: groupId,
 		user_id: userId,
 		created_by: groupData.created_by,
