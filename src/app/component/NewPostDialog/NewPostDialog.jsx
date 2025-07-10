@@ -11,10 +11,15 @@ import { uploadToCloudinary } from "@/app/utils/cloudinary/cloudinary";
 import { supabase } from '@/app/utils/supabase/supabaseClient';
 import { useUserContext } from '@/app/utils/userContext';
 
+//クライアントコンポーネント
+import { areaList, themeList } from '@/app/utils/data/groupList';
+
+
 export default function NewRegPost({openDialog, closeDialog, placeName, clickPosition }) {
 
 	const { userId }                    = useUserContext();
 	const [name, setName]               = useState('');
+	const [area, setArea]             = useState('');
 	const [startDate, setStartDate]     = useState('');
 	const [startTime, setStartTime]     = useState('');
 	const [endDate, setEndDate]         = useState('');
@@ -23,6 +28,7 @@ export default function NewRegPost({openDialog, closeDialog, placeName, clickPos
 	const [description, setDescription] = useState('');
 	const [memberCount, setmemberCount] = useState(0);
 	const [thumImage, setThumImage]     = useState(null);
+	const [theme, setTheme]             = useState('');
 	const [editorKey, setEditorKey]     = useState(0);
 	const [price, setPrice]             = useState('');
 	const fileInputRef                  = useRef(null);
@@ -60,12 +66,14 @@ export default function NewRegPost({openDialog, closeDialog, placeName, clickPos
 			const { data: groupData, error } = await supabase.from('groups').insert({
 				name,
 				created_by : userId,
+				area       : area,
 				start_date : startDate,
 				start_time : startTime,  
 				end_date   : endDate,
 				end_time   : endTime,         
 				venue      : venue,     
-				image_url  : imageUrl,         
+				image_url  : imageUrl, 
+				theme      : theme,        
 				description,                
 				member_count : memberCount,
 				lat          : clickPosition?.lat || null,
@@ -100,11 +108,13 @@ export default function NewRegPost({openDialog, closeDialog, placeName, clickPos
 
 			// フォーム初期化
 			setName('');
+			setArea('');
 			setStartDate('');
 			setStartTime('');
 			setEndDate('');
 			setEndTime('');
 			setVenue('');
+			setTheme('');
 			setDescription('');
 			setEditorKey(prev => prev + 1);
 			setmemberCount(0);
@@ -155,6 +165,16 @@ export default function NewRegPost({openDialog, closeDialog, placeName, clickPos
 				</label>
 
 				<label className="flex flex-col justify-center w-[100%] gap-[10px]">
+					<p className="text-[16px] font-bold">エリア</p>
+					<select name="area" value={area} onChange={e => setArea(e.target.value)} required>
+						<option value="" disabled>エリアを選択</option>
+						{areaList.map((area, index) => (
+							<option key={index} value={area}>{area}</option>
+						))}
+					</select>
+				</label>
+
+				<label className="flex flex-col justify-center w-[100%] gap-[10px]">
 					<p className="text-[16px] font-bold">開始日:</p>
 					<input 
 						type="date" name="startDate" value={startDate} onChange={e => setStartDate(e.target.value)} required
@@ -179,6 +199,16 @@ export default function NewRegPost({openDialog, closeDialog, placeName, clickPos
 					<input 
 						type="file" name="file" id="file" accept="image/*" onChange={fileChange} ref={fileInputRef} required
 						className="px-[10px] py-[5px] border-[1px] rounded-[5px]"/>
+				</label>
+
+				<label className="flex flex-col justify-center w-[100%] gap-[10px]">
+					<p className="text-[16px] font-bold">テーマ</p>
+					<select name="theme" value={theme} onChange={e => setTheme(e.target.value)}>
+						<option value="" disabled>テーマを選択</option>
+						{themeList.map((theme, index) => (
+							<option key={index} value={theme}>{theme}</option>
+						))}
+					</select>
 				</label>
 
 				<MyEditor  key={editorKey} content={description} onChange={setDescription} />

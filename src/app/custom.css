@@ -29,6 +29,18 @@ input[type="number"]::-webkit-outer-spin-button {
 	left: 20px;
 }
 
+.btn-icon-line::before{
+	content: '';
+	position: absolute;
+	width: 36px;
+	height: 36px;
+	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1752111786/btn_base_s8n0gf.png");
+	background-size: contain;
+	background-position: center;
+	background-repeat: no-repeat;
+	left: 20px;
+}
+
 .btn-icon-mail::before{
 	content: '';
 	position: absolute;

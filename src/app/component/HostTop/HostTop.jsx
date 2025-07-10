@@ -39,11 +39,10 @@ export default function HostTop({ setPostBtn, openDialog, setOpenDialog }) {
 		gestureHandling: "greedy"
 	};
 
-	// 現在地リアルタイム監視（上記で説明したwatchPosition）
+	// 現在地リアルタイム
 	useEffect(() => {
 		if (!navigator.geolocation) {
-			// 位置情報非対応ブラウザ用：東京駅を中心に
-			setMapCenter({ lat: 35.681236, lng: 139.767125 }); 
+			setMapCenter({ lat: 35.681236, lng: 139.767125 });
 			return;
 		}
 
@@ -54,19 +53,21 @@ export default function HostTop({ setPostBtn, openDialog, setOpenDialog }) {
 					lng: position.coords.longitude,
 				};
 				setCurrentPosition(newPos);
-				setMapCenter(newPos);
+
+				// 初回だけ地図を現在地に移動
+				setMapCenter((prev) => prev ?? newPos);
 			},
 			(error) => {
 				console.error("位置情報エラー:", error);
-
 				// タイムアウトなどで位置取得できなかった場合も、地図は表示
-				setMapCenter({ lat: 35.681236, lng: 139.767125 }); // 例: 東京駅
+				setMapCenter({ lat: 35.681236, lng: 139.767125 });
 			},
 			{ enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
 		);
 
 		return () => navigator.geolocation.clearWatch(watchId);
 	}, []);
+
 
 
 	// Google Maps API読み込み完了後にAutocompleteセットアップ

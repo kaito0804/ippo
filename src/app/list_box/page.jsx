@@ -1,16 +1,24 @@
 "use client";
+
+//react/next.js用ライブラリ
 import { useEffect, useState } from "react";
+
+//データベース関連
 import { supabase } from "@/app/utils/supabase/supabaseClient";
 import { handleStripeJoin } from "@/app/utils/stripe/stripeClient"; 
+
+//クライアントコンポーネント
 import Header from "@/app/component/Header/Header";
 import Footer from "@/app/component/Footer/Footer";
 import { useUserContext } from '@/app/utils/userContext';
-
+import SearchListDialog from "@/app/component/SearchListDialog/SearchListDialog";
 
 export default function ListBox() {
 
  	const { userId, isHost, nowStatus }           = useUserContext();
 	const [joiningStatus, setJoiningStatus]       = useState({}); 
+	const [filters, setFilters]                   = useState({area: null,theme: null,});
+	const [dropdowns, setDropdowns]               = useState({area: false,theme: false,});
 	const [groups, setGroups]                     = useState([]);
 	const [memberCounts, setMemberCounts]         = useState({});
 	const [userJoinedGroups, setUserJoinedGroups] = useState(new Set());
@@ -134,8 +142,17 @@ export default function ListBox() {
 		<div>
 			<Header title={'散歩コース一覧'}/>
 			<div className="header-adjust">
-				<ul className="flex flex-col w-[100%] h-adjust pt-[40px] pb-[140px] px-[20px] gap-[50px] overflow-y-scroll ">
-					{groups.map((group) => (
+
+				<SearchListDialog filters={filters} setFilters={setFilters} dropdowns={dropdowns} setDropdowns={setDropdowns}/>
+
+				<ul className="flex flex-col w-[100%] h-adjust pt-[47px] pb-[120px] px-[20px] gap-[50px] overflow-y-scroll">
+					{groups
+						.filter((group) => {
+						const areaMatch  = !filters.area || group.area === filters.area;
+						const themeMatch = !filters.theme || group.theme === filters.theme;
+						return areaMatch && themeMatch;
+						})
+					.map((group) => (
 						<li key={group.id} className="w-[100%] shadow-lg rounded-[8px]">
 							<div style={{ backgroundImage: `url(${group.image_url})`,backgroundSize: 'cover',backgroundPosition: 'center', backgroundRepeat: 'no-repeat', width: '100%',height: '200px', borderRadius: '8px 8px 0 0',}}></div>
 							<div className="py-[10px] px-[15px]">
@@ -145,7 +162,7 @@ export default function ListBox() {
 									<p className="time-icon-text flex items-center text-[12px] text-[#888]">{group.start_time.slice(0, 5)} ~ {group.end_time.slice(0, 5)}</p>
 								</div>
 								<p className="locate-icon-text flex items-center text-[12px] text-[#888] mt-[8px]">{group.venue}</p>
-								<div dangerouslySetInnerHTML={{ __html: group.description }} className="text-[14px] text-[#333] mt-[8px]" />
+								<div dangerouslySetInnerHTML={{ __html:group.description }} className="text-[14px] text-[#333] mt-[8px]"/>
 								{nowStatus == 'member' && (
 									<div onClick={() => handleJoin(group)} className="inline-flex justify-center align-center mt-[10px] py-[4px] px-[12px] bg-[#3B82F6] text-white rounded-[4px] text-[13px] font-bold">
 										<p>{userJoinedGroups.has(group.id) ? `参加中 : ${memberCounts[group.id] || 0}人 / ${group.member_count}人` : (joiningStatus[group.id] ? '処理中…' : `参加する : ${group.price}${group.price !== 'free' ? '円' : ''}`)}</p>
@@ -155,6 +172,7 @@ export default function ListBox() {
 						</li>
 					))}
 				</ul>
+
 			</div>
 			<Footer/>
 		</div>
