@@ -16,76 +16,96 @@ import { useSearchParams } from "next/navigation";
 
 
 export default function MessageDetailClient() {
-	const searchParams                                = useSearchParams();
-	const groupId                                     = searchParams.get("groupId")
+	const pageSize = 30; // 1ページあたりのメッセージ取得件数
+
+	//URLのクエリパラメータからgroupIdを取得
+	const searchParams = useSearchParams();
+	const groupId      = searchParams.get("groupId");
+
+	//ユーザー関連情報（コンテキストから取得）
 	const { userId, isHost, nowStatus, setNowStatus } = useUserContext();
-	const [messages, setMessages]                     = useState([]);
-	const [group, setGroup]                           = useState(null);
-	const profilesCacheRef                            = useRef({});
-	const [newMsg, setNewMsg]                         = useState("");
-	const [hasMore, setHasMore]                       = useState(true);
-	const [loadingMore, setLoadingMore]               = useState(false);
-	const pageSize                                    = 30;
-	const scrollContainerRef                          = useRef(null);
-	const [selectedImage, setSelectedImage]           = useState(null);
-	const [isMultiLine, setIsMultiLine]               = useState(false);
-  	const textareaRef                                 = useRef(null);
+
+	//メッセージデータ関連の状態管理
+	const [messages, setMessages]       = useState([]);    // 表示中のメッセージ一覧
+	const [newMsg, setNewMsg]           = useState("");    // 新規メッセージ入力内容
+	const [page, setPage]               = useState(0);     // ページ番号（何ページ目を取得しているか）
+	const [hasMore, setHasMore]         = useState(true);  // 追加で取得可能かどうか（スクロール無限取得用）
+	const [loadingMore, setLoadingMore] = useState(false); // 追加読み込み中フラグ
+	const [isScrolling, setIsScrolling] = useState(false); // スクロール検知のON/OFF管理
+
+	//グループ情報
+	const [group, setGroup] = useState(null); // 現在のグループ情報（名前やメンバー数など）
+
+	//選択画像・入力関連
+	const [selectedImage, setSelectedImage] = useState(null);  // 選択中の画像（スタンプや写真送信用）
+	const [isMultiLine, setIsMultiLine]     = useState(false); // テキスト入力の複数行切替フラグ
+	const textareaRef                       = useRef(null);    // メッセージ入力用textareaのDOM参照
+
+	//スクロール領域の参照（メッセージ一覧のスクロールコンテナ）
+	const scrollContainerRef = useRef(null);
+
+	//メッセージ一覧一番下の参照（新着時スクロール用）
 	const bottomRef = useRef(null);
 
-	useEffect(() => {
-		const fetchInitialData = async () => {
-			try {
-			const [{ data: messageData, error: messageError }, { data: groupData, error: groupError }, { count }] = await Promise.all([
-				supabase
-				.from("messages")
-				.select(`
-					*,
-					user_profiles:user_id (
-					id,
-					display_name,
-					icon_path
-					)
-				`)
-				.eq("group_id", groupId)
-				.order("created_at", { ascending: true }),
+	//プロフィールキャッシュ（ユーザーIDごとのプロフィール情報を保持）
+	const profilesCacheRef = useRef({});
 
-				supabase
+	//フェッチ中判定用（多重fetchを防ぐ）
+	const isFetchingRef = useRef(false);
+
+
+
+/*----------------------------------------------------------------------------------
+▼ 以下useEffect ▼
+-----------------------------------------------------------------------------------*/
+
+	/*========================
+
+	初回メッセージ取得
+
+	=========================*/
+	useEffect(() => {
+		const fetchInitial = async () => {
+			const { data: groupData, error: groupError } = await supabase
 				.from("groups")
 				.select("*")
 				.eq("id", groupId)
-				.single(),
+				.single();
 
-				supabase
+			const { count } = await supabase
 				.from("group_members")
 				.select("user_id", { count: "exact", head: true })
-				.eq("group_id", groupId),
-			]);
+				.eq("group_id", groupId);
 
-			if (messageError) throw messageError;
 			if (groupError) throw groupError;
+			setGroup({ ...groupData, member_count: count });
 
-			setMessages(messageData);
-			setGroup({ ...groupData, member_count: count }); // ← ここで group に人数追加
-
-			const cache = {};
-			messageData.forEach((msg) => {
-				if (msg.user_profiles) {
-				cache[msg.user_profiles.id] = msg.user_profiles;
-				}
-			});
-			profilesCacheRef.current = cache;
-			} catch (error) {
-			console.error("初期データ取得エラー:", error.message);
-			}
+			await fetchOlderMessages(0); //初回1ページ分だけ取得
 		};
-
-		fetchInitialData();
+		if (groupId) fetchInitial();
 	}, [groupId]);
 
 
+	/*============================
 
-	// リアルタイム購読：メッセージ追加時にプロフィールキャッシュを参照し、
-	// なければ個別取得してキャッシュ更新＋メッセージ更新
+	メッセージをページングごとに取得
+
+	============================*/
+	useEffect(() => {
+		const container = scrollContainerRef.current;
+		if (container && isScrolling) {
+			container.addEventListener("scroll", messageScrollTop);
+			return () => container.removeEventListener("scroll", messageScrollTop);
+		}
+	}, [page, loadingMore, hasMore, isScrolling]); // ← page 入れておくことでリセットを防ぐ
+
+
+
+	/*============================
+
+	リアルタイムメッセージ購読
+
+	============================*/
 	useEffect(() => {
 		const subscription = supabase
 		.channel("custom:messages")
@@ -127,6 +147,12 @@ export default function MessageDetailClient() {
 		};
 	}, [groupId]);
 
+
+	/*============================
+
+	最終読み込み日時更新
+
+	============================*/
 	useEffect(() => {
 		const updateLastRead = async () => {
 			if (!groupId || !userId) return;
@@ -142,7 +168,108 @@ export default function MessageDetailClient() {
 	}, []);
 
 
-	// 画像アップロード
+	/*========================
+
+	最新メッセージへスクロール
+
+	=========================*/
+	useEffect(() => {
+		if (bottomRef.current && !isScrolling) {
+			bottomRef.current.scrollIntoView({ behavior: "smooth" });
+			setTimeout(() => {
+				setIsScrolling(true);
+			}, 1000);
+		}
+	}, [messages]);
+
+
+/*----------------------------------------------------------------------------------
+▼ 以下関数 ▼
+-----------------------------------------------------------------------------------*/
+
+	/*============================
+
+	メッセージをページングごとに取得
+	
+	============================-*/
+	const fetchOlderMessages = async (pageNumber = 0) => {
+		if (isFetchingRef.current) return;
+		isFetchingRef.current = true;
+		try {
+			setLoadingMore(true);
+
+			const from = pageNumber * pageSize;
+			const to   = from + pageSize - 1;
+
+			const { data: messageData, error } = await supabase
+			.from("messages")
+			.select(`
+				*,
+				user_profiles:user_id (
+				id,
+				display_name,
+				icon_path
+				)
+			`)
+			.eq("group_id", groupId)
+			.order("created_at", { ascending: false }) //最新→古い順で取得
+			.range(from, to);
+
+			if (error) throw error;
+
+			const reversedMessages = messageData ? [...messageData].reverse() : [];
+			console.log(`取得したメッセージ（page ${pageNumber}）`, reversedMessages);
+
+			if (messageData.length < pageSize) setHasMore(false);
+
+			// プロフィールキャッシュ更新
+			const newCache = { ...profilesCacheRef.current };
+				messageData.forEach((msg) => {
+				if (msg.user_profiles) {
+					newCache[msg.user_profiles.id] = msg.user_profiles;
+				}
+			});
+			profilesCacheRef.current = newCache;
+
+			if (pageNumber === 0) {
+				// 初回はそのままセット
+				setMessages(reversedMessages);
+			} else {
+				// 追加は既存の前に（上に）古いメッセージを追加
+				setMessages((prev) => [...reversedMessages, ...prev]);
+			}
+
+			setPage((prev) => prev + 1);
+		} catch (e) {
+			console.error("メッセージ取得失敗:", e.message);
+		} finally {
+			setLoadingMore(false);
+			isFetchingRef.current = false;
+		}
+	};
+
+
+	/*========================================
+
+	メッセージをスクロールで古いメッセージを取得
+	
+	=========================================*/
+	const messageScrollTop = () => {
+		if (!scrollContainerRef.current) return;
+		if (loadingMore || !hasMore) return; //読み込み中や終了済みなら無視
+
+		const container = scrollContainerRef.current;
+		if (container.scrollTop < 150) {
+			fetchOlderMessages(page);
+		}
+	};
+
+
+	/*==============
+
+	画像アップロード
+	
+	===============*/
 	const imageChange = (e) => {
 		const file = e.target.files[0];
 		if (file) {
@@ -151,7 +278,12 @@ export default function MessageDetailClient() {
 	};
 
 
-	// メッセージ送信
+
+	/*==============
+
+	メッセージ送信
+	
+	===============*/
 	const sendMessage = async () => {
 		if (!newMsg && !selectedImage) {
 			alert("メッセージを入力してください");
@@ -188,14 +320,19 @@ export default function MessageDetailClient() {
 		}
 
 		if (textareaRef.current) {
-		textareaRef.current.style.height = "auto";
+			textareaRef.current.style.height = "auto";
 		}
 
 		setIsMultiLine(false);
 
 	};
 
-	// メッセージ送信時刻取得
+
+	/*===================
+
+	メッセージ送信時刻取得
+
+	====================*/
 	const sendTime = (isoDateStr) => {
 		const date    = new Date(isoDateStr);
 		const hours   = date.getHours().toString().padStart(2, '0');
@@ -203,7 +340,12 @@ export default function MessageDetailClient() {
 		return `${hours}:${minutes}`;
 	};
 
-	// テキストエリアの高さ自動調整
+
+	/*========================
+
+	テキストエリアの高さ自動調整
+
+	=========================*/
 	const textAreaManager = (e) => {
 		const textarea = e.target;
 		textarea.style.height = "auto"; // 高さリセット
@@ -212,21 +354,19 @@ export default function MessageDetailClient() {
 		setIsMultiLine(textarea.scrollHeight > 40);
 	};
 
-	// メッセージスクロール
-	useEffect(() => {
-		if (bottomRef.current) {
-			bottomRef.current.scrollIntoView({ behavior: "smooth" });
-		}
-	}, [messages]);
 
-	// 開催日付表示
+
+	/*========================
+
+	日付取得
+
+	=========================*/
 	function startDay(dateStr) {
-		const date = new Date(dateStr);
-		const days = ['日', '月', '火', '水', '木', '金', '土'];
-
-		const year = date.getFullYear();
-		const month = date.getMonth() + 1; // 月は0始まり
-		const day = date.getDate().toString().padStart(2, '0');
+		const date      = new Date(dateStr);
+		const days      = ['日', '月', '火', '水', '木', '金', '土'];
+		const year      = date.getFullYear();
+		const month     = date.getMonth() + 1; // 月は0始まり
+		const day       = date.getDate().toString().padStart(2, '0');
 		const dayOfWeek = days[date.getDay()];
 
 		return `${year}/${month}/${day}(${dayOfWeek})`;
@@ -254,7 +394,7 @@ export default function MessageDetailClient() {
 				)}
 			</div>
 
-			<div className="w-[100%] h-[calc(100dvh-50px)] pt-[60px] px-[16px] overflow-y-scroll">
+			<div ref={scrollContainerRef} className="w-[100%] h-[calc(100dvh-50px)] pt-[60px] px-[16px] overflow-y-scroll">
 				<ul className="w-[100%] py-[20px]">
 					{(() => {
 
