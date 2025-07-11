@@ -16,8 +16,8 @@ import {groupListTemplate} from '@/app/utils/data/groupList';
 
 export default function ListDetailDialog({selectPost, setSelectPost}) {
 
- 	const { userId, isHost, nowStatus } = useUserContext();
-	const [group, setGroup]             = useState(null);
+ 	const { userId, isHost, nowStatus }    = useUserContext();
+	const [group, setGroup]                = useState(null);
 	const { onStripeClick, joiningStatus } = stripeClick(userId);
 
 	useEffect(() => {

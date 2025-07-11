@@ -57,7 +57,7 @@ return `
 <h2 class="text-[20px] font-bold mt-[36px]">📍イベント詳細</h2>
 <p class="mt-[5px]">集合時間：${startDay(group.start_date)} ${group.start_time?.slice(0, 5)}-${group.end_time?.slice(0, 5)}</p>
 <p>開催場所：${group.venue}</p>
-<p>定員：${group.member_count || "未定"}</p>
+<p>定員：${group.member_count != null ? `${group.member_count}人` : '未定'}</p>
 <p>参加費：${group.price || "無料"}</p>
 
 <h2 class="text-[20px] font-bold mt-[36px]">🥾IPPOのグランドルール</h2>
