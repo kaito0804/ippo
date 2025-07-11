@@ -9,9 +9,11 @@ import { useUserContext }   from '@/app/utils/userContext';
 import { updateUserStatus } from '@/app/utils/updateUserStatus';
 
 //コンポーネント
-import Header  from "@/app/component/Header/Header";
-import Footer  from "@/app/component/Footer/Footer";
-import HostTop from "@/app/component/HostTop/HostTop";
+import Header           from "@/app/component/Header/Header";
+import Footer           from "@/app/component/Footer/Footer";
+import HostTop          from "@/app/component/HostTop/HostTop";
+import MemberTop        from "@/app/component/MemberTop/MemberTop";
+import ListDetailDialog from '@/app/component/ListDetailDialog/ListDetailDialog';
 
 
 
@@ -20,6 +22,7 @@ export default function Home() {
     const { userId, isHost, nowStatus, setNowStatus } = useUserContext();
     const [postBtn, setPostBtn]                       = useState(false);
     const [openDialog, setOpenDialog]                 = useState(false);
+    const [selectPost, setSelectPost]                 = useState();
     
     useEffect(() => {
         const registerUserProfile = async () => {
@@ -58,6 +61,8 @@ export default function Home() {
         }
     };
 
+    console.log('selectPost:', selectPost);
+
     return (
         <div>
 
@@ -76,13 +81,15 @@ export default function Home() {
                 )}
 
                 {nowStatus == 'host' && (                
-                    <HostTop openDialog={openDialog} setOpenDialog={setOpenDialog} setPostBtn={() => setPostBtn(true)}/>
+                    <HostTop setSelectPost={setSelectPost} openDialog={openDialog} setOpenDialog={setOpenDialog} setPostBtn={() => setPostBtn(true)}/>
                 )}
 
                 {nowStatus == 'member' && (                
-                    <p>参加者</p>
+                    <MemberTop setSelectPost={setSelectPost} openDialog={openDialog} setOpenDialog={setOpenDialog} setPostBtn={() => setPostBtn(true)}/>
                 )}
             </div>
+
+            <ListDetailDialog selectPost={selectPost} setSelectPost={setSelectPost}/>
 
             <Footer postBtn={postBtn} openDialog={() => setOpenDialog(true)}/>
 

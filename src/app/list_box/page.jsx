@@ -69,7 +69,7 @@ export default function ListBox() {
 			.eq('user_id', userId);
 
 			if (data) {
-			setUserJoinedGroups(new Set(data.map(d => d.group_id)));
+				setUserJoinedGroups(new Set(data.map(d => d.group_id)));
 			}
 		}
 
