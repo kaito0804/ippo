@@ -19,8 +19,8 @@ export default function Home() {
 				</div>	
 				
 				<div onClick={(e) => e.stopPropagation()} className={`${authBtn ? 'bottom-[-100%]' : 'bottom-[80px]'} absolute flex flex-col justify-center items-center gap-[30px] transition-all duration-500`}>
-					<div onClick={() => setAuthBtn('new_reg')} className="w-[300px] py-[12px] px-[5px] flex flex-col justify-center items-center bg-[#ff9731] text-white rounded-[100px] font-bold">新規アカウント作成</div>
 					<div onClick={() => setAuthBtn('login')} className="w-[300px] py-[12px] px-[5px] flex flex-col justify-center items-center bg-[#4363ff] text-white rounded-[100px] font-bold">ログイン</div>
+					<div onClick={() => setAuthBtn('new_reg')} className="w-[300px] py-[12px] px-[5px] flex flex-col justify-center items-center bg-[#ff9731] text-white rounded-[100px] font-bold">新規アカウント作成</div>
 				</div>
 			</div>	
 

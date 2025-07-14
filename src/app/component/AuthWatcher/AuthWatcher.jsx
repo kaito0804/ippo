@@ -8,29 +8,29 @@ export default function AuthWatcher() {
   const router   = useRouter();
   const pathname = usePathname();
 
-  useEffect(() => {
-    const checkSession = async () => {
-        const { data: { session } } = await supabase.auth.getSession();
-        // もしログイン済み かつ 今がログイン画面なら /top に飛ばす
-        if (session && pathname === '/') {
-          router.push('/top');
-        }else if(!session){
-          router.push('/');
-        }
-    };
+	useEffect(() => {
+		const checkSession = async () => {
+			const { data: { session } } = await supabase.auth.getSession();
+			// もしログイン済み かつ 今がログイン画面なら /top に飛ばす
+			if (session && pathname === '/') {
+				router.push('/top');
+			}else if(!session){
+				router.push('/');
+			}
+		};
 
-    checkSession();
+		checkSession();
 
-    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && pathname === '/') {
-        router.push('/top');
-      }
-    });
+		const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+			if (event === 'SIGNED_IN' && pathname === '/') {
+				router.push('/top');
+			}
+		});
 
-    return () => {
-      listener?.subscription.unsubscribe();
-    };
-  }, [router, pathname]);
+		return () => {
+			listener?.subscription.unsubscribe();
+		};
+	}, [router, pathname]);
 
-  return null;
+	return null;
 }

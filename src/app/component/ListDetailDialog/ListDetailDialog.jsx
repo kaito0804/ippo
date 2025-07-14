@@ -63,7 +63,7 @@ export default function ListDetailDialog({selectPost, setSelectPost}) {
 			{group ? (
 		
 				<div className="w-[100%] h-[100%]">
-					<div className="w-[100%] h-[200px] bg-center bg-cover bg-no-repeat" style={{ backgroundImage: `url('${group.image_url}')` }} />
+					<div className="w-[100%] h-[440px] bg-center bg-cover bg-no-repeat" style={{ backgroundImage: `url('${group.image_url}')` }} />
 					<div className="flex flex-col items-center justify-start w-[100%] p-[20px] pb-[80px]">
 						<p className="w-[100%] text-[16px] ">{startDay(group.start_date)} {group.start_time.slice(0, 5)} ~ <br/>{group.name}</p>
 						<p className="w-[100%] text-[14px] mt-[5px]">{group.venue} | By 散歩コミュニティ「IPPO」</p>

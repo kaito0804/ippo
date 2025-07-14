@@ -154,7 +154,7 @@ export default function ListBox() {
 						})
 					.map((group) => (
 						<li key={group.id} className="w-[100%] shadow-lg rounded-[8px]">
-							<div style={{ backgroundImage: `url(${group.image_url})`,backgroundSize: 'cover',backgroundPosition: 'center', backgroundRepeat: 'no-repeat', width: '100%',height: '200px', borderRadius: '8px 8px 0 0',}}></div>
+							<div style={{ backgroundImage: `url(${group.image_url})`,backgroundSize: 'cover',backgroundPosition: 'center', backgroundRepeat: 'no-repeat', width: '100%',height: '440px', borderRadius: '8px 8px 0 0',}}></div>
 							<div className="py-[10px] px-[15px]">
 								<p className="text-[15px] font-bold">{group.name}</p>
 								<div className="flex items-center gap-[14px] mt-[8px]">

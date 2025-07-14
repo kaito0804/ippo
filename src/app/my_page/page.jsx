@@ -2,7 +2,7 @@
 
 //react/next.js用ライブラリ
 import { useEffect, useState, useRef } from "react";
-import { useUserContext } from '@/app/utils/userContext';
+import Link from 'next/link'
 
 //cloudinary関連
 import { uploadToCloudinary } from "@/app/utils/cloudinary/cloudinary";
@@ -11,19 +11,21 @@ import { uploadToCloudinary } from "@/app/utils/cloudinary/cloudinary";
 import { supabase } from "@/app/utils/supabase/supabaseClient";
 
 //コンポーネント
+import { useUserContext } from '@/app/utils/userContext';
 import Header  from "@/app/component/Header/Header";
 import Footer  from "@/app/component/Footer/Footer";
 
 export default function UserPage() {
 
-	const { userId, isHost, nowStatus, setNowStatus } = useUserContext();
-	const [profile, setProfile]                       = useState(null);
-	const [nameChangeTrigger, setNameChangeTrigger]   = useState(false);
-	const [editName, setEditName]                     = useState(""); 
-	const [isEditing, setIsEditing]                   = useState(false);
-  	const [commentText, setCommentText]               = useState(profile?.comment || "");
-	const textareaRef                                 = useRef(null);
-	const [loading, setLoading]                       = useState(true);
+	const { userId, isHost, nowStatus, setNowStatus }   = useUserContext();
+	const [profile, setProfile]                         = useState(null);
+	const [groupMemberProfiles, setGroupMemberProfiles] = useState([]);
+	const [nameChangeTrigger, setNameChangeTrigger]     = useState(false);
+	const [editName, setEditName]                       = useState(""); 
+	const [isEditing, setIsEditing]                     = useState(false);
+  	const [commentText, setCommentText]                 = useState(profile?.comment || "");
+	const textareaRef                                   = useRef(null);
+	const [loading, setLoading]                         = useState(true);
 
 	useEffect(() => {
 		if (!userId) return;
@@ -46,6 +48,100 @@ export default function UserPage() {
 
 		fetchProfile();
 	}, [userId]);
+
+
+	/*===================================
+
+	以前一緒になったことのあるユーザーを取得
+
+	====================================*/
+	useEffect(() => {
+		const fetchGroupMemberProfilesWithDetails = async () => {
+			if (!userId) return;
+
+			// 1. 自分の所属グループIDを取得
+			const { data: myGroups, error: groupError } = await supabase
+			.from("group_members")
+			.select("group_id")
+			.eq("user_id", userId);
+
+			if (groupError) {
+				console.error("自分の所属グループ取得エラー:", groupError);
+				return;
+			}
+
+			const groupIds = myGroups.map(g => g.group_id);
+			if (groupIds.length === 0) return;
+
+			// 2. 同じグループに所属している他ユーザーの user_id と group_id を取得
+			const { data: members, error: memberError } = await supabase
+			.from("group_members")
+			.select("user_id, group_id")
+			.in("group_id", groupIds)
+			.neq("user_id", userId);
+
+			if (memberError) {
+				console.error("メンバー取得エラー:", memberError);
+				return;
+			}
+
+			if (!members || members.length === 0) return;
+
+			// 3. 参加したグループIDのユニークリスト作成
+			const allGroupIds = [...new Set(members.map(m => m.group_id))];
+
+			// 4. groups テーブルから詳細情報を一括取得
+			const { data: groups, error: groupsError } = await supabase
+			.from("groups")
+			.select("id, name, start_date, end_date, venue")
+			.in("id", allGroupIds);
+
+			if (groupsError) {
+				console.error("グループ詳細取得エラー:", groupsError);
+				return;
+			}
+
+			// 5. user_id ごとに所属グループ詳細をまとめる
+			// user_id => [group1詳細, group2詳細, ...]
+			const userToGroupDetailsMap = {};
+			members.forEach(({ user_id, group_id }) => {
+				if (!userToGroupDetailsMap[user_id]) {
+					userToGroupDetailsMap[user_id] = [];
+				}
+				const groupDetail = groups.find(g => g.id === group_id);
+					if (groupDetail) userToGroupDetailsMap[user_id].push(groupDetail);
+			});
+
+			// 6. uniqueUserIds作成（user_id一覧）
+			const uniqueUserIds = [...new Set(members.map(m => m.user_id))];
+
+			// 7. user_profiles を取得
+			const { data: profiles, error: profileError } = await supabase
+			.from("user_profiles")
+			.select("id, display_name, icon_path, comment, is_host, now_status")
+			.in("id", uniqueUserIds);
+
+			if (profileError) {
+				console.error("プロフィール取得エラー:", profileError);
+				return;
+			}
+
+			// 8. プロフィールに group_details を結合
+			const combinedData = profiles.map(profile => ({
+			...profile,
+			group_details: userToGroupDetailsMap[profile.id] || [],
+			}));
+
+			console.log("メンバー＋グループ詳細情報:", combinedData);
+
+			setGroupMemberProfiles(combinedData);
+		};
+
+		fetchGroupMemberProfilesWithDetails();
+	}, [userId]);
+
+
+
 
 	useEffect(() => {
 		if (isEditing && textareaRef.current) {
@@ -216,7 +312,6 @@ export default function UserPage() {
 							>
 							{profile?.comment || "自己紹介が空欄です"}
 							</p>
-
 						)}
 					</div>
 				</div>
@@ -226,8 +321,25 @@ export default function UserPage() {
 					<div className="favorite-icon"></div>
 				</div>
 
-				<ul>
-					<li></li>
+				<ul className="flex flex-col justify-center items-center w-[100%] px-[10px] bg-[#fff]">
+					{groupMemberProfiles.map((prf) => (
+						<li key={prf.id} className="flex justify-center items-center w-[100%] py-[10px] border-b border-[#e1e1e1]">
+							<Link href={`/user_page/${prf.id}`} className="flex justify-between items-center w-[100%]">
+								<div className="flex justify-center items-center mr-[10px]">
+									<div className="w-[50px] h-[50px] rounded-full bg-center bg-cover bg-no-repeat border border-[#e1e1e1]" style={{ backgroundImage: `url('${prf.icon_path || 'https://res.cloudinary.com/dnehmdy45/image/upload/v1750906560/user-gray_jprhj3.svg'}')` }}></div>
+								</div>
+								<div className="flex flex-col justify-center items-start w-[calc(100%-60px)]">
+									<p className="text-[14px] font-bold">{prf.display_name}<span className="text-[12px] ml-[1px]">さん</span></p>
+									<div className="flex flex-wrap justify-left items-center mt-[5px] gap-[5px]">
+										{prf.group_details.map((group) => (
+											<p className="text-[12px] border border-[#e1e1e1] rounded-[10px] px-[5px] py-[2px]" key={group.id}>{group.name}</p>
+										))}
+									</div>
+									<p className="text-[12px] mt-[5px] truncate max-w-[100%] text-[13px] text-[#737373]">自己紹介：{prf.comment || "自己紹介が空欄です"}</p>
+								</div>
+							</Link>
+						</li>
+					))}
 				</ul>
 			</div>
 

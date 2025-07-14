@@ -382,7 +382,7 @@ export default function MessageDetailClient() {
 					<div className="flex items-center">
 						<div className="w-[32px] h-[32px] mr-[10px] bg-cover bg-center bg-no-repeat rounded-full" style={{ backgroundImage: `url(${group.image_url})` }}></div>
 						<div className="flex flex-col">
-							<div className="flex items-center justify-center">
+							<div className="flex items-center justify-start">
 								<p className="flex items-center text-[13px] font-bold">{group.name}</p>
 								<p className="ml-[5px] text-[10px]"><span className="text-[11px] font-bold">{group.member_count}人</span>が参加中</p>
 							</div>
