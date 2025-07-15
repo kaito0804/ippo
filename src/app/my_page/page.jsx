@@ -25,6 +25,7 @@ export default function UserPage() {
 	const [isEditing, setIsEditing]                     = useState(false);
   	const [commentText, setCommentText]                 = useState(profile?.comment || "");
 	const textareaRef                                   = useRef(null);
+	const [friendList, setFriendList]                   = useState();
 	const [loading, setLoading]                         = useState(true);
 
 	useEffect(() => {
@@ -56,90 +57,74 @@ export default function UserPage() {
 
 	====================================*/
 	useEffect(() => {
-		const fetchGroupMemberProfilesWithDetails = async () => {
+		const fetchMyExpiredGroupMembers = async () => {
 			if (!userId) return;
 
-			// 1. 自分の所属グループIDを取得
-			const { data: myGroups, error: groupError } = await supabase
-			.from("group_members")
-			.select("group_id")
-			.eq("user_id", userId);
+			const nowISOString = new Date().toISOString();
+
+			// ① RPC で自分が参加していた終了済みグループを取得
+			const { data: expiredGroups, error: groupError } = await supabase
+				.rpc("get_my_expired_groups", {
+					now_ts: nowISOString,
+					uid: userId
+				});
 
 			if (groupError) {
-				console.error("自分の所属グループ取得エラー:", groupError);
+				console.error("RPC取得エラー:", groupError);
 				return;
 			}
 
-			const groupIds = myGroups.map(g => g.group_id);
-			if (groupIds.length === 0) return;
-
-			// 2. 同じグループに所属している他ユーザーの user_id と group_id を取得
-			const { data: members, error: memberError } = await supabase
-			.from("group_members")
-			.select("user_id, group_id")
-			.in("group_id", groupIds)
-			.neq("user_id", userId);
-
-			if (memberError) {
-				console.error("メンバー取得エラー:", memberError);
+			if (!expiredGroups || expiredGroups.length === 0) {
+				setGroupMemberProfiles([]);
 				return;
 			}
 
-			if (!members || members.length === 0) return;
+			// ② 自分以外の user_id を抽出（重複なし）
+			const otherUserIds = [
+				...new Set(
+					expiredGroups.flatMap(group =>
+						(group.member || []).filter(uid => uid !== userId)
+					)
+				)
+			];
 
-			// 3. 参加したグループIDのユニークリスト作成
-			const allGroupIds = [...new Set(members.map(m => m.group_id))];
-
-			// 4. groups テーブルから詳細情報を一括取得
-			const { data: groups, error: groupsError } = await supabase
-			.from("groups")
-			.select("id, name, start_date, end_date, venue")
-			.in("id", allGroupIds);
-
-			if (groupsError) {
-				console.error("グループ詳細取得エラー:", groupsError);
+			if (otherUserIds.length === 0) {
+				setGroupMemberProfiles([]);
 				return;
 			}
 
-			// 5. user_id ごとに所属グループ詳細をまとめる
-			// user_id => [group1詳細, group2詳細, ...]
-			const userToGroupDetailsMap = {};
-			members.forEach(({ user_id, group_id }) => {
-				if (!userToGroupDetailsMap[user_id]) {
-					userToGroupDetailsMap[user_id] = [];
-				}
-				const groupDetail = groups.find(g => g.id === group_id);
-					if (groupDetail) userToGroupDetailsMap[user_id].push(groupDetail);
-			});
-
-			// 6. uniqueUserIds作成（user_id一覧）
-			const uniqueUserIds = [...new Set(members.map(m => m.user_id))];
-
-			// 7. user_profiles を取得
+			// ③ user_profiles を取得
 			const { data: profiles, error: profileError } = await supabase
-			.from("user_profiles")
-			.select("id, display_name, icon_path, comment, is_host, now_status")
-			.in("id", uniqueUserIds);
+				.from("user_profiles")
+				.select("id, display_name, icon_path, comment, is_host, now_status")
+				.in("id", otherUserIds);
 
 			if (profileError) {
 				console.error("プロフィール取得エラー:", profileError);
 				return;
 			}
 
-			// 8. プロフィールに group_details を結合
-			const combinedData = profiles.map(profile => ({
-			...profile,
-			group_details: userToGroupDetailsMap[profile.id] || [],
-			}));
+			// ④ ユーザーIDごとに所属グループをマッピング
+			const userToGroupsMap = {};
+			expiredGroups.forEach(group => {
+				(group.member || []).forEach(uid => {
+					if (uid === userId) return;
+					if (!userToGroupsMap[uid]) userToGroupsMap[uid] = [];
+					userToGroupsMap[uid].push(group);
+				});
+			});
 
-			console.log("メンバー＋グループ詳細情報:", combinedData);
+			// ⑤ プロフィールにグループ詳細を結合
+			const combinedData = profiles.map(profile => ({
+				...profile,
+				group_details: userToGroupsMap[profile.id] || []
+			}));
 
 			setGroupMemberProfiles(combinedData);
 		};
 
-		fetchGroupMemberProfilesWithDetails();
+		fetchMyExpiredGroupMembers();
 	}, [userId]);
-
 
 
 
@@ -316,20 +301,23 @@ export default function UserPage() {
 					</div>
 				</div>
 
-				<div className="flex justify-around items-center w-[100%] h-[50px] bg-[#fff] border-b border-[#e1e1e1] py-[10px]">
-					<div className="list-icon"></div>
-					<div className="favorite-icon"></div>
+				<div className={`${friendList ? 'friend-active' : 'list-active'} relative flex justify-around items-center w-[100%] h-[50px] bg-[#fff] border-b border-[#e1e1e1]`}>
+					<div className="list-icon" onClick={() => setFriendList(false)}></div>
+					<div className="friend-icon" onClick={() => setFriendList(true)}></div>
 				</div>
 
 				<ul className="flex flex-col justify-center items-center w-[100%] px-[10px] bg-[#fff]">
-					{groupMemberProfiles.map((prf) => (
-						<li key={prf.id} className="flex justify-center items-center w-[100%] py-[10px] border-b border-[#e1e1e1]">
-							<Link href={`/user_page/${prf.id}`} className="flex justify-between items-center w-[100%]">
+					{friendList ? (
+						groupMemberProfiles.map((prf) => (
+							<li key={prf.id} className="flex justify-between items-center w-[100%] py-[10px] border-b border-[#e1e1e1]">
 								<div className="flex justify-center items-center mr-[10px]">
-									<div className="w-[50px] h-[50px] rounded-full bg-center bg-cover bg-no-repeat border border-[#e1e1e1]" style={{ backgroundImage: `url('${prf.icon_path || 'https://res.cloudinary.com/dnehmdy45/image/upload/v1750906560/user-gray_jprhj3.svg'}')` }}></div>
+									<Link href={`/user_page/${prf.id}`} className="w-[50px] h-[50px] rounded-full bg-center bg-cover bg-no-repeat border border-[#e1e1e1]" style={{ backgroundImage: `url('${prf.icon_path || 'https://res.cloudinary.com/dnehmdy45/image/upload/v1750906560/user-gray_jprhj3.svg'}')` }}></Link>
 								</div>
 								<div className="flex flex-col justify-center items-start w-[calc(100%-60px)]">
-									<p className="text-[14px] font-bold">{prf.display_name}<span className="text-[12px] ml-[1px]">さん</span></p>
+									<div className="flex justify-between items-center w-[100%]">
+										<p className="text-[14px] font-bold">{prf.display_name}<span className="text-[12px] ml-[1px]">さん</span></p>
+										<Link href={`message_detail?user=${prf.id}`} className="w-[24px] h-[24px] rounded-full bg-center bg-contain bg-no-repeat"  style={{ backgroundImage: `url('${'https://res.cloudinary.com/dnehmdy45/image/upload/v1752542554/mail_gzqdko.svg'}')` }}></Link>
+									</div>
 									<div className="flex flex-wrap justify-left items-center mt-[5px] gap-[5px]">
 										{prf.group_details.map((group) => (
 											<p className="text-[12px] border border-[#e1e1e1] rounded-[10px] px-[5px] py-[2px]" key={group.id}>{group.name}</p>
@@ -337,9 +325,13 @@ export default function UserPage() {
 									</div>
 									<p className="text-[12px] mt-[5px] truncate max-w-[100%] text-[13px] text-[#737373]">自己紹介：{prf.comment || "自己紹介が空欄です"}</p>
 								</div>
-							</Link>
-						</li>
-					))}
+							</li>
+						))
+					) : (
+						<div>
+							test
+						</div>
+					)}
 				</ul>
 			</div>
 

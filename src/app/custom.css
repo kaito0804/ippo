@@ -426,18 +426,44 @@ input[type="number"]::-webkit-outer-spin-button {
 	background-position: center;
 }
 
-.favorite-icon{
+.friend-icon{
 	position: relative;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	width: 50%;
 	height: 100%;
-	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1750907289/heart-gray_wfluhw.svg");
+	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1752542553/group_vyqcbg.svg");
 	background-size: 26px;
 	background-repeat: no-repeat;
 	background-position: center;
 }
+
+.list-active::before{
+	content: "";
+	position: absolute;
+	background-image: linear-gradient(89deg, rgba(253, 152, 38, 1) 30%, rgba(253, 103, 139, 1) 100%);
+    border-radius: 3px;
+    width: 40%;
+    height: 3px;
+    position: absolute;
+    bottom: 0;
+    left: calc(50% - 45%);
+	transition: 0.2s;
+}
+
+.friend-active::before{
+	content: "";
+	background-image: linear-gradient(89deg, rgba(253, 152, 38, 1) 30%, rgba(253, 103, 139, 1) 100%);
+    border-radius: 3px;
+    width: 40%;
+    height: 3px;
+    position: absolute;
+    bottom: 0;
+    left: calc(50% + 5%);
+	transition: 0.2s;
+}
+
 
 /*footer*/
 .footer-icon{

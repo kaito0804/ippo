@@ -164,10 +164,17 @@ export default function ListBox() {
 								<p className="locate-icon-text flex items-center text-[12px] text-[#888] mt-[8px]">{group.venue}</p>
 								<div dangerouslySetInnerHTML={{ __html:group.description }} className="text-[14px] text-[#333] mt-[8px]"/>
 								{nowStatus == 'member' && (
-									<div onClick={() => handleJoin(group)} className="inline-flex justify-center align-center mt-[10px] py-[4px] px-[12px] bg-[#3B82F6] text-white rounded-[4px] text-[13px] font-bold">
-										<p>{userJoinedGroups.has(group.id) ? `参加中 : ${memberCounts[group.id] || 0}人 / ${group.member_count}人` : (joiningStatus[group.id] ? '処理中…' : `参加する : ${group.price}${group.price !== 'free' ? '円' : ''}`)}</p>
-									</div>
+									userJoinedGroups.has(group.id) ? (
+										<div className="inline-flex justify-center align-center mt-[10px] py-[4px] px-[12px] bg-[#3B82F6] text-white rounded-[4px] text-[13px] font-bold">
+											<p>参加中 : {memberCounts[group.id] || 0}人 / {group.member_count}人</p>
+										</div>
+									) : (
+										<div onClick={() => handleJoin(group)} className="inline-flex justify-center align-center mt-[10px] py-[4px] px-[12px] bg-[#3B82F6] text-white rounded-[4px] text-[13px] font-bold">
+											<p>参加する : {group.price}{group.price !== 'free' ? '円' : ''}</p>
+										</div>
+									)
 								)}
+								
 							</div>
 						</li>
 					))}

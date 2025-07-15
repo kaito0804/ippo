@@ -11,16 +11,13 @@ import { uploadToCloudinary } from "@/app/utils/cloudinary/cloudinary";
 import { supabase } from "@/app/utils/supabase/supabaseClient";
 import { useUserContext } from '@/app/utils/userContext';
 
-//フロント処理関連
-import { useSearchParams } from "next/navigation";
 
-
-export default function MessageDetailClient() {
+export default function MessageDetailClient({ groupId, anotherUserId }) {
 	const pageSize = 30; // 1ページあたりのメッセージ取得件数
 
 	//URLのクエリパラメータからgroupIdを取得
-	const searchParams = useSearchParams();
-	const groupId      = searchParams.get("groupId");
+	const isGroupChat   = !!groupId;
+	const isDirectChat  = !!anotherUserId && !groupId; //両方指定された場合は group 優先
 
 	//ユーザー関連情報（コンテキストから取得）
 	const { userId, isHost, nowStatus, setNowStatus } = useUserContext();
@@ -32,6 +29,9 @@ export default function MessageDetailClient() {
 	const [hasMore, setHasMore]         = useState(true);  // 追加で取得可能かどうか（スクロール無限取得用）
 	const [loadingMore, setLoadingMore] = useState(false); // 追加読み込み中フラグ
 	const [isScrolling, setIsScrolling] = useState(false); // スクロール検知のON/OFF管理
+
+	//個人メッセージ相手の情報
+	const [anotherUser, setAnotherUser] = useState(null);
 
 	//グループ情報
 	const [group, setGroup] = useState(null); // 現在のグループ情報（名前やメンバー数など）
@@ -66,24 +66,43 @@ export default function MessageDetailClient() {
 	=========================*/
 	useEffect(() => {
 		const fetchInitial = async () => {
-			const { data: groupData, error: groupError } = await supabase
-				.from("groups")
-				.select("*")
-				.eq("id", groupId)
-				.single();
+			if (isGroupChat) {
+				// グループチャットの初期化
+				const { data: groupData, error: groupError } = await supabase
+					.from("groups")
+					.select("*")
+					.eq("id", groupId)
+					.single();
 
-			const { count } = await supabase
-				.from("group_members")
-				.select("user_id", { count: "exact", head: true })
-				.eq("group_id", groupId);
+				const { count } = await supabase
+					.from("group_members")
+					.select("user_id", { count: "exact", head: true })
+					.eq("group_id", groupId);
 
-			if (groupError) throw groupError;
-			setGroup({ ...groupData, member_count: count });
+				if (groupError) throw groupError;
+				setGroup({ ...groupData, member_count: count });
+			}
 
-			await fetchOlderMessages(0); //初回1ページ分だけ取得
+			if (isDirectChat) {
+				// 個人チャットの初期化
+				const { data: userProfile, error } = await supabase
+					.from("user_profiles")
+					.select("*")
+					.eq("id", anotherUserId)
+					.single();
+
+				if (error) {
+					console.error("ユーザー取得エラー:", error);
+					return;
+				}
+				setAnotherUser({...userProfile});
+			}
+			
+			await fetchOlderMessages(0);
 		};
-		if (groupId) fetchInitial();
-	}, [groupId]);
+
+		if (groupId || anotherUserId) fetchInitial();
+	}, [groupId, anotherUserId, userId]);
 
 
 	/*============================
@@ -108,44 +127,73 @@ export default function MessageDetailClient() {
 	============================*/
 	useEffect(() => {
 		const subscription = supabase
-		.channel("custom:messages")
-		.on(
-			"postgres_changes",
-			{ event: "INSERT", schema: "public", table: "messages" },
-			async (payload) => {
-				const newMessage    = payload.new;
-				const cachedProfile = profilesCacheRef.current[newMessage.user_id];
+			.channel("custom:messages")
+			.on(
+				"postgres_changes",
+				{ event: "INSERT", schema: "public", table: "messages" },
+				async (payload) => {
+					const newMessage = payload.new;
 
-				if (cachedProfile) {
-					setMessages((prev) => [...prev, { ...newMessage, user_profiles: cachedProfile }]);
-				} else {
-					try {
-						const { data: profile, error } = await supabase
-							.from("user_profiles")
-							.select("id, display_name, icon_path")
-							.eq("id", newMessage.user_id)
-							.single();
+					// 条件に応じてフィルター
+					if (isGroupChat && newMessage.group_id !== groupId) return;
+					if (isDirectChat) {
+						const isDirect = [newMessage.user_id, newMessage.target_user_id].includes(userId) &&
+							[newMessage.user_id, newMessage.target_user_id].includes(anotherUserId);
+						if (!isDirect) return;
+					}
 
-						if (error) throw error;
-
-						if (profile) {
-							profilesCacheRef.current[profile.id] = profile;
+					// 重複チェック（強制メッセージUI更新との競合を防ぐ）
+					setMessages((prev) => {
+						const exists = prev.some(msg => 
+							msg.id === newMessage.id || 
+							(msg.isTemporary && msg.user_id === newMessage.user_id && msg.content === newMessage.content)
+						);
+						
+						if (exists) {
+							// 一時的なメッセージを実際のメッセージに置き換え
+							return prev.map(msg => 
+								msg.isTemporary && msg.user_id === newMessage.user_id && msg.content === newMessage.content
+									? { ...newMessage, user_profiles: msg.user_profiles }
+									: msg
+							);
 						}
 
-						setMessages((prev) => [...prev, { ...newMessage, user_profiles: profile || {} }]);
-					} catch (e) {
-						console.error("プロフィール取得失敗:", e.message);
-						setMessages((prev) => [...prev, { ...newMessage, user_profiles: {} }]);
-					}
+						// 新しいメッセージを追加
+						const cachedProfile = profilesCacheRef.current[newMessage.user_id];
+						if (cachedProfile) {
+							return [...prev, { ...newMessage, user_profiles: cachedProfile }];
+						} else {
+							// プロフィール取得は非同期で行い、後で更新
+							supabase
+								.from("user_profiles")
+								.select("id, display_name, icon_path")
+								.eq("id", newMessage.user_id)
+								.single()
+								.then(({ data: profile }) => {
+									if (profile) {
+										profilesCacheRef.current[profile.id] = profile;
+										setMessages((current) => 
+											current.map(msg => 
+												msg.id === newMessage.id 
+													? { ...msg, user_profiles: profile }
+													: msg
+											)
+										);
+									}
+								});
+							
+							return [...prev, { ...newMessage, user_profiles: null }];
+						}
+					});
 				}
-			}
-		)
-		.subscribe();
+			)
+			.subscribe();
 
 		return () => {
 			supabase.removeChannel(subscription);
 		};
-	}, [groupId]);
+	}, [userId, groupId, anotherUserId, isGroupChat, isDirectChat]);
+
 
 
 	/*============================
@@ -193,7 +241,7 @@ export default function MessageDetailClient() {
 	
 	============================-*/
 	const fetchOlderMessages = async (pageNumber = 0) => {
-		if (isFetchingRef.current) return;
+		if (isFetchingRef.current || !userId) return;
 		isFetchingRef.current = true;
 		try {
 			setLoadingMore(true);
@@ -201,19 +249,28 @@ export default function MessageDetailClient() {
 			const from = pageNumber * pageSize;
 			const to   = from + pageSize - 1;
 
-			const { data: messageData, error } = await supabase
+			let query = supabase
 			.from("messages")
-			.select(`
-				*,
+			.select(
+				`*,
 				user_profiles:user_id (
-				id,
-				display_name,
-				icon_path
-				)
-			`)
-			.eq("group_id", groupId)
-			.order("created_at", { ascending: false }) //最新→古い順で取得
+					id,
+					display_name,
+					icon_path
+				)`
+			)
+			.order("created_at", { ascending: false })
 			.range(from, to);
+
+			if (isGroupChat) {
+				query = query.eq("group_id", groupId);
+			} else if (isDirectChat) {
+				query = query.or(
+					`and(user_id.eq.${userId},target_user_id.eq.${anotherUserId}),and(user_id.eq.${anotherUserId},target_user_id.eq.${userId})`
+				);
+			}
+
+			const { data: messageData, error } = await query;
 
 			if (error) throw error;
 
@@ -286,46 +343,94 @@ export default function MessageDetailClient() {
 	===============*/
 	const sendMessage = async () => {
 		if (!newMsg && !selectedImage) {
-			alert("メッセージを入力してください");
+			alert("メッセージを入力してください");
 			return;
 		}
 
-		let imageUrl = null;
-		if (selectedImage) {
-			imageUrl = await uploadToCloudinary(selectedImage);
-		}
-
-		// display_name 取得処理は不要に
-		// 送信処理
-		const { data, error } = await supabase
-		.from("messages")
-		.insert([{
+		// 強制メッセージUI更新用の一時的なメッセージ
+		const tempId = `temp_${Date.now()}`;
+		const tempMessage = {
+			id: tempId,
 			content: newMsg,
 			user_id: userId,
-			group_id: groupId,
-			image_url: imageUrl,
-		}]);
+			created_at: new Date().toISOString(),
+			image_url: selectedImage ? URL.createObjectURL(selectedImage) : null,
+			user_profiles: profilesCacheRef.current[userId] || {
+				id: userId,
+				display_name: "あなた",
+				icon_path: null
+			},
+			...(isGroupChat ? { group_id: groupId } : { target_user_id: anotherUserId }),
+			isTemporary: true // 一時的なメッセージの印
+		};
+
+		// 即座にUIを更新
+		setMessages((prev) => [...prev, tempMessage]);
+		setIsScrolling(false); 
+
+		// 画像アップロード
+		let imageUrl = null;
+		if (selectedImage) {
+			try {
+				imageUrl = await uploadToCloudinary(selectedImage);
+			} catch (error) {
+				console.error("画像アップロードエラー:", error);
+				// 失敗した場合は一時的なメッセージを削除
+				setMessages((prev) => prev.filter(msg => msg.id !== tempId));
+				return;
+			}
+		}
+
+		const insertPayload = isGroupChat
+			? {
+				content: newMsg,
+				user_id: userId,
+				group_id: groupId,        
+				image_url: imageUrl,
+			}
+			: {
+				content: newMsg,
+				user_id: userId,
+				target_user_id: anotherUserId,
+				image_url: imageUrl,
+			};
+
+		// 送信
+		const { data, error } = await supabase.from("messages").insert([insertPayload]).select();
 
 		if (error) {
 			console.error("送信エラー:", error.message);
-		} else {
+			// 失敗した場合は一時的なメッセージを削除
+			setMessages((prev) => prev.filter(msg => msg.id !== tempId));
+			return;
+		}
+
+		// 成功した場合は一時的なメッセージを実際のメッセージに置き換え
+		if (data && data[0]) {
+			setMessages((prev) => 
+				prev.map(msg => 
+					msg.id === tempId 
+						? { ...data[0], user_profiles: tempMessage.user_profiles, image_url: imageUrl }
+						: msg
+				)
+			);
+		}
+
+		// フォームリセット
 		setNewMsg("");
 		setSelectedImage(null);
-
-		//groupsテーブルに送信時刻を保存
-		await supabase
-			.from("groups")
-			.update({ last_message_at: new Date().toISOString() })
-			.eq("id", groupId);
-		}
-
-		if (textareaRef.current) {
-			textareaRef.current.style.height = "auto";
-		}
-
+		if (textareaRef.current) textareaRef.current.style.height = "auto";
 		setIsMultiLine(false);
 
+		// グループチャットなら groups テーブルに最終送信時刻を保存
+		if (isGroupChat) {
+			await supabase
+				.from("groups")
+				.update({ last_message_at: new Date().toISOString() })
+				.eq("id", groupId);
+		}
 	};
+
 
 
 	/*===================
@@ -372,13 +477,11 @@ export default function MessageDetailClient() {
 		return `${year}/${month}/${day}(${dayOfWeek})`;
 	}
 
-
-
 	return (
 		<div>
 			<div className="fixed top-[0] flex justify-left items-center w-[100%] py-[10px] px-[5px] bg-[#fff] border-b border-[#e0e0e0] z-[100]">
 				<Link href="/message_box" className="w-[28px] h-[28px] mr-[10px] bg-cover bg-center bg-no-repeat" style={{backgroundImage: `url('https://res.cloudinary.com/dnehmdy45/image/upload/v1751266821/nav-arrow-left_orpd2v.svg')`}}></Link>
-				{group ? (
+				{isGroupChat && group ? (
 					<div className="flex items-center">
 						<div className="w-[32px] h-[32px] mr-[10px] bg-cover bg-center bg-no-repeat rounded-full" style={{ backgroundImage: `url(${group.image_url})` }}></div>
 						<div className="flex flex-col">
@@ -389,8 +492,17 @@ export default function MessageDetailClient() {
 							<p className="meeting-place-text"><span>{group.venue}</span>{startDay(group.start_date)} </p>
 						</div>
 					</div>
+				) : (isDirectChat && anotherUser) ? (
+					// 個人チャットのヘッダー
+					<div className="flex items-center">
+						<Link href={`/user_page/${anotherUser.id}`} className="w-[32px] h-[32px] mr-[10px] bg-cover bg-center bg-no-repeat rounded-full border border-[#e0e0e0]" style={{ backgroundImage: `url(${anotherUser.icon_path})` }}></Link>
+						<div className="flex flex-col">
+							<p className="text-[13px] font-bold">{anotherUser.display_name ? anotherUser.display_name : '匿名'}</p>
+						</div>
+					</div>
 				) : (
-					<p>グループ情報を読み込み中...</p>
+					// データ読み込み中など
+					<p>チャット情報を読み込み中...</p>
 				)}
 			</div>
 
