@@ -17,23 +17,13 @@ export default function MessageBox() {
 		if (!userId) return;
 
 		const getJoinedGroups = async () => {
-			let data, error;
-
-			// --- グループ情報を取得 ---
-			if (nowStatus === "host") {
-				({ data, error } = await supabase
-					.from("groups")
-					.select("*")
-					.eq("created_by", userId));
-			} else {
-				({ data, error } = await supabase
-					.from("group_members")
-					.select("group_id(*)")
-					.eq("user_id", userId));
-			}
+			const { data, error } = await supabase
+				.from("group_members")
+				.select("group_id(*)")
+				.eq("user_id", userId);
 
 			if (error || !data) {
-				console.error(error);
+				console.error("グループ取得エラー:", error);
 				setJoinedGroups([]);
 				return;
 			}
@@ -44,33 +34,25 @@ export default function MessageBox() {
 			});
 			if (unreadError) console.error("未読件数取得エラー:", unreadError);
 
-			// 未読件数を group_id でマッピング
 			const unreadMap = Object.fromEntries(
 				(unreadCounts || []).map((item) => [item.group_id, item.unread_count])
 			);
 
-			// --- グループリストと未読件数を結合 ---
-			let groupData;
-			if (nowStatus === "host") {
-				groupData = data.map((group) => ({
+			// --- グループ情報と未読件数を統合 ---
+			const groupData = data.map((item) => {
+				const group = item.group_id;
+				return {
 					...group,
 					unread_count: unreadMap[group.id] || 0,
-				}));
-			} else {
-				groupData = data.map((item) => {
-					const group = item.group_id;
-					return {
-						...group,
-						unread_count: unreadMap[group.id] || 0,
-					};
-				});
-			}
+				};
+			});
 
 			setJoinedGroups(groupData);
 		};
 
 		getJoinedGroups();
-	}, [userId, nowStatus]);
+	}, [userId]);
+
 
 	useEffect(() => {
 		async function fetchUserChats() {
@@ -143,7 +125,7 @@ export default function MessageBox() {
 								return dateB - dateA; //メッセージが新しい順
 							}).map((group) => (
 								<li key={group.id}>
-									<Link href={`/message_detail?groupId=${group.id}`} key={group.id}
+									<Link href={`/message_detail?groupId=${group.id}`}
 										className="flex items-center justify-between border-b border-gray-200 py-[14px] px-[14px]">
 										<div className="flex items-center">
 											<div className="w-[50px] h-[50px] mr-[12px] bg-cover bg-center bg-no-repeat rounded-full" style={{ backgroundImage: `url(${group.image_url})` }}></div>
