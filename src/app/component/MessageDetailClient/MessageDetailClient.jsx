@@ -429,6 +429,38 @@ export default function MessageDetailClient({ groupId, anotherUserId }) {
 				.update({ last_message_at: new Date().toISOString() })
 				.eq("id", groupId);
 		}
+
+		// 個人チャットなら user_chats テーブルに履歴を更新（送信者視点）
+		if (isDirectChat && data && data[0]) {
+			const message = data[0];
+
+			const updates = [
+				// 自分側のチャットリスト用
+				{
+					user_id: userId,
+					partner_id: anotherUserId,
+					last_message_at: message.created_at,
+					last_message: message.content || "[画像]",
+					unread_count: 0
+				},
+				// 相手側のチャットリスト用（未読件数+1）
+				{
+					user_id: anotherUserId,
+					partner_id: userId,
+					last_message_at: message.created_at,
+					last_message: message.content || "[画像]",
+					unread_count: 1
+				}
+			];
+
+			// UPSERT（既にある場合は更新）
+			for (const update of updates) {
+				await supabase
+					.from("user_chats")
+					.upsert(update, { onConflict: ['user_id', 'partner_id'] });
+			}
+		}
+
 	};
 
 

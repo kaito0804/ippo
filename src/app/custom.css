@@ -2,6 +2,10 @@
 	padding-top: 97px;
 }
 
+.header-notitle-adjust{
+	padding-top: 60px;
+}
+
 .h-adjust{
 	height: calc(100dvh - 50px);
 }
@@ -224,6 +228,43 @@ input[type="number"]::-webkit-outer-spin-button {
 	transition: 0.3s;
 	overflow-y: scroll;
 	z-index: 9999;
+}
+
+/*message_box*/
+.select-tab{
+	position: relative;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	padding: 10px 0;
+	color: #a5a5a5;
+}
+
+.select-tab.select-group div:nth-of-type(1),
+.select-tab.select-user div:nth-of-type(2){
+    color: #ff7a00;
+	font-weight: bold;
+}
+
+.select-tab::before{
+	content: "";
+	position: absolute;
+	background-image: linear-gradient(89deg, rgba(253, 152, 38, 1) 30%, rgba(253, 103, 139, 1) 100%);
+    border-radius: 3px;
+    width: 40%;
+    height: 3px;
+    position: absolute;
+    bottom: 0;
+	transition: 0.2s;
+}
+
+.select-tab.select-group::before{
+    left: calc(50% - 45%);
+}
+
+.select-tab.select-user::before{
+	left: calc(50% + 5%);
 }
 
 /*message-detail*/

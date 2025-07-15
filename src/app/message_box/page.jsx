@@ -8,8 +8,10 @@ import { useUserContext } from '@/app/utils/userContext';
 
 
 export default function MessageBox() {
-	const { userId, isHost, nowStatus } = useUserContext();
+	const { userId, isHost, nowStatus }   = useUserContext();
 	const [joinedGroups, setJoinedGroups] = useState([]);
+	const [chatUsers, setChatUsers]       = useState([]);
+	const [selectTab, setSelectTab]       = useState("group");
 
 	useEffect(() => {
 		if (!userId) return;
@@ -69,6 +71,37 @@ export default function MessageBox() {
 
 		getJoinedGroups();
 	}, [userId, nowStatus]);
+
+	useEffect(() => {
+		async function fetchUserChats() {
+			if (!userId) return;
+
+			const { data: chats, error } = await supabase
+				.from('user_chats')
+				.select(`
+					partner_id,
+					last_message,
+					last_message_at,
+					user_profiles:partner_id (
+						id,
+						display_name,
+						icon_path
+					)
+				`)
+				.eq('user_id', userId)
+				.order('last_message_at', { ascending: false });
+
+			if (error) {
+				console.error('チャット履歴取得エラー:', error);
+				return;
+			}
+
+			setChatUsers(chats || []);
+		}
+
+		fetchUserChats();
+	},[userId]); 
+
 	
 	function getTimeAgo(utcDateString) {
 		if (!utcDateString) return "";
@@ -92,47 +125,92 @@ export default function MessageBox() {
 
 	return (
 		<div>
-			<Header title={'メッセージリスト'}/>
-			<div className="header-adjust">
-				<ul >
-				{joinedGroups.length ? (
-					[...joinedGroups]
-					.sort((a, b) => {
-						const dateA = new Date(a.last_message_at || 0).getTime();
-						const dateB = new Date(b.last_message_at || 0).getTime();
-						return dateB - dateA; //メッセージが新しい順
-					}).map((group) => (
-						<li key={group.id}>
-							<Link href={`/message_detail?groupId=${group.id}`} key={group.id}
-								  className="flex items-center justify-between border-b border-gray-200 py-[14px] px-[14px]">
-								<div className="flex items-center">
-									<div className="w-[50px] h-[50px] mr-[12px] bg-cover bg-center bg-no-repeat rounded-full" style={{ backgroundImage: `url(${group.image_url})` }}></div>
-								</div>
+			<Header/>
+			<div className="header-notitle-adjust">
+				<div className={`${selectTab == 'group' ? 'select-group' : 'select-user'} select-tab `}>
+					<div onClick={() => setSelectTab("group")} className="w-[50%] flex items-center justify-center text-[14px]">イベントグループ</div>
+					<div onClick={() => setSelectTab("users")} className="w-[50%] flex items-center justify-center text-[14px]">DM</div>
+				</div>
 
-								<div className="flex flex-col items-start justify-between w-[calc(100%-50px)] h-[100%] gap-[5px]">
-									<div className="flex items-center justify-between w-full">
-										<p className="text-[15px] font-bold">{group.name}</p>
-										<p className="text-[11px] text-gray-500"> {getTimeAgo(group.last_message_at)}</p>
-									</div>
-									<div className="flex items-center justify-between w-full">
-										<p className="text-[13px] text-gray-500">
-											{group.last_message_at ? "メッセージが届いています" : "メッセージがまだありません"}
-										</p>
-										{group.unread_count > 0 && (
-											<p className="text-[12px] text-white bg-[#ff4343] rounded-full w-[20px] h-[20px] flex justify-center items-center">
-												{group.unread_count}
-											</p>
-										)}
-									</div>
-								</div>
-							</Link>
-						</li>
-					))
-				) : (
-					<p className="text-gray-500 text-sm mt-4">参加しているグループはありません。</p>
+				{/*イベントグループ*/}
+				{selectTab == 'group' && (
+					<ul>
+						{joinedGroups.length ? (
+							[...joinedGroups]
+							.sort((a, b) => {
+								const dateA = new Date(a.last_message_at || 0).getTime();
+								const dateB = new Date(b.last_message_at || 0).getTime();
+								return dateB - dateA; //メッセージが新しい順
+							}).map((group) => (
+								<li key={group.id}>
+									<Link href={`/message_detail?groupId=${group.id}`} key={group.id}
+										className="flex items-center justify-between border-b border-gray-200 py-[14px] px-[14px]">
+										<div className="flex items-center">
+											<div className="w-[50px] h-[50px] mr-[12px] bg-cover bg-center bg-no-repeat rounded-full" style={{ backgroundImage: `url(${group.image_url})` }}></div>
+										</div>
+
+										<div className="flex flex-col items-start justify-between w-[calc(100%-50px)] h-[100%] gap-[5px]">
+											<div className="flex items-center justify-between w-full">
+												<p className="text-[15px] font-bold">{group.name}</p>
+												<p className="text-[11px] text-gray-500"> {getTimeAgo(group.last_message_at)}</p>
+											</div>
+											<div className="flex items-center justify-between w-full">
+												<p className="text-[13px] text-gray-500">
+													{group.last_message_at ? "メッセージが届いています" : "メッセージがまだありません"}
+												</p>
+												{group.unread_count > 0 && (
+													<p className="text-[12px] text-white bg-[#ff4343] rounded-full w-[20px] h-[20px] flex justify-center items-center">
+														{group.unread_count}
+													</p>
+												)}
+											</div>
+										</div>
+									</Link>
+								</li>
+							))
+						) : (
+							<p className="text-gray-500 text-sm mt-4">参加しているグループはありません。</p>
+						)}
+					</ul>
 				)}
 
-				</ul>
+				{/*DM*/}
+				{selectTab == 'users' && (
+					<ul>
+						{chatUsers.length > 0 ? chatUsers.map((chatUser) => (
+							<li key={chatUser.partner_id}>
+								<Link href={`/message_detail?user=${chatUser.partner_id}`} className="flex items-center justify-between border-b border-gray-200 py-[14px] px-[14px]">
+									<div className="flex items-center">
+										<div
+										className="w-[50px] h-[50px] mr-[12px] bg-cover bg-center bg-no-repeat rounded-full"
+										style={{ backgroundImage: `url(${chatUser.user_profiles?.icon_path || '/default_icon.png'})` }}
+										></div>
+									</div>
+
+									<div className="flex flex-col items-start justify-between w-[calc(100%-50px)] h-[100%] gap-[5px]">
+										<div className="flex items-center justify-between w-full">
+											<p className="text-[15px] font-bold">{chatUser.user_profiles?.display_name || "匿名"}</p>
+											<p className="text-[11px] text-gray-500">{getTimeAgo(chatUser.last_message_at)}</p>
+										</div>
+										<div className="flex items-center justify-between w-full">
+											<p className="text-[13px] text-gray-500">
+												{chatUser.last_message_at ? "メッセージが届いています" : "メッセージがまだありません"}
+											</p>
+											{chatUser.unread_count > 0 && (
+												<p className="text-[12px] text-white bg-[#ff4343] rounded-full w-[20px] h-[20px] flex justify-center items-center">
+												{chatUser.unread_count}
+												</p>
+											)}
+										</div>
+									</div>
+								</Link>
+							</li>
+						)) : (
+							<p className="text-gray-500 text-sm mt-4">話したことのある相手がいません</p>
+						)}
+					</ul>
+				)}
+				
 			</div>
 			<Footer/>
 		</div>

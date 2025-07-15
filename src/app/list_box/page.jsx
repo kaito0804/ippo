@@ -78,7 +78,6 @@ export default function ListBox() {
 	}, [userId]);
 
 
-
 	const handleJoin = async (group) => {
 		if (!userId) {
 			alert("ログインが必要です");
@@ -174,7 +173,6 @@ export default function ListBox() {
 										</div>
 									)
 								)}
-								
 							</div>
 						</li>
 					))}
