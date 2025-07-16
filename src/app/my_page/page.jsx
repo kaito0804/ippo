@@ -291,11 +291,8 @@ export default function UserPage() {
 							</div>
 							</>
 						) : (
-							<p
-							className="flex justify-left items-center w-[100%] text-[13px] mt-[10px] mx-auto cursor-pointer whitespace-pre-wrap"
-							onClick={() => setIsEditing(true)}
-							>
-							{profile?.comment || "自己紹介が空欄です"}
+							<p className="flex justify-left items-center w-[100%] text-[13px] mt-[10px] mx-auto cursor-pointer whitespace-pre-wrap">
+								{profile?.comment || "自己紹介が空欄です"}
 							</p>
 						)}
 					</div>

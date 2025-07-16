@@ -128,7 +128,7 @@ export default function ListBox() {
 					{groups
 					.filter((group) => {
 						const areaMatch  = !filters.area || group.area === filters.area;
-						const themeMatch = !filters.theme || group.theme === filters.theme;
+						const themeMatch = !filters.theme || group.theme?.includes(filters.theme);;
 						return areaMatch && themeMatch;
 					})
 					.map((group) => (

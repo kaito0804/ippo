@@ -69,12 +69,13 @@ export default function ListDetailDialog({selectPost, setSelectPost}) {
 						<p className="w-[100%] text-[14px] mt-[5px]">{group.venue} | By 散歩コミュニティ「IPPO」</p>
 						
 						<ul className="flex flex-wrap w-[100%] text-[12px] mt-[15px] gap-[10px]">
-							<li className="px-[10px] py-[2px] border border-[#ff7a00] text-[#ff7a00] rounded-[100px]">マッチング</li>
-							<li className="px-[10px] py-[2px] border border-[#ff7a00] text-[#ff7a00] rounded-[100px]">友達づくり</li>
-							<li className="px-[10px] py-[2px] border border-[#ff7a00] text-[#ff7a00] rounded-[100px]">コミュニティ</li>
-							<li className="px-[10px] py-[2px] border border-[#ff7a00] text-[#ff7a00] rounded-[100px]">お茶</li>
-							<li className="px-[10px] py-[2px] border border-[#ff7a00] text-[#ff7a00] rounded-[100px]">飲み会</li>
-							<li className="px-[10px] py-[2px] border border-[#ff7a00] text-[#ff7a00] rounded-[100px]">イベント</li>
+							{group.theme && group.theme.length > 0 ? (
+								group.theme.map((theme, index) => (
+									<li key={index} className="px-[10px] py-[2px] border border-[#ff7a00] text-[#ff7a00] rounded-[100px]">{theme}</li>
+								))
+							) : (
+								<li className="px-[10px] py-[2px] border border-[#ff7a00] text-[#ff7a00] rounded-[100px]">散歩</li>
+							)}
 						</ul>
 
 						{/*金額*/}

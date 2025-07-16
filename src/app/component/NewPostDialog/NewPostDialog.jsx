@@ -19,7 +19,7 @@ export default function NewRegPost({openDialog, closeDialog, placeName, clickPos
 
 	const { userId }                    = useUserContext();
 	const [name, setName]               = useState('');
-	const [area, setArea]             = useState('');
+	const [area, setArea]               = useState('');
 	const [startDate, setStartDate]     = useState('');
 	const [startTime, setStartTime]     = useState('');
 	const [endDate, setEndDate]         = useState('');
@@ -28,7 +28,7 @@ export default function NewRegPost({openDialog, closeDialog, placeName, clickPos
 	const [description, setDescription] = useState('');
 	const [memberCount, setmemberCount] = useState(0);
 	const [thumImage, setThumImage]     = useState(null);
-	const [theme, setTheme]             = useState('');
+	const [theme, setTheme]             = useState([]); 
 	const [editorKey, setEditorKey]     = useState(0);
 	const [price, setPrice]             = useState('');
 	const fileInputRef                  = useRef(null);
@@ -203,18 +203,33 @@ export default function NewRegPost({openDialog, closeDialog, placeName, clickPos
 
 				<label className="flex flex-col justify-center w-[100%] gap-[10px]">
 					<p className="text-[16px] font-bold">テーマ</p>
-					<select name="theme" value={theme} onChange={e => setTheme(e.target.value)}>
-						<option value="" disabled>テーマを選択</option>
-						{themeList.map((theme, index) => (
-							<option key={index} value={theme}>{theme}</option>
+					<div className="flex flex-wrap gap-[10px]">
+						{themeList.map((item) => (
+							<label key={item} className="flex items-center gap-[6px]">
+								<input
+									type="checkbox"
+									value={item}
+									checked={theme.includes(item)}
+									onChange={(e) => {
+										if (e.target.checked) {
+											setTheme([...theme, item]);
+										} else {
+											setTheme(theme.filter(t => t !== item));
+										}
+									}}
+								/>
+								<span>{item}</span>
+							</label>
 						))}
-					</select>
+					</div>
 				</label>
+
 
 				<MyEditor  key={editorKey} content={description} onChange={setDescription} />
 
 				<label className="flex flex-col justify-center w-[100%] gap-[10px]">
-					<p className="text-[16px] font-bold">参加人数:</p>
+					<p className="text-[16px] font-bold">参加人数:<span className="text-[13px] font-normal ml-[10px]">※主催者を含めた人数です</span></p>
+					
 					<select name="memberCount" value={memberCount} onChange={e => setmemberCount(Number(e.target.value))} required>
 					{Array.from({ length: 31 }, (_, i) => (
 						<option key={i} value={i}>{i}</option>
