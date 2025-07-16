@@ -441,7 +441,8 @@ export default function MessageDetailClient({ groupId, anotherUserId }) {
 					partner_id: anotherUserId,
 					last_message_at: message.created_at,
 					last_message: message.content || "[画像]",
-					unread_count: 0
+					unread_count: 0,
+					last_sender_flag: 0
 				},
 				// 相手側のチャットリスト用（未読件数+1）
 				{
@@ -449,7 +450,8 @@ export default function MessageDetailClient({ groupId, anotherUserId }) {
 					partner_id: userId,
 					last_message_at: message.created_at,
 					last_message: message.content || "[画像]",
-					unread_count: 1
+					unread_count: 1,
+					last_sender_flag: 1
 				}
 			];
 

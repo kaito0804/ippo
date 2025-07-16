@@ -64,6 +64,7 @@ export default function MessageBox() {
 					partner_id,
 					last_message,
 					last_message_at,
+					last_sender_flag,
 					user_profiles:partner_id (
 						id,
 						display_name,
@@ -176,7 +177,7 @@ export default function MessageBox() {
 										</div>
 										<div className="flex items-center justify-between w-full">
 											<p className="text-[13px] text-gray-500">
-												{chatUser.last_message_at ? "メッセージが届いています" : "メッセージがまだありません"}
+												{chatUser.last_sender_flag ? "相手" : "あなた"} : {chatUser.last_message_at ? chatUser.last_message : "メッセージがまだありません"}
 											</p>
 											{chatUser.unread_count > 0 && (
 												<p className="text-[12px] text-white bg-[#ff4343] rounded-full w-[20px] h-[20px] flex justify-center items-center">
