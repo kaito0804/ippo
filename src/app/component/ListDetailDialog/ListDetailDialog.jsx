@@ -47,7 +47,7 @@ export default function ListDetailDialog({selectPost, setSelectPost}) {
 		const date      = new Date(dateStr);
 		const days      = ['日', '月', '火', '水', '木', '金', '土'];
 		const year      = date.getFullYear();
-		const month     = date.getMonth() + 1; // 月は0始まり
+		const month     = date.getMonth() + 1; //月は0始まり
 		const day       = date.getDate().toString().padStart(2, '0');
 		const dayOfWeek = days[date.getDay()];
 
@@ -91,8 +91,8 @@ export default function ListDetailDialog({selectPost, setSelectPost}) {
 
 						{/*場所*/}
 						<div className="flex flex-col items-start justify-between w-[100%] mt-[24px]">
-							<p className="text-[14px] ">{group.venue}</p>
-							<p className="text-[14px] ">地図を見る</p>
+							<p className="text-[14px]">{group.venue}</p>
+							<p className="text-[14px]">地図を見る</p>
 						</div>
 
 						<div dangerouslySetInnerHTML={{ __html:group.description }} className="w-[100%] text-[14px] text-[#333] mt-[24px]"/>
@@ -101,10 +101,19 @@ export default function ListDetailDialog({selectPost, setSelectPost}) {
 
 					</div>
 
-					
-					<div onClick={() => onStripeClick(group)} className="fixed bottom-[10px] left-[50%] translate-x-[-50%] flex items-center justify-center w-[280px] py-[10px] bg-[#ff8b21] rounded-[100px] text-white text-[16px] font-bold">
-						参加する
-					</div>
+					{group.member?.includes(userId) ? (
+						<div className="fixed bottom-[10px] left-[50%] translate-x-[-50%] flex items-center justify-center w-[280px] py-[10px] bg-[#888] rounded-[100px] text-white text-[16px] font-bold">
+							すでに参加済みです
+						</div>
+					) : group.member?.length >= group.member_count ? (
+						<div className="fixed bottom-[10px] left-[50%] translate-x-[-50%] flex items-center justify-center w-[280px] py-[10px] bg-[#888] rounded-[100px] text-white text-[16px] font-bold">
+							定員に達しました
+						</div>
+					) : (
+						<div onClick={() => onStripeClick(group)} className="fixed bottom-[10px] left-[50%] translate-x-[-50%] flex items-center justify-center w-[280px] py-[10px] bg-[#3b82f6] rounded-[100px] text-white text-[16px] font-bold">
+							参加する
+						</div>
+					)}
 
 				</div>
 				

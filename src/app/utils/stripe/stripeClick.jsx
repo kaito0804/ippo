@@ -1,29 +1,28 @@
 // app/utils/stripe/stripeClick.jsx
-
 import { useState } from "react";
 import { supabase } from "@/app/utils/supabase/supabaseClient";
 import { handleStripeJoin } from "@/app/utils/stripe/stripeClient"; 
 
 export const stripeClick = (userId) => {
-	const [joiningStatus, setJoiningStatus] = useState({});
+	const [joiningStatus, setJoiningStatus]       = useState({});
 	const [userJoinedGroups, setUserJoinedGroups] = useState(new Set());
-	const [memberCounts, setMemberCounts] = useState({});
+	const [memberCounts, setMemberCounts]         = useState({});
 
 	const onStripeClick = async (group) => {
 		if (!userId) {
-		alert("ログインが必要です");
-		return;
+			alert("ログインが必要です");
+			return;
 		}
 
 		// Stripe決済が必要な場合
 		if (group.price !== "free") {
-		try {
-			await handleStripeJoin(group);
-		} catch (e) {
-			console.error("Stripe決済エラー:", e);
-			alert("決済処理に失敗しました");
-		}
-		return;
+			try {
+				await handleStripeJoin(group);
+			} catch (e) {
+				console.error("Stripe決済エラー:", e);
+				alert("決済処理に失敗しました");
+			}
+			return;
 		}
 
 		// === 無料参加処理 ===
@@ -50,20 +49,20 @@ export const stripeClick = (userId) => {
 
 		if (error) {
 			if (error.code === "23505") {
-			alert("すでに参加しています。");
+				alert("すでに参加しています。");
 			} else {
-			alert("参加に失敗しました。\n" + error.message);
+				alert("参加に失敗しました。\n" + error.message);
 			}
 		} else {
 			alert("グループに参加しました！");
 			setUserJoinedGroups((prev) => new Set(prev).add(group.id));
 			setMemberCounts((prev) => ({
-			...prev,
-			[group.id]: (prev[group.id] || 0) + 1,
+				...prev,
+				[group.id]: (prev[group.id] || 0) + 1,
 			}));
 		}
 		} finally {
-		setJoiningStatus((prev) => ({ ...prev, [group.id]: false }));
+			setJoiningStatus((prev) => ({ ...prev, [group.id]: false }));
 		}
 	};
 

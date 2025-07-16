@@ -218,6 +218,28 @@ input[type="number"]::-webkit-outer-spin-button {
 	background-repeat: no-repeat;
 }
 
+/*list_box*/
+.list-detail-link{
+	position: absolute;
+	font-size: 12px;
+	color: #333;
+	font-weight: bold;
+	bottom: 10px;
+	right: 28px;
+}
+
+.list-detail-link::after{
+	content: '';
+	position: absolute;
+	width: 18px;
+	height: 18px;
+	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1752628524/nav-arrow-right_black_b2ay4k.svg");
+	background-size: contain;
+	background-position: center;
+	background-repeat: no-repeat;
+	top: calc(50% - 18px/2);	
+}
+
 /*listDetailDialog*/
 .listDetailDialog{
 	position: fixed;
