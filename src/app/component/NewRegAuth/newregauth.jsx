@@ -22,12 +22,11 @@ export default function AuthButtons({ authBtn, setAuthBtn }) {
 	// LINEログイン開始
 	const signInWithLine = () => {
 		const auth0Domain = "dev-8niza83ncu4nqh2o.us.auth0.com";
-		const clientId = "StmPak8MbLNz7PBJqS17BX6hfmckddXS";
+		const clientId    = "StmPak8MbLNz7PBJqS17BX6hfmckddXS";
 		const redirectUri = process.env.NEXT_PUBLIC_APP_URL + "/login_loading" || "https://ippo-sampo.vercel.app/login_loading";
 
 		// response_type を "id_token token" に変更
 		const url = `https://${auth0Domain}/authorize?response_type=id_token%20token&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&connection=line&scope=profile openid email&nonce=${Date.now()}`;
-
 		console.log('Auth0 URL:', url);
 		window.location.href = url;
 	};
