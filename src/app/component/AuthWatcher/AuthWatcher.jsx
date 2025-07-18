@@ -1,36 +1,51 @@
 'use client';
-
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { useRouter, usePathname } from 'next/navigation';
 import { supabase } from '@/app/utils/supabase/supabaseClient';
 
 export default function AuthWatcher() {
-  const router   = useRouter();
+  const { data: session, status } = useSession();
+  const [supaSession, setSupaSession] = useState(null);
+  const router = useRouter();
   const pathname = usePathname();
 
-	useEffect(() => {
-		const checkSession = async () => {
-			const { data: { session } } = await supabase.auth.getSession();
-			// もしログイン済み かつ 今がログイン画面なら /top に飛ばす
-			if (session && pathname === '/') {
-				router.push('/top');
-			}else if(!session){
-				router.push('/');
-			}
-		};
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => setSupaSession(data.session));
 
-		checkSession();
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSupaSession(session);
+    });
 
-		const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
-			if (event === 'SIGNED_IN' && pathname === '/') {
-				router.push('/top');
-			}
-		});
+    return () => {
+      listener.subscription.unsubscribe();
+    };
+  }, []);
 
-		return () => {
-			listener?.subscription.unsubscribe();
-		};
-	}, [router, pathname]);
+  useEffect(() => {
+    if (status === 'loading') return;
 
-	return null;
+    const loggedIn = !!session || !!supaSession;
+
+    // ログインページ
+    if (pathname === '/') {
+      if (loggedIn) {
+        router.push('/top');
+      }
+      // 未ログインならそのままログインページにいる
+      return;
+    }
+
+    // トップページやその他保護されたページ
+    if (pathname === '/top') {
+      if (!loggedIn) {
+        router.push('/');
+      }
+      return;
+    }
+
+    // 他のパスに対しては任意の処理（今回は何もしない）
+  }, [session, status, supaSession, pathname, router]);
+
+  return null;
 }

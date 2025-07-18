@@ -2,6 +2,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Noto_Sans_JP } from 'next/font/google'
 import { Poppins } from "next/font/google";
 import "./globals.css";
+import Providers from "@/app/component/Providers/Providers";
+import { SessionProvider } from "next-auth/react";
+
 import AuthWatcher from '@/app/component/AuthWatcher/AuthWatcher'
 import { UserProvider } from '@/app/utils/userContext';
 
@@ -39,8 +42,11 @@ export default function RootLayout({ children }) {
 			<body className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${notoSansJp.variable} antialiased`}>
 				<div id="contents" className="w-[100%]">
 					<UserProvider>
-						<AuthWatcher />
+            
+            <Providers>
+            <AuthWatcher />
 						{children}
+            </Providers>
 					</UserProvider>
 				</div>
 			</body>

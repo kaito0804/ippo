@@ -1,45 +1,116 @@
 "use client";
-import { useState } from 'react';
 import { useRouter } from "next/navigation";
 import { supabase } from "@/app/utils/supabase/supabaseClient";
+import { signOut as nextAuthSignOut, useSession } from "next-auth/react";
+import { useLiff } from '@/app/component/Line/Line'; 
 import Link from 'next/link';
 
 export default function Header({title}) {
 
+	const { data: nextAuthSession } = useSession();
 	const router = useRouter();
+	const { liff, isInitialized } = useLiff();
 
 	const Logout = async () => {
-		// 現在ログインしているユーザーID取得
-		const user = supabase.auth.getUser();
+  try {
+    // NextAuth セッションがあればログアウト
+    if (nextAuthSession?.user) {
+      await nextAuthSignOut({ redirect: false });
+    }
 
-		const { data: { user: currentUser } } = await user;
+    // Supabase セッションがあればログアウト
+    const { data: { session: supaSession } } = await supabase.auth.getSession();
+    if (supaSession) {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error("Supabase ログアウト失敗", error);
+      }
+    }
 
-		if (!currentUser) {
-		alert("ユーザーがログインしていません");
-		return;
-		}
+    // LIFFの登録状態を初回ログイン前の状態にリセット
+    if (liff && liff.isLoggedIn()) {
+      await liff.logout();
+    }
 
-		// now_statusを空に更新
-		const { error: updateError } = await supabase
-		.from("user_profiles")
-		.update({ now_status: null }) // もしくは "" にしたいなら .update({ now_status: "" })
-		.eq("id", currentUser.id);
+    // LIFF関連のlocalStorageデータを完全に削除して初期状態に戻す
+    const allKeys = Object.keys(localStorage);
+    allKeys.forEach(key => {
+      if (key.startsWith('LIFF_STORE:') || key.startsWith('nextauth.')) {
+        localStorage.removeItem(key);
+        console.log(`Removed: ${key}`);
+      }
+    });
 
-		if (updateError) {
-		alert("ステータス更新に失敗しました");
-		console.error(updateError);
-		return;
-		}
+    // セッションストレージもクリア（念のため）
+    const sessionKeys = Object.keys(sessionStorage);
+    sessionKeys.forEach(key => {
+      if (key.startsWith('LIFF_STORE:') || key.startsWith('nextauth.')) {
+        sessionStorage.removeItem(key);
+        console.log(`Removed from session: ${key}`);
+      }
+    });
 
-		// ログアウト処理
-		const { error: signOutError } = await supabase.auth.signOut();
-		if (signOutError) {
-		alert("ログアウトに失敗しました");
-		console.error(signOutError);
-		} else {
-		router.push("/");
-		}
-	};
+    // Cookieも削除してLINE認証状態を完全にリセット
+    const cookiesToRemove = [
+      'LIFF_STORE:expires:2007726384-QVlbYlJG',
+      '__Secure-next-auth.session-token',
+      'next-auth.session-token',
+      '__Secure-next-auth.callback-url',
+      'next-auth.callback-url',
+      '__Secure-next-auth.csrf-token',
+      'next-auth.csrf-token'
+    ];
+
+    // 指定されたcookieを削除
+    cookiesToRemove.forEach(cookieName => {
+      // 複数のパスとドメインで削除を試行
+      const domains = [window.location.hostname, `.${window.location.hostname}`, ''];
+      const paths = ['/', '', '/auth'];
+      
+      domains.forEach(domain => {
+        paths.forEach(path => {
+          // 通常の削除
+          document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}; domain=${domain};`;
+          // セキュアcookieの削除
+          document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}; domain=${domain}; secure;`;
+          // SameSite設定も含めて削除
+          document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=${path}; domain=${domain}; secure; samesite=lax;`;
+        });
+      });
+      console.log(`Removed cookie: ${cookieName}`);
+    });
+
+    // 動的にLIFF関連のcookieも削除
+    const allCookies = document.cookie.split(';');
+    allCookies.forEach(cookie => {
+      const cookieName = cookie.split('=')[0].trim();
+      if (cookieName.startsWith('LIFF_STORE:') || cookieName.includes('next-auth')) {
+        document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+        document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; secure;`;
+        console.log(`Removed dynamic cookie: ${cookieName}`);
+      }
+    });
+
+    // アプリケーション状態をリセット（必要に応じて追加）
+    // - React状態のリセット
+    // - コンテキストの初期化
+    // - LIFFの再初期化フラグ設定など
+    
+    // 例: LIFFの再初期化が必要な場合
+    if (window.liff) {
+      window.liff = null; // LIFFオブジェクトをクリア
+    }
+
+    // 完全なページリロードで確実にリセット
+    window.location.href = '/';
+    
+  } catch (error) {
+    console.error('ログアウト処理中のエラー:', error);
+    alert('ログアウトに失敗しました');
+    // エラーが発生した場合でも強制リロード
+    window.location.href = '/';
+  }
+};
 
 	return (
 		<div className='fixed top-0 left-0 w-[100%] z-50'>
