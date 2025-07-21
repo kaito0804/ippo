@@ -145,7 +145,7 @@ export default function AuthButtons({ user }) {
 
 
 	return (
-		<div className="font-zen-maru-gothic w-[100%] h-[100dvh] pt-[70px] pb-[50px] bg-[#FEFAF1] overflow-y-scroll">
+		<div className="font-zen-maru-gothic w-[100%] h-[100dvh] py-[30px] bg-[#FEFAF1] overflow-y-scroll">
 			{isLoading && (
 				<div className="fixed inset-0 bg-white bg-opacity-80 z-50 flex justify-center items-center">
 					<p className="text-xl text-[#ff7a00] font-bold animate-pulse">ログイン処理中です...</p>
@@ -158,17 +158,17 @@ export default function AuthButtons({ user }) {
 						<div onClick={() => setShowBtn('')} className='ippo_icon_n'></div>
 					</div>
 					{!showBtn ? (
-						<div className="flex flex-col justify-center items-center w-[100%] mt-[80px]">
+						<div className="flex flex-col justify-center items-center w-[100%] mt-[50px]">
 							<div className="flex flex-col justify-center items-left text-[#ff7a00] ">
-								<p className="font-bold text-[60px]">一緒に</p>
-								<p className="font-bold text-[60px] flex items-center justify-between icon-camel">散歩</p>
-								<p className="font-bold text-[60px]">しようよ</p>
+								<p className="font-bold text-[52px]">一緒に</p>
+								<p className="font-bold text-[52px] flex items-center justify-between icon-camel">散歩</p>
+								<p className="font-bold text-[52px]">しようよ</p>
 							</div>
-							<div onClick={() =>setShowBtn('newreg')} className='w-[295px] flex justify-center items-center mt-[60px] py-[12px] bg-[#f26a21] rounded-[100px] text-white text-[24px] font-bold'>はじめる</div>
-							<div onClick={() =>setShowBtn('login')} className='w-[295px] flex justify-center items-center mt-[15px] py-[12px] bg-[#fff] border border-[#f26a21] rounded-[100px] text-[#f26a21] text-[24px] font-bold'>ログイン</div>
+							<div onClick={() =>setShowBtn('newreg')} className='w-[270px] flex justify-center items-center mt-[60px] py-[12px] bg-[#f26a21] rounded-[100px] text-white text-[20px] font-bold'>はじめる</div>
+							<div onClick={() =>setShowBtn('login')} className='w-[270px] flex justify-center items-center mt-[24px] py-[12px] bg-[#fff] border border-[#f26a21] rounded-[100px] text-[#f26a21] text-[20px] font-bold'>ログイン</div>
 						</div>	
 					) : (
-						<div className="flex flex-col justify-start items-center w-[100%] mt-[80px]">
+						<div className="flex flex-col justify-start items-center w-[100%] mt-[50px]">
 							<p className='text-[#ff7a00] font-bold text-[32px]'>会員登録</p>
 
 							{showBtn == 'newreg' ? (
@@ -202,13 +202,13 @@ export default function AuthButtons({ user }) {
 					<div onClick={() => setShowBtn('')} className='ippo_icon_n_big'></div>
 					<p className='text-[#ff7a00] font-bold text-[20px]'>GROUND RULES</p>
 					<div ref={contentRef} dangerouslySetInnerHTML={{ __html: groupListTemplate() }}
-						 className="w-[80%] h-[390px] mt-[24px] p-[26px] border border-[#B6B6B6] rounded-[6px] overflow-y-scroll">
+						 className="w-[80%] h-[370px] mt-[24px] p-[26px] border border-[#B6B6B6] rounded-[6px] overflow-y-scroll">
 					</div>
 					{!rulesScrolled ? (
-						<div className='w-[224px] flex justify-center items-center mt-[20px] py-[12px] bg-[#b6b6b6] rounded-[100px] text-[#fff] text-[24px] font-bold'>同意する</div>
+						<div className='w-[224px] flex justify-center items-center mt-[20px] py-[12px] bg-[#b6b6b6] rounded-[100px] text-[#fff] text-[20px] font-bold'>同意する</div>
 					) : (
 						<div onClick={authKind}
-							 className='w-[224px] flex justify-center items-center mt-[20px] py-[12px] bg-[#f26a21] rounded-[100px] text-[#fff] text-[24px] font-bold'>
+							 className='w-[224px] flex justify-center items-center mt-[20px] py-[12px] bg-[#f26a21] rounded-[100px] text-[#fff] text-[20px] font-bold'>
 							同意する
 						</div>
 					)}
