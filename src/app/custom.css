@@ -23,6 +23,7 @@ input[type="number"]::-webkit-outer-spin-button {
 .ippo_icon_n{
 	width: 100px;
 	height: 50px;
+	margin-left: 8px;
 	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1753080491/IPPO__logo_tvu5ni.svg");
 	background-size: contain;
 	background-position: center;
