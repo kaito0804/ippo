@@ -57,7 +57,7 @@ export default function ListDetailDialog({selectPost, setSelectPost}) {
 	return (
 		<div className="listDetailDialog" style={selectPost ? {bottom:'0'} : {bottom:'-100%'}}>
 			<div className="sticky flex justify-between items-center px-[10px] py-[10px] top-0 left-0 w-[100%] bg-[#fff]">
-				<p className="text-[#ff7a00] text-[24px] font-bold font-poppins leading-[1]">IPPO</p>
+				<p className="text-[#ff7a00] text-[24px] font-bold leading-[1]">IPPO</p>
 				<div onClick={() => {setSelectPost(''); setGroup(null);}} className="w-[28px] h-[28px] bg-center bg-contain bg-no-repeat" style={{backgroundImage: 'url("https://res.cloudinary.com/dnehmdy45/image/upload/v1750818660/xmark_dv4bnv.svg")'}}></div>
 			</div>
 			{group ? (

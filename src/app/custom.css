@@ -20,6 +20,34 @@ input[type="number"]::-webkit-outer-spin-button {
   appearance: auto;
 }
 
+.ippo_icon_n{
+	width: 100px;
+	height: 50px;
+	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1753080491/IPPO__logo_tvu5ni.svg");
+	background-size: contain;
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+.ippo_icon_n_big{
+	width: 218px;
+	height: 90px;
+	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1753080491/IPPO__logo_tvu5ni.svg");
+	background-size: contain;
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+.icon-camel::after{
+	content: '';
+	display: inline-flex;
+	width: 100px;
+	height: 100px;
+	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1753058128/camel_dm5s3s.svg");
+	background-size: contain;
+	background-position: center;
+	background-repeat: no-repeat;
+}
 
 .btn-icon-google::before{
 	content: '';

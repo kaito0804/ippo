@@ -116,7 +116,7 @@ export default function Header({title}) {
 		<div className='fixed top-0 left-0 w-[100%] z-50'>
 			<div className='flex justify-between items-center w-[100%] py-[9px] px-[15px] bg-white border-b border-[#ebebeb]'>
 				<Link href="/top" className='flex items-baseline gap-[8px]'>
-					<div className='text-[#ff7a00] text-[30px] font-bold font-poppins leading-[1]'>IPPO</div>
+					<div className='text-[#ff7a00] text-[30px] font-bold leading-[1]'>IPPO</div>
 				</Link>
 				<div className='flex flex-col justify-center items-center'>
 					<p onClick={Logout} className='logout'></p>

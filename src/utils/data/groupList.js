@@ -20,24 +20,29 @@ export const themeList = [
 グループ詳細モーダルのテンプレート文
 ================================*/
 export const groupListTemplate = (group) => {
-	if (!group) return "";
-	/*========================
+  /*========================
+    日付取得
+  =========================*/
+  function startDay(dateStr) {
+    const date = new Date(dateStr);
+    const days = ['日', '月', '火', '水', '木', '金', '土'];
+    const year = date.getFullYear();
+    const month = date.getMonth() + 1;
+    const day = date.getDate().toString().padStart(2, '0');
+    const dayOfWeek = days[date.getDay()];
+    return `${year}/${month}/${day}(${dayOfWeek})`;
+  }
 
-	日付取得
+  //groupが存在する場合のみ表示
+  const eventDetailHtml = group ? `
+<h2 class="text-[20px] font-bold mt-[36px]">📍イベント詳細</h2>
+<p class="mt-[5px]">集合時間：${startDay(group.start_date)} ${group.start_time?.slice(0, 5)}-${group.end_time?.slice(0, 5)}</p>
+<p>開催場所：${group.venue}</p>
+<p>定員：${group.member_count != null ? `${group.member_count}人` : '未定'}</p>
+<p>参加費：${group.price || "無料"}</p>
+` : "";
 
-	=========================*/
-	function startDay(dateStr) {
-		const date      = new Date(dateStr);
-		const days      = ['日', '月', '火', '水', '木', '金', '土'];
-		const year      = date.getFullYear();
-		const month     = date.getMonth() + 1; // 月は0始まり
-		const day       = date.getDate().toString().padStart(2, '0');
-		const dayOfWeek = days[date.getDay()];
-
-		return `${year}/${month}/${day}(${dayOfWeek})`;
-	}
-
-return `
+  return `
 <h2 class="text-[20px] font-bold">☘️ こんな方におすすめ</h2>
 <ul class="flex flex-col gap-[3px] list-disc pl-5 mt-[5px]">
   <li>IPPOに興味がある方！</li>
@@ -54,14 +59,9 @@ return `
   <li>天候や主催者都合でイベントが中止になった場合は、全額返金いたします。</li>
 </ul>
 
-<h2 class="text-[20px] font-bold mt-[36px]">📍イベント詳細</h2>
-<p class="mt-[5px]">集合時間：${startDay(group.start_date)} ${group.start_time?.slice(0, 5)}-${group.end_time?.slice(0, 5)}</p>
-<p>開催場所：${group.venue}</p>
-<p>定員：${group.member_count != null ? `${group.member_count}人` : '未定'}</p>
-<p>参加費：${group.price || "無料"}</p>
+${eventDetailHtml}
 
 <h2 class="text-[20px] font-bold mt-[36px]">🥾IPPOのグランドルール</h2>
-
 <h3 class="font-semibold mt-[8px]">☀️ ネガティブは置いていこう</h3>
 <p class="mt-[5px]">
   相手を傷つけるようなネガティブな発言はNG。<br>
@@ -103,4 +103,5 @@ return `
   どなたでも、初めてでも、お気軽にどうぞ！
 </p>
 `;
-}
+};
+

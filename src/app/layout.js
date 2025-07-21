@@ -1,6 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
-import { Noto_Sans_JP } from 'next/font/google'
-import { Poppins } from "next/font/google";
+import { Noto_Sans_JP } from 'next/font/google';
+import { Zen_Maru_Gothic } from 'next/font/google';
+
 import "./globals.css";
 import Providers from "@/component/Providers/Providers";
 import { SessionProvider } from "next-auth/react";
@@ -25,11 +26,13 @@ const notoSansJp = Noto_Sans_JP({
   variable: '--font-noto-sans-jp',
 })
 
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-poppins",
+const zenMaruGothic = Zen_Maru_Gothic({
+  subsets: ['latin'],
+  weight: ['400', '500', '700'], // 必要な重みを指定
+  display: 'swap',
+  variable: '--font-zen-maru-gothic',
 });
+
 
 export const metadata = {
   title: "Create Next App",
@@ -39,7 +42,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
 	return (
 		<html lang="jp">
-			<body className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${notoSansJp.variable} antialiased`}>
+			<body className={`${geistSans.variable} ${geistMono.variable} ${notoSansJp.variable} ${zenMaruGothic.variable} antialiased`}>
 				<div id="contents" className="w-[100%]">
 					<UserProvider>
 						<Providers>

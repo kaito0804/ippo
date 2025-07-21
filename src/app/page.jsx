@@ -7,7 +7,7 @@ export default async  function Home() {
 	const user = await getCurrentUser();
 
 	return (
-		<div>
+		<div className="bg-[#FEFAF1]">
 			<AuthButtons user={user} />
 		</div>
 	);
