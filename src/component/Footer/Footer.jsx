@@ -1,9 +1,9 @@
 "use client";
 import { useState } from 'react';
-import { supabase } from "@/app/utils/supabase/supabaseClient";
+import { supabase } from "@/utils/supabase/supabaseClient";
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useUserContext } from '@/app/utils/userContext';
+import { useUserContext } from '@/utils/userContext';
 
 export default function Footer({postBtn, openDialog}) {
 

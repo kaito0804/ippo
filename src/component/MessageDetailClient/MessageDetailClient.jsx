@@ -5,11 +5,11 @@ import { useEffect, useState, useRef } from "react";
 import Link from 'next/link'
 
 //cloudinary関連
-import { uploadToCloudinary } from "@/app/utils/cloudinary/cloudinary";
+import { uploadToCloudinary } from "@/utils/cloudinary/cloudinary";
 
 //データベース関連
-import { supabase } from "@/app/utils/supabase/supabaseClient";
-import { useUserContext } from '@/app/utils/userContext';
+import { supabase } from "@/utils/supabase/supabaseClient";
+import { useUserContext } from '@/utils/userContext';
 
 
 export default function MessageDetailClient({ groupId, anotherUserId }) {

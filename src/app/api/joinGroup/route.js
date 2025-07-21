@@ -1,7 +1,7 @@
 // src/app/api/joinGroup/route.js
 import { NextResponse } from "next/server";
-import { supabase } from "@/app/utils/supabase/supabaseServer";
-import { getUserIdFromAccessToken } from '@/app/utils/supabase/supabaseBackend';
+import { supabase } from "@/utils/supabase/supabaseServer";
+import { getUserIdFromAccessToken } from '@/utils/supabase/supabaseBackend';
 
 export async function POST(req) {
 	try {

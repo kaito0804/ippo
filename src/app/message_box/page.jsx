@@ -1,10 +1,10 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
-import { supabase } from "@/app/utils/supabase/supabaseClient";
-import Header from "@/app/component/Header/Header";
-import Footer from "@/app/component/Footer/Footer";
+import { supabase } from "@/utils/supabase/supabaseClient";
+import Header from "@/component/Header/Header";
+import Footer from "@/component/Footer/Footer";
 import Link from 'next/link';
-import { useUserContext } from '@/app/utils/userContext';
+import { useUserContext } from '@/utils/userContext';
 
 
 export default function MessageBox() {

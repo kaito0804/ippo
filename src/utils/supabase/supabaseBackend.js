@@ -1,4 +1,4 @@
-// src/app/utils/supabase/supabeseBackend.js
+// src/utils/supabase/supabeseBackend.js
 import { supabase } from './supabaseServer';
 
 export async function getUserIdFromAccessToken(access_token) {

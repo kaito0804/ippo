@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '@/app/utils/supabase/supabaseClient';
+import { supabase } from '@/utils/supabase/supabaseClient';
 import liff from '@line/liff';
 
 const UserContext = createContext({

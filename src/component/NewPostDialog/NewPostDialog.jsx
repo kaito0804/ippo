@@ -2,17 +2,17 @@
 
 //react/next.js用ライブラリ
 import { useState, useEffect, useRef } from "react";
-import MyEditor from '@/app/component/MyEditor/myEditor';
+import MyEditor from '@/component/MyEditor/myEditor';
 
 //cloudinary関連
-import { uploadToCloudinary } from "@/app/utils/cloudinary/cloudinary";
+import { uploadToCloudinary } from "@/utils/cloudinary/cloudinary";
 
 //データベース関連
-import { supabase } from '@/app/utils/supabase/supabaseClient';
-import { useUserContext } from '@/app/utils/userContext';
+import { supabase } from '@/utils/supabase/supabaseClient';
+import { useUserContext } from '@/utils/userContext';
 
 //クライアントコンポーネント
-import { areaList, themeList } from '@/app/utils/data/groupList';
+import { areaList, themeList } from '@/utils/data/groupList';
 
 
 export default function NewRegPost({openDialog, closeDialog, placeName, clickPosition }) {

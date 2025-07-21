@@ -1,7 +1,7 @@
-// app/utils/stripe/stripeClick.jsx
+// utils/stripe/stripeClick.jsx
 import { useState } from "react";
-import { supabase } from "@/app/utils/supabase/supabaseClient";
-import { handleStripeJoin } from "@/app/utils/stripe/stripeClient"; 
+import { supabase } from "@/utils/supabase/supabaseClient";
+import { handleStripeJoin } from "@/utils/stripe/stripeClient"; 
 
 export const stripeClick = (userId) => {
 	const [joiningStatus, setJoiningStatus]       = useState({});

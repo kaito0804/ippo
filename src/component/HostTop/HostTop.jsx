@@ -2,7 +2,7 @@
 
 //react/next.js用ライブラリ
 import { useState, useEffect, useRef } from "react";
-import NewPostDialog from '@/app/component/NewPostDialog/NewPostDialog';
+import NewPostDialog from '@/component/NewPostDialog/NewPostDialog';
 
 //googleMap
 import {
@@ -13,8 +13,8 @@ useJsApiLoader,
 } from "@react-google-maps/api";
 
 //データベース関連
-import { supabase } from '@/app/utils/supabase/supabaseClient';
-import { useUserContext } from '@/app/utils/userContext';
+import { supabase } from '@/utils/supabase/supabaseClient';
+import { useUserContext } from '@/utils/userContext';
 
 const mapContainerStyle = { width: "100%", height: "100%" };
 

@@ -12,7 +12,7 @@ useJsApiLoader,
 } from "@react-google-maps/api";
 
 //データベース関連
-import { supabase } from '@/app/utils/supabase/supabaseClient';
+import { supabase } from '@/utils/supabase/supabaseClient';
 
 const mapContainerStyle = { width: "100%", height: "100%" };
 

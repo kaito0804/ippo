@@ -4,15 +4,15 @@
 import { useEffect, useState } from "react";
 
 //データベース関連
-import { supabase } from "@/app/utils/supabase/supabaseClient";
-import { handleStripeJoin } from "@/app/utils/stripe/stripeClient"; 
+import { supabase } from "@/utils/supabase/supabaseClient";
+import { handleStripeJoin } from "@/utils/stripe/stripeClient"; 
 
 //クライアントコンポーネント
-import Header from "@/app/component/Header/Header";
-import Footer from "@/app/component/Footer/Footer";
-import { useUserContext } from '@/app/utils/userContext';
-import SearchListDialog from "@/app/component/SearchListDialog/SearchListDialog";
-import ListDetailDialog from '@/app/component/ListDetailDialog/ListDetailDialog';
+import Header from "@/component/Header/Header";
+import Footer from "@/component/Footer/Footer";
+import { useUserContext } from '@/utils/userContext';
+import SearchListDialog from "@/component/SearchListDialog/SearchListDialog";
+import ListDetailDialog from '@/component/ListDetailDialog/ListDetailDialog';
 
 export default function ListBox() {
 

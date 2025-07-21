@@ -4,16 +4,16 @@
 import { useState, useEffect} from "react";
 
 //データベース関連
-import { supabase }         from '@/app/utils/supabase/supabaseClient';
-import { useUserContext }   from '@/app/utils/userContext';
-import { updateUserStatus } from '@/app/utils/updateUserStatus';
+import { supabase }         from '@/utils/supabase/supabaseClient';
+import { useUserContext }   from '@/utils/userContext';
+import { updateUserStatus } from '@/utils/updateUserStatus';
 
 //コンポーネント
-import Header           from "@/app/component/Header/Header";
-import Footer           from "@/app/component/Footer/Footer";
-import HostTop          from "@/app/component/HostTop/HostTop";
-import MemberTop        from "@/app/component/MemberTop/MemberTop";
-import ListDetailDialog from '@/app/component/ListDetailDialog/ListDetailDialog';
+import Header           from "@/component/Header/Header";
+import Footer           from "@/component/Footer/Footer";
+import HostTop          from "@/component/HostTop/HostTop";
+import MemberTop        from "@/component/MemberTop/MemberTop";
+import ListDetailDialog from '@/component/ListDetailDialog/ListDetailDialog';
 
 
 

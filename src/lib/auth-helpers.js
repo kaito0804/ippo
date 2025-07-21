@@ -1,4 +1,4 @@
-// src/app/utils/auth/auth-helpers.js
+// src/utils/auth/auth-helpers.js
 import { getServerSession } from 'next-auth';
 import { authOptions } from './authLine';
 

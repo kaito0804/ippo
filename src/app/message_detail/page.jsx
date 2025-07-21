@@ -1,5 +1,5 @@
 // MessageDetailPage.jsx
-import MessageDetailClient from '@/app/component/MessageDetailClient/MessageDetailClient';
+import MessageDetailClient from '@/component/MessageDetailClient/MessageDetailClient';
 
 export default function MessageDetailPage({ searchParams }) {
 	const groupId = searchParams?.groupId || null;

@@ -1,9 +1,9 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useLiff } from '@/app/component/Line/Line';
+import { useLiff } from '@/component/Line/Line';
 import { signIn } from 'next-auth/react';
-import { supabase } from "@/app/utils/supabase/supabaseClient";
+import { supabase } from "@/utils/supabase/supabaseClient";
 
 export default function AuthButtons({ user }) {
 	const router = useRouter();

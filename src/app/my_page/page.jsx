@@ -5,15 +5,15 @@ import { useEffect, useState, useRef } from "react";
 import Link from 'next/link'
 
 //cloudinary関連
-import { uploadToCloudinary } from "@/app/utils/cloudinary/cloudinary";
+import { uploadToCloudinary } from "@/utils/cloudinary/cloudinary";
 
 //データベース関連
-import { supabase } from "@/app/utils/supabase/supabaseClient";
+import { supabase } from "@/utils/supabase/supabaseClient";
 
 //コンポーネント
-import { useUserContext } from '@/app/utils/userContext';
-import Header  from "@/app/component/Header/Header";
-import Footer  from "@/app/component/Footer/Footer";
+import { useUserContext } from '@/utils/userContext';
+import Header  from "@/component/Header/Header";
+import Footer  from "@/component/Footer/Footer";
 
 export default function UserPage() {
 

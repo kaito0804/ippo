@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter, usePathname } from 'next/navigation';
-import { supabase } from '@/app/utils/supabase/supabaseClient';
+import { supabase } from '@/utils/supabase/supabaseClient';
 
 export default function AuthWatcher() {
   const { data: session, status } = useSession();

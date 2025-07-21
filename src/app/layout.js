@@ -2,11 +2,11 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Noto_Sans_JP } from 'next/font/google'
 import { Poppins } from "next/font/google";
 import "./globals.css";
-import Providers from "@/app/component/Providers/Providers";
+import Providers from "@/component/Providers/Providers";
 import { SessionProvider } from "next-auth/react";
 
-import AuthWatcher from '@/app/component/AuthWatcher/AuthWatcher'
-import { UserProvider } from '@/app/utils/userContext';
+import AuthWatcher from '@/component/AuthWatcher/AuthWatcher'
+import { UserProvider } from '@/utils/userContext';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

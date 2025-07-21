@@ -4,14 +4,14 @@
 import { useState, useEffect, useRef } from "react";
 
 //stripe関連
-import { stripeClick } from '@/app/utils/stripe/stripeClick';
+import { stripeClick } from '@/utils/stripe/stripeClick';
 
 //データベース関連
-import { supabase } from '@/app/utils/supabase/supabaseClient';
+import { supabase } from '@/utils/supabase/supabaseClient';
 
 //クライアントコンポーネント
-import { useUserContext } from '@/app/utils/userContext';
-import {groupListTemplate} from '@/app/utils/data/groupList';
+import { useUserContext } from '@/utils/userContext';
+import {groupListTemplate} from '@/utils/data/groupList';
 
 
 export default function ListDetailDialog({selectPost, setSelectPost}) {

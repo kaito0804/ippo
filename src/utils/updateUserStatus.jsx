@@ -1,4 +1,4 @@
-import { supabase } from '@/app/utils/supabase/supabaseClient';
+import { supabase } from '@/utils/supabase/supabaseClient';
 
 export const updateUserStatus = async (userId, status) => {
 

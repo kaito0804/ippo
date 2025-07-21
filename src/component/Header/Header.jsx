@@ -1,8 +1,8 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/app/utils/supabase/supabaseClient";
+import { supabase } from "@/utils/supabase/supabaseClient";
 import { signOut as nextAuthSignOut, useSession } from "next-auth/react";
-import { useLiff } from '@/app/component/Line/Line'; 
+import { useLiff } from '@/component/Line/Line'; 
 import Link from 'next/link';
 
 export default function Header({title}) {

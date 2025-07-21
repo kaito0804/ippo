@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from 'react';
-import { areaList, themeList } from '@/app/utils/data/groupList';
+import { areaList, themeList } from '@/utils/data/groupList';
 
 export default function SearchListDialog({ filters, setFilters, dropdowns, setDropdowns }) {
 	const containerRef = useRef(null);
