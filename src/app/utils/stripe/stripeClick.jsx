@@ -52,6 +52,7 @@ export const stripeClick = (userId) => {
 				alert("すでに参加しています。");
 			} else {
 				alert("参加に失敗しました。\n" + error.message);
+				console.log(error.message);
 			}
 		} else {
 			alert("グループに参加しました！");

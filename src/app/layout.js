@@ -42,11 +42,10 @@ export default function RootLayout({ children }) {
 			<body className={`${geistSans.variable} ${geistMono.variable} ${poppins.variable} ${notoSansJp.variable} antialiased`}>
 				<div id="contents" className="w-[100%]">
 					<UserProvider>
-            
-            <Providers>
-            <AuthWatcher />
-						{children}
-            </Providers>
+						<Providers>
+							<AuthWatcher />
+							{children}
+						</Providers>
 					</UserProvider>
 				</div>
 			</body>

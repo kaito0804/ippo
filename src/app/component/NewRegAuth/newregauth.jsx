@@ -39,8 +39,8 @@ export default function AuthButtons({ user }) {
 				if (result?.error) {
 				setAuthError(result.error);
 				} else if (result?.url) {
-				// 認証成功時はリダイレクト
-				router.push(result.url);
+					// 認証成功時はリダイレクト
+					router.push(result.url);
 				}
 			} catch (err) {
 				setAuthError('認証中にエラーが発生しました');
@@ -109,20 +109,6 @@ export default function AuthButtons({ user }) {
 		});
 	};
 
-	// LINEログイン開始
-	const signInWithLine2 = () => {
-		const auth0Domain = "dev-8niza83ncu4nqh2o.us.auth0.com";
-		const clientId    = "StmPak8MbLNz7PBJqS17BX6hfmckddXS";
-		const redirectUri = process.env.NEXT_PUBLIC_APP_URL + "/login_loading" || "https://ippo-sampo.vercel.app/login_loading";
-
-		// response_type を "id_token token" に変更
-		const url = `https://${auth0Domain}/authorize?response_type=id_token%20token&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&connection=line&scope=profile openid email&nonce=${Date.now()}`;
-		console.log('Auth0 URL:', url);
-		window.location.href = url;
-	};
-
-
-
 	return (
 		<div onClick={() => setAuthBtn('')} className="flex flex-col justify-center items-center">
 			{isLoading && (
@@ -147,11 +133,6 @@ export default function AuthButtons({ user }) {
 				<div onClick={signInWithGoogle} className="btn-icon-google relative w-[300px] py-[12px] pl-[13px] flex flex-col justify-center items-center bg-[#fff] text-[#333] rounded-[100px] font-bold">
 					Googleで{authBtn == 'new_reg' ? '登録' : 'ログイン'}
 				</div>
-
-				{/* LIFF初期化待ち */}
-				{!isInitialized && !authError && (
-				<p className="text-center text-gray-600">LINEと通信中...</p>
-				)}
 
 				<div onClick={LineLogin} className="btn-icon-line relative w-[300px] py-[12px] pl-[13px] flex flex-col justify-center items-center bg-[#06C755] text-white rounded-[100px] font-bold">
 					LINEで{authBtn == 'new_reg' ? '登録' : 'ログイン'}
