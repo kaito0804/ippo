@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/utils/supabase/supabaseClient";
-import Header from "@/component/Header/Header";
-import Footer from "@/component/Footer/Footer";
+import Header from "@/component/Header";
+import Footer from "@/component/Footer";
 import Link from 'next/link';
 import { useUserContext } from '@/utils/userContext';
 

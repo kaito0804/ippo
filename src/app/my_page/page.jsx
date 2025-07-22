@@ -12,8 +12,8 @@ import { supabase } from "@/utils/supabase/supabaseClient";
 
 //コンポーネント
 import { useUserContext } from '@/utils/userContext';
-import Header  from "@/component/Header/Header";
-import Footer  from "@/component/Footer/Footer";
+import Header  from "@/component/Header";
+import Footer  from "@/component/Footer";
 
 export default function UserPage() {
 

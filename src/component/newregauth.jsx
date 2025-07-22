@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { useLiff } from '@/component/Line/Line';
+import { useLiff } from '@/component/Line';
 import { signIn } from 'next-auth/react';
 import { supabase } from "@/utils/supabase/supabaseClient";
 import {groupListTemplate} from '@/utils/data/groupList';

@@ -2,7 +2,7 @@
 
 //react/next.js用ライブラリ
 import { useState, useEffect, useRef } from "react";
-import MyEditor from '@/component/MyEditor/myEditor';
+import MyEditor from '@/component/myEditor';
 
 //cloudinary関連
 import { uploadToCloudinary } from "@/utils/cloudinary/cloudinary";

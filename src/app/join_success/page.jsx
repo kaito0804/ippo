@@ -1,5 +1,5 @@
 import Link from "next/link";
-import JoinGroupClient from "@/component/JoinGroupClient/JoinGroupClient";
+import JoinGroupClient from "@/component/JoinGroupClient";
 
 export default function JoinSuccessPage({ searchParams }) {
 	const group = searchParams.group;

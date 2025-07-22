@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { getCurrentUser } from '@/lib/auth-helpers';
-import AuthButtons from "@/component/NewRegAuth/newregauth";
+import AuthButtons from "@/component/newregauth";
 
 
 export default async  function Home() {

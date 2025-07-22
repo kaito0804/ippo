@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import { supabase } from "@/utils/supabase/supabaseClient";
 import { signOut as nextAuthSignOut, useSession } from "next-auth/react";
-import { useLiff } from '@/component/Line/Line'; 
+import { useLiff } from '@/component/Line'; 
 import Link from 'next/link';
 
 export default function Header({title}) {

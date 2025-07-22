@@ -2,7 +2,7 @@
 'use client';
 
 import { SessionProvider } from 'next-auth/react';
-import { LiffProvider } from '@/component/Line/Line';
+import { LiffProvider } from '@/component/Line';
 
 export default function Providers({ children }) {
   return (

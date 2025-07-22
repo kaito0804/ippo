@@ -3,10 +3,10 @@ import { Noto_Sans_JP } from 'next/font/google';
 import { Zen_Maru_Gothic } from 'next/font/google';
 
 import "./globals.css";
-import Providers from "@/component/Providers/Providers";
+import Providers from "@/component/Providers";
 import { SessionProvider } from "next-auth/react";
 
-import AuthWatcher from '@/component/AuthWatcher/AuthWatcher'
+import AuthWatcher from '@/component/AuthWatcher'
 import { UserProvider } from '@/utils/userContext';
 
 const geistSans = Geist({

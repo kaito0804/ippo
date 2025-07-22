@@ -8,11 +8,11 @@ import { supabase } from "@/utils/supabase/supabaseClient";
 import { handleStripeJoin } from "@/utils/stripe/stripeClient"; 
 
 //クライアントコンポーネント
-import Header from "@/component/Header/Header";
-import Footer from "@/component/Footer/Footer";
+import Header from "@/component/Header";
+import Footer from "@/component/Footer";
 import { useUserContext } from '@/utils/userContext';
-import SearchListDialog from "@/component/SearchListDialog/SearchListDialog";
-import ListDetailDialog from '@/component/ListDetailDialog/ListDetailDialog';
+import SearchListDialog from "@/component/SearchListDialog";
+import ListDetailDialog from '@/component/ListDetailDialog';
 
 export default function ListBox() {
 

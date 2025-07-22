@@ -70,7 +70,7 @@ export default function SearchListDialog({ filters, setFilters, dropdowns, setDr
 							絞り込みしない
 						</li>
 						{themeList.map((theme) => (
-							<li key={theme}onClick={() => selectFilter('theme', theme)}className={`py-[3px] px-[10px] cursor-pointer ${filters.theme === theme ? 'bg-blue-100 font-bold' : ''}`}>
+							<li key={theme} onClick={() => selectFilter('theme', theme)}className={`py-[3px] px-[10px] cursor-pointer ${filters.theme === theme ? 'bg-blue-100 font-bold' : ''}`}>
 								{theme}
 							</li>
 						))}

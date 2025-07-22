@@ -9,17 +9,18 @@ import { useUserContext }   from '@/utils/userContext';
 import { updateUserStatus } from '@/utils/updateUserStatus';
 
 //コンポーネント
-import Header           from "@/component/Header/Header";
-import Footer           from "@/component/Footer/Footer";
-import HostTop          from "@/component/HostTop/HostTop";
-import MemberTop        from "@/component/MemberTop/MemberTop";
-import ListDetailDialog from '@/component/ListDetailDialog/ListDetailDialog';
+import Header           from "@/component/Header";
+import Footer           from "@/component/Footer";
+import FirstSetPrf      from "@/component/FirstSetPrf";
+import HostTop          from "@/component/HostTop";
+import MemberTop        from "@/component/MemberTop";
+import ListDetailDialog from '@/component/ListDetailDialog';
 
 
 
 export default function Home() {
 
-    const { userId, isHost, nowStatus, setNowStatus } = useUserContext();
+    const { userId, isHost, nowStatus, userProfile, setNowStatus } = useUserContext();
     const [postBtn, setPostBtn]                       = useState(false);
     const [openDialog, setOpenDialog]                 = useState(false);
     const [selectPost, setSelectPost]                 = useState();
@@ -65,34 +66,35 @@ export default function Home() {
 
     return (
         <div>
+            {userProfile?.first_set ? (
+                <div className="flex flex-col justify-center items-center w-[100%] h-adjust header-adjust">
+                    <Header title="HOME"/>
+                    <div className="flex flex-col justify-center items-center w-[100%] h-adjust ">
+                        {!nowStatus && (
+                            <div className="flex items-center justify-center gap-[50px]">
+                                <div onClick={() => handleClickHost('host')} className="flex flex-col items-center justify-center w-[120px] h-[120px] bg-[#459fff] rounded-[10px] text-white">
+                                    主催者
+                                </div>
+                                <div onClick={() => handleClickHost('member')} className="flex flex-col items-center justify-center w-[120px] h-[120px] bg-[#ff9c45] rounded-[10px] text-white">
+                                    参加者
+                                </div>
+                            </div>
+                        )}
 
-            <Header title="HOME"/>
+                        {nowStatus == 'host' && (                
+                            <HostTop setSelectPost={setSelectPost} openDialog={openDialog} setOpenDialog={setOpenDialog} setPostBtn={() => setPostBtn(true)}/>
+                        )}
 
-            <div className="flex flex-col justify-center items-center w-[100%] h-adjust header-adjust">
-                {!nowStatus && (
-                    <div className="flex items-center justify-center gap-[50px]">
-                        <div onClick={() => handleClickHost('host')} className="flex flex-col items-center justify-center w-[120px] h-[120px] bg-[#459fff] rounded-[10px] text-white">
-                            主催者
-                        </div>
-                        <div onClick={() => handleClickHost('member')} className="flex flex-col items-center justify-center w-[120px] h-[120px] bg-[#ff9c45] rounded-[10px] text-white">
-                            参加者
-                        </div>
+                        {nowStatus == 'member' && (                
+                            <MemberTop setSelectPost={setSelectPost} openDialog={openDialog} setOpenDialog={setOpenDialog} setPostBtn={() => setPostBtn(true)}/>
+                        )}
                     </div>
-                )}
-
-                {nowStatus == 'host' && (                
-                    <HostTop setSelectPost={setSelectPost} openDialog={openDialog} setOpenDialog={setOpenDialog} setPostBtn={() => setPostBtn(true)}/>
-                )}
-
-                {nowStatus == 'member' && (                
-                    <MemberTop setSelectPost={setSelectPost} openDialog={openDialog} setOpenDialog={setOpenDialog} setPostBtn={() => setPostBtn(true)}/>
-                )}
-            </div>
-
-            <ListDetailDialog selectPost={selectPost} setSelectPost={setSelectPost}/>
-
-            <Footer postBtn={postBtn} openDialog={() => setOpenDialog(true)}/>
-
+                    <ListDetailDialog selectPost={selectPost} setSelectPost={setSelectPost}/>
+                    <Footer postBtn={postBtn} openDialog={() => setOpenDialog(true)}/>
+                </div>
+            ) : (
+                <FirstSetPrf />
+            )}
         </div>
     );
 }

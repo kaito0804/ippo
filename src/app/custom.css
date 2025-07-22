@@ -98,6 +98,47 @@ input[type="number"]::-webkit-outer-spin-button {
 	right: 12px;
 }
 
+/*first-set*/
+.prf-label{
+	position: relative;
+	width: 100%;
+	padding-left: 35px;
+	font-size: 18px;
+	font-weight: bold;
+}
+
+.prf-label::before{
+	content: '';
+	position: absolute;
+	width: 20px;
+	height: 20px;
+	border: 2px solid #b6b6b6;
+	border-radius: 5px;
+	top: calc(50% - 20px/2);
+	left: 5px;
+}
+
+input:checked + .prf-label::before{
+	border-color: #f26a21;
+	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1753156191/check_qagljg.svg");
+	background-size: 16px;
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+.fade-in {
+	animation: fadeIn 3s;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+
 /*header*/
 .logout{
 	width: 28px;
