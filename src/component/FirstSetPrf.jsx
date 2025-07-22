@@ -124,11 +124,11 @@ export default function FirstSetPrf() {
 
 			) : stage === "4" ? (
 				/*趣味登録*/
-				<div className='flex flex-col items-center justify-center w-[80%]'>
+				<div className='flex flex-col items-center justify-center w-[90%]'>
 					<p className='text-[22px] font-bold text-[#f26a21]'>あなたの趣味は？</p>
-					<div className='flex flex-wrap items-center justify-between w-[100%] gap-y-[20px] mt-[20px]'>
+					<div className='flex flex-wrap items-center justify-center w-[100%] gap-y-[20px] mt-[20px]'>
 						{hobbyList.map((item) => (
-							<div key={item.id} className="flex items-center justify-between w-[150px]">
+							<div key={item.id} className="flex items-center justify-between w-[165px]">
 								<input
 								type="checkbox"
 								id={`hobby-${item.id}`}

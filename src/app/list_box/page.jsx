@@ -9,7 +9,6 @@ import { handleStripeJoin } from "@/utils/stripe/stripeClient";
 
 //クライアントコンポーネント
 import Header from "@/component/Header";
-import Footer from "@/component/Footer";
 import { useUserContext } from '@/utils/userContext';
 import SearchListDialog from "@/component/SearchListDialog";
 import ListDetailDialog from '@/component/ListDetailDialog';
@@ -118,7 +117,7 @@ export default function ListBox() {
 
 
 	return (
-		<div>
+		<div className="content-bg-color">
 			<Header title={'散歩コース一覧'}/>
 			<div className="header-adjust">
 
@@ -165,7 +164,6 @@ export default function ListBox() {
 
 			<ListDetailDialog selectPost={selectPost} setSelectPost={setSelectPost}/>
 
-			<Footer/>
 		</div>
 	);
 }

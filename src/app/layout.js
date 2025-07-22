@@ -42,7 +42,7 @@ export const metadata = {
 export default function RootLayout({ children }) {
 	return (
 		<html lang="jp">
-			<body className={`${geistSans.variable} ${geistMono.variable} ${notoSansJp.variable} ${zenMaruGothic.variable} antialiased`}>
+			<body className={`content-bg-color ${geistSans.variable} ${geistMono.variable} ${notoSansJp.variable} ${zenMaruGothic.variable} antialiased`}>
 				<div id="contents" className="w-[100%]">
 					<UserProvider>
 						<Providers>

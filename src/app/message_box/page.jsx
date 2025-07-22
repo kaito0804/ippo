@@ -2,7 +2,6 @@
 import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/utils/supabase/supabaseClient";
 import Header from "@/component/Header";
-import Footer from "@/component/Footer";
 import Link from 'next/link';
 import { useUserContext } from '@/utils/userContext';
 
@@ -107,7 +106,7 @@ export default function MessageBox() {
 
 
 	return (
-		<div>
+		<div className="content-bg-color">
 			<Header/>
 			<div className="header-notitle-adjust">
 				<div className={`${selectTab == 'group' ? 'select-group' : 'select-user'} select-tab `}>
@@ -195,7 +194,6 @@ export default function MessageBox() {
 				)}
 				
 			</div>
-			<Footer/>
 		</div>
 	);
 }

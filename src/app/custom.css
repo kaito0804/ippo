@@ -1,13 +1,17 @@
 .header-adjust{
-	padding-top: 97px;
+	padding-top: 91px;
 }
 
 .header-notitle-adjust{
-	padding-top: 60px;
+	padding-top: 91px;
 }
 
 .h-adjust{
-	height: calc(100dvh - 50px);
+	height: 100dvh;
+}
+
+.content-bg-color{
+	background-color: #fefaf1;
 }
 
 input[type="number"] {

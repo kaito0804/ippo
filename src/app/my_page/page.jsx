@@ -13,7 +13,6 @@ import { supabase } from "@/utils/supabase/supabaseClient";
 //コンポーネント
 import { useUserContext } from '@/utils/userContext';
 import Header  from "@/component/Header";
-import Footer  from "@/component/Footer";
 
 export default function UserPage() {
 
@@ -224,10 +223,10 @@ export default function UserPage() {
 	if (loading) return <div>読み込み中...</div>;
 
 	return (
-		<div>
+		<div className="content-bg-color">
 			<Header title="プロフィール"/>
 			
-			<div className="h-adjust header-adjust overflow-y-scroll">
+			<div className="header-adjust overflow-y-scroll">
 				<div className="flex flex-col items-center justify-center py-[30px] px-[20px]">
 					<div className="user-icon-box">
 						<div className="user-icon" style={{ backgroundImage: `url('${profile?.icon_path || 'https://res.cloudinary.com/dnehmdy45/image/upload/v1750906560/user-gray_jprhj3.svg'}')` }}></div>
@@ -298,12 +297,12 @@ export default function UserPage() {
 					</div>
 				</div>
 
-				<div className={`${friendList ? 'friend-active' : 'list-active'} relative flex justify-around items-center w-[100%] h-[50px] bg-[#fff] border-b border-[#e1e1e1]`}>
+				<div className={`${friendList ? 'friend-active' : 'list-active'} relative flex justify-around items-center w-[100%] h-[50px] border-b border-[#e1e1e1]`}>
 					<div className="list-icon" onClick={() => setFriendList(false)}></div>
 					<div className="friend-icon" onClick={() => setFriendList(true)}></div>
 				</div>
 
-				<ul className="flex flex-col justify-center items-center w-[100%] px-[10px] bg-[#fff]">
+				<ul className="flex flex-col justify-center items-center w-[100%] px-[10px]">
 					{friendList ? (
 						groupMemberProfiles.map((prf) => (
 							<li key={prf.id} className="flex justify-between items-center w-[100%] py-[10px] border-b border-[#e1e1e1]">
@@ -332,8 +331,6 @@ export default function UserPage() {
 				</ul>
 			</div>
 
-			{/* フッター */}
-			<Footer />
 		</div>
 	);
 }

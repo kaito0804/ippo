@@ -1,6 +1,5 @@
 import { supabase } from "@/utils/supabase/supabaseServer";
 import Header from "@/component/Header";
-import Footer from "@/component/Footer";
 
 export default async function UserPage({ params }) {
 	const userId = params.id;
@@ -43,7 +42,6 @@ export default async function UserPage({ params }) {
 				</div>
 			</div>
 
-			<Footer/>
 		</div>
 	);
 }

@@ -113,21 +113,30 @@ export default function Header({title}) {
 };
 
 	return (
-		<div className='fixed top-0 left-0 w-[100%] z-50'>
-			<div className='flex justify-between items-center w-[100%] py-[9px] px-[15px] bg-white border-b border-[#ebebeb]'>
+		<div className='fixed top-0 left-0 w-[100%] bg-[#fefaf1] z-50'>
+			<div className='flex justify-between items-center w-[100%] pt-[30px] pb-[9px] px-[15px] border-b border-[#ebebeb]'>
 				<Link href="/top" className='flex items-baseline gap-[8px]'>
-					<div className='text-[#ff7a00] text-[30px] font-bold leading-[1]'>IPPO</div>
+					<div className='w-[100px] h-[45px] bg-contain bg-no-repeat bg-center' style={{backgroundImage: `url("https://res.cloudinary.com/dnehmdy45/image/upload/v1753080491/IPPO__logo_tvu5ni.svg")`}}></div>
 				</Link>
-				<div className='flex flex-col justify-center items-center'>
-					<p onClick={Logout} className='logout'></p>
-					<p className='text-[9px]'>ログアウト</p>
+				<div className='flex justify-end items-baseline w-[calc(100%-120px)] gap-[20px]'>
+					<Link href="/top" className='flex flex-col justify-center items-center'>
+						<div className='w-[34px] h-[34px] bg-size-[80%] bg-no-repeat bg-center' style={{backgroundImage: `url("https://res.cloudinary.com/dnehmdy45/image/upload/v1753058128/tree_mi7awz.svg")`}}></div>
+						<p className='text-[11px] font-bold'>HOME</p>
+					</Link>
+					<Link href="/message_box" className='flex flex-col justify-center items-center'>
+						<div className='w-[34px] h-[34px] bg-size-[100%] bg-no-repeat bg-center' style={{backgroundImage: `url("https://res.cloudinary.com/dnehmdy45/image/upload/v1753058128/tulip_b8dhqd.svg")`}}></div>
+						<p className='text-[11px] font-bold'>CHAT</p>
+					</Link>
+					<Link href="/list_box" className='flex flex-col justify-center items-center'>
+						<div className='w-[34px] h-[34px] bg-size-[120%] bg-no-repeat bg-position-[-5px_0px]' style={{backgroundImage: `url("https://res.cloudinary.com/dnehmdy45/image/upload/v1753058128/sneaker_f8vpnf.svg")`}}></div>
+						<p className='text-[11px] font-bold'>ABOUT</p>
+					</Link>
+					<Link href="/my_page" className='flex flex-col justify-center items-center'>
+						<div className='w-[34px] h-[34px] bg-size-[90%] bg-no-repeat bg-center' style={{backgroundImage: `url("https://res.cloudinary.com/dnehmdy45/image/upload/v1753058128/camel_head_p4wxv2.svg")`}}></div>
+						<p className='text-[11px] font-bold'>PROFILE</p>
+					</Link>
 				</div>
             </div>
-			{title && (
-				<div className='flex items-center w-[100%] py-[8px] px-[15px] bg-[rgba(255,148,49,0.8)] text-white'>
-					<p className='text-[14px] font-bold'>{title}</p>
-				</div>
-			)}
 		</div>
 	);
 }

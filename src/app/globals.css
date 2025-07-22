@@ -4,6 +4,7 @@
 :root {
 	--background: #ffffff;
 	--foreground: #171717;
+    --ippo-bg-color: #fefaf1;
 }
 
 @theme inline {
@@ -21,6 +22,7 @@
 		--foreground: #ededed;
 
         --ippo-orange: #f26a21;
+        --ippo-bg-color: #fefaf1;
     }
 }
 
@@ -29,7 +31,7 @@ html, body {
 }
 
 body {
-    background: var(--background);
+    background: var(--ippo-bg-color);
     color: var(--foreground);
     color: #333;
     font-family: var(--font-noto-sans-jp), sans-serif;

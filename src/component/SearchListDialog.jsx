@@ -38,7 +38,7 @@ export default function SearchListDialog({ filters, setFilters, dropdowns, setDr
 
 	return (
 		<div ref={containerRef}>
-			<div className="fixed flex items-center w-full gap-[12px] py-[10px] px-[8px] bg-white z-[10]" onClick={handleContainerClick}>
+			<div className="fixed flex items-center w-full gap-[12px] py-[10px] px-[8px] z-[10]" onClick={handleContainerClick}>
 
 				{/* ▼エリア */}
 				<div className="relative">
