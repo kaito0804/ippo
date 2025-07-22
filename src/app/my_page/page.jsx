@@ -226,7 +226,7 @@ export default function UserPage() {
 		<div className="content-bg-color">
 			<Header title="プロフィール"/>
 			
-			<div className="header-adjust overflow-y-scroll">
+			<div className="h-adjust header-adjust overflow-y-scroll">
 				<div className="flex flex-col items-center justify-center py-[30px] px-[20px]">
 					<div className="user-icon-box">
 						<div className="user-icon" style={{ backgroundImage: `url('${profile?.icon_path || 'https://res.cloudinary.com/dnehmdy45/image/upload/v1750906560/user-gray_jprhj3.svg'}')` }}></div>
