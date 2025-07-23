@@ -21,6 +21,7 @@ export default function ListDetailDialog({selectPost, setSelectPost}) {
 	const { onStripeClick, joiningStatus } = stripeClick(userId);
 
 	useEffect(() => {
+		if (!selectPost) return;
 
 		async function fetchGroups() {
 			const { data, error } = await supabase

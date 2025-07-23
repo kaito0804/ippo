@@ -23,6 +23,8 @@
     "next-auth": "^4.24.11",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-slick": "^0.30.3",
+    "slick-carousel": "^1.8.1",
     "stripe": "^18.3.0"
   },
   "devDependencies": {

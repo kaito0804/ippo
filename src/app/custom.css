@@ -154,6 +154,14 @@ input:checked + .prf-label::before{
 	transform: translateX(-2px);
 }
 
+/*slick*/
+.slick-slide > div > div {
+  display: flex !important;
+  justify-content: center;
+  width: 240px;
+}
+
+
 /*HOME*/
 .post-marker {	
 	transform: translate(-50%, -100%);
