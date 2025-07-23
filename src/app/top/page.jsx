@@ -91,7 +91,7 @@ export default function Home() {
                                 )}
                             </div>
                         ) : (
-                            <ListTop />
+                            <ListTop setSelectPost={setSelectPost}/>
                         )}
                   
                     <ListDetailDialog selectPost={selectPost} setSelectPost={setSelectPost}/>

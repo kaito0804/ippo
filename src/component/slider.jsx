@@ -1,7 +1,7 @@
 // src/component/slider.jsx
 import Slider from 'react-slick';
 
-const GroupSlider = ({ title, groups }) => {
+const GroupSlider = ({ title, groups, setSelectPost }) => {
 
 	const settings = {
 		dots: true,
@@ -21,7 +21,6 @@ const GroupSlider = ({ title, groups }) => {
 		],
 	};
 
-
 	// 画像の最適化関数
 	const optimizeImage = (url, options = {}) => {
 		const { width = 480, height = 300 } = options;
@@ -39,12 +38,12 @@ const GroupSlider = ({ title, groups }) => {
 				<div className="w-full max-w-[600px] mt-[10px] px-4">
 					<Slider {...settings}>
 						{groups.map((group) => (
-						<div key={group.id} className="flex justify-center">
-							<div
-							className="w-[240px] h-[150px] bg-cover bg-center bg-no-repeat rounded-[10px]"
-							style={{ backgroundImage: `url('${group.image_url}')` }}
-							></div>
-						</div>
+							<div onClick={() => setSelectPost(group.id)} key={group.id} className="flex justify-center">
+								<div
+								className="w-[240px] h-[150px] bg-cover bg-center bg-no-repeat rounded-[10px]"
+								style={{ backgroundImage: `url('${optimizeImage(group.image_url)}')` }}
+								></div>
+							</div>
 						))}
 					</Slider>
 				</div>

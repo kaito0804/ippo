@@ -8,7 +8,7 @@ import GroupSlider from "@/component/slider";
 //データベース関連
 import { supabase }         from '@/utils/supabase/supabaseClient';
 
-export default function ListTop() {
+export default function ListTop({ setSelectPost }) {
 
 	const [groupData, setGroupData] = useState({ thisMonth: [], nextMonth: [] });
 
@@ -92,6 +92,7 @@ export default function ListTop() {
 				<div>
 					<p className="text-[18px] font-bold">おすすめ</p>
 					<div
+					onClick={() => setSelectPost(groupData.recommend.id)}
 					className="w-[335px] h-[200px] mt-[5px] bg-cover bg-center bg-no-repeat rounded-[8px]"
 					style={{ backgroundImage: `url('${optimizeImage(groupData.recommend.image_url)}')` }}
 
@@ -102,8 +103,8 @@ export default function ListTop() {
 				)}
 			</div>
 
-			<GroupSlider title="今月" groups={groupData.thisMonth} />
-			<GroupSlider title="来月" groups={groupData.nextMonth} />
+			<GroupSlider title="今月" groups={groupData.thisMonth} setSelectPost={setSelectPost}  />
+			<GroupSlider title="来月" groups={groupData.nextMonth} setSelectPost={setSelectPost}/>
 
 		</div>
 	);
