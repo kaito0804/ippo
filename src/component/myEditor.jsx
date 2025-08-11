@@ -2,21 +2,27 @@
 
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import Placeholder from '@tiptap/extension-placeholder';
 import { useEffect } from 'react';
 
-export default function MyEditor({ content, onChange }) {
+export default function MyEditor({ content = '', onChange }) {
     const editor = useEditor({
-        extensions: [StarterKit],
-        content,
+        extensions: [
+            StarterKit,
+            Placeholder.configure({
+                placeholder: 'イベント詳細を入力してください…',
+                emptyEditorClass: 'is-editor-empty',
+            }),
+        ],
+        content: content || '', // null防止
         onUpdate: ({ editor }) => {
             onChange(editor.getHTML());
         },
     });
 
-    // クリーンアップ
     useEffect(() => {
         return () => {
-        editor?.destroy();
+            editor?.destroy();
         };
     }, [editor]);
 
@@ -24,14 +30,12 @@ export default function MyEditor({ content, onChange }) {
         return <div>Loading editor...</div>;
     }
 
-
-  return (
-    <div className='w-full'>
-        <p className="text-[16px] font-bold">説明</p>
-        <button onClick={() => editor?.chain().focus().toggleBold().run()} className={`${editor?.isActive('bold') ? 'is-active' : ''} font-bold`} type="button" >B</button>
-        <div className="w-full max-w-[600px] border border-gray-300 rounded p-4">        
-            <EditorContent editor={editor} />
+    return (
+        <div className='w-[100%]'>
+            <p className="text-[14px] font-bold">イベント詳細</p>
+            <div className="w-[100%] bg-[#fff] rounded p-4">
+                <EditorContent editor={editor} />
+            </div>
         </div>
-    </div>
-  );
+    );
 }

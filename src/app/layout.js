@@ -45,12 +45,12 @@ export default function RootLayout({ children }) {
 		<html lang="jp">
 			<body className={`content-bg-color ${geistSans.variable} ${geistMono.variable} ${notoSansJp.variable} ${zenMaruGothic.variable} antialiased`}>
 				<div id="contents" className="w-[100%]">
-					<UserProvider>
-						<Providers>
-							<AuthWatcher />
+					<Providers>
+						<AuthWatcher />
+						<UserProvider>
 							{children}
-						</Providers>
-					</UserProvider>
+						</UserProvider>
+					</Providers>
 				</div>
 			</body>
 		</html>

@@ -13,13 +13,13 @@ export default function ListTop({ setSelectPost }) {
 	const [groupData, setGroupData] = useState({ thisMonth: [], nextMonth: [] });
 
 	useEffect(() => {
-		const GetGroups = async () => {
-		const today = new Date();
-		const startOfNextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-		const startOfFollowingMonth = new Date(today.getFullYear(), today.getMonth() + 2, 1);
-		const toDateString = (date) => date.toLocaleDateString("sv-SE");
-		const todayStr = toDateString(today);
-		const startOfNextMonthStr = toDateString(startOfNextMonth);
+		const GetGroups                = async () => {
+		const today                    = new Date();
+		const startOfNextMonth         = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+		const startOfFollowingMonth    = new Date(today.getFullYear(), today.getMonth() + 2, 1);
+		const toDateString             = (date) => date.toLocaleDateString("sv-SE");
+		const todayStr                 = toDateString(today);
+		const startOfNextMonthStr      = toDateString(startOfNextMonth);
 		const startOfFollowingMonthStr = toDateString(startOfFollowingMonth);
 
 		// 今月グループ取得
@@ -44,8 +44,8 @@ export default function ListTop({ setSelectPost }) {
 			.order('start_date', { ascending: true });
 
 			if (error2) {
-			console.error("来月の取得エラー:", error2.message);
-			return;
+				console.error("来月の取得エラー:", error2.message);
+				return;
 			}
 
 			// おすすめ候補 = 今月 + 来月
@@ -53,8 +53,8 @@ export default function ListTop({ setSelectPost }) {
 
 			// 空きがある最も早いグループを探す
 			const recommendedGroup = allGroups.find(group => {
-			const joinedCount = group.member?.length || 0;
-			return group.member_count !== null && joinedCount < group.member_count;
+				const joinedCount = group.member?.length || 0;
+				return group.member_count !== null && joinedCount < group.member_count;
 			});
 
 			// 今月・来月からおすすめを除外

@@ -7,7 +7,7 @@
 }
 
 .h-adjust{
-	height: 100dvh;
+	height: calc(100vh - 91px);
 }
 
 .content-bg-color{
@@ -157,10 +157,7 @@ input:checked + .prf-label::before{
 /*slick*/
 .slick-slide > div > div {
   display: flex !important;
-  justify-content: center;
-  width: 240px;
 }
-
 
 /*HOME*/
 .post-marker {	

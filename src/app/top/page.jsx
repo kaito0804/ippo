@@ -77,11 +77,6 @@ export default function Home() {
                 <div className="flex flex-col justify-center items-center w-[100%] h-adjust header-adjust">
                     <Header title="HOME"/>
 
-                        <div className="flex justify-between items-center w-[100%] h-[50px] bg-[#fff] border-b border-[#e1e1e1]">
-                            <div onClick={() => setSelectSearch("list")} className="w-[50%] h-[100%] flex justify-center items-center">リスト</div>
-                            <div onClick={() => setSelectSearch("map")} className="w-[50%] h-[100%] flex justify-center items-center">マップ</div>
-                        </div>
-
                         {selectSearch == "map" ? (
                             <div className="flex flex-col justify-center items-center w-[100%] h-adjust">
                                 {isHost ? (                

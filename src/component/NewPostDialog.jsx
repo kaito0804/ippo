@@ -2,6 +2,9 @@
 
 //react/next.js用ライブラリ
 import { useState, useEffect, useRef } from "react";
+import DatePicker from 'react-datepicker';
+import TimePicker from 'react-time-picker';
+import 'react-datepicker/dist/react-datepicker.css';
 import MyEditor from '@/component/myEditor';
 
 //cloudinary関連
@@ -11,20 +14,16 @@ import { uploadToCloudinary } from "@/utils/cloudinary/cloudinary";
 import { supabase } from '@/utils/supabase/supabaseClient';
 import { useUserContext } from '@/utils/userContext';
 
-//クライアントコンポーネント
-import { areaList, themeList } from '@/utils/data/groupList';
-
 
 export default function NewRegPost({openDialog, closeDialog, placeName, clickPosition }) {
 
 	const { userId }                    = useUserContext();
 	const [name, setName]               = useState('');
-	const [area, setArea]               = useState('');
 	const [startDate, setStartDate]     = useState('');
 	const [startTime, setStartTime]     = useState('');
-	const [endDate, setEndDate]         = useState('');
-	const [endTime, setEndTime]         = useState('');
+	const [duration, setDuration]       = useState(''); 
 	const [venue, setVenue]             = useState('');
+	const [goal, setGoal]               = useState('');
 	const [description, setDescription] = useState('');
 	const [memberCount, setmemberCount] = useState(0);
 	const [thumImage, setThumImage]     = useState(null);
@@ -32,7 +31,9 @@ export default function NewRegPost({openDialog, closeDialog, placeName, clickPos
 	const [editorKey, setEditorKey]     = useState(0);
 	const [price, setPrice]             = useState('');
 	const fileInputRef                  = useRef(null);
+	const [previewUrl, setPreviewUrl]   = useState(null);
 	const [isLoading, setIsLoading]     = useState(false);
+	const formRef                       = useRef(null);
 
 
 	useEffect(() => {
@@ -41,11 +42,23 @@ export default function NewRegPost({openDialog, closeDialog, placeName, clickPos
 		}
 	}, [placeName]);
 
-	const fileChange = async (event) => {
-		const selectedFile = event.target.files?.[0];
-		if (selectedFile) {
-			setThumImage(selectedFile);
+	const fileChange = async (e) => {
+		const file = e.target.files[0];
+		if (file) {
+			setPreviewUrl(URL.createObjectURL(file));
+		} else {
+			setPreviewUrl(null);
 		}
+	};
+
+	const timeStep = (step) => {
+		setDuration((prev) => Math.max(0, prev + step * 30));
+	};
+
+	 const formatDuration = (min) => {
+		const h = Math.floor(min / 60);
+		const m = min % 60;
+		return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 	};
 
 	const submit = async (e) => {
@@ -64,20 +77,17 @@ export default function NewRegPost({openDialog, closeDialog, placeName, clickPos
 			}
 
 			const { data: groupData, error } = await supabase.from('groups').insert({
-				name,
 				created_by : userId,
-				area       : area,
-				start_date : startDate,
-				start_time : startTime,  
-				end_date   : endDate,
-				end_time   : endTime,         
-				venue      : venue,     
-				image_url  : imageUrl, 
-				theme      : theme,        
-				description,                
+				name,
+				description, 
+				start_date   : startDate,
+				start_time   : startTime, 
+				duration     : formatDuration(duration),      
+				venue        : venue,  
+				goal         : goal,   
+				image_url    : imageUrl, 
+				theme        : theme,        
 				member_count : memberCount,
-				lat          : clickPosition?.lat || null,
-				lng          : clickPosition?.lng || null,
 				price        : price
 			})
 			.select()
@@ -108,12 +118,11 @@ export default function NewRegPost({openDialog, closeDialog, placeName, clickPos
 
 			// フォーム初期化
 			setName('');
-			setArea('');
 			setStartDate('');
 			setStartTime('');
-			setEndDate('');
-			setEndTime('');
+			setDuration('');
 			setVenue('');
+			setGoal('');
 			setTheme('');
 			setDescription('');
 			setEditorKey(prev => prev + 1);
@@ -142,111 +151,168 @@ export default function NewRegPost({openDialog, closeDialog, placeName, clickPos
 				</div>
 			)}
 
-			<form 
-				onSubmit={submit} 
-				className="fixed flex flex-col items-center w-full h-[100%] py-[60px] px-[20px] gap-[40px] bg-[#fff] overflow-y-scroll transition-all duration-300 z-[1000]"
-				style={openDialog ? {bottom:'0'} : {bottom:'-100%'}}
+			<div className="content-bg-color fixed flex flex-col items-center w-full h-[calc(100%-91px)] px-[20px] py-[12px] gap-[12px] transition-all duration-300 z-[1000]"
+				 style={openDialog ? {bottom:'0'} : {bottom:'-100%'}}>
+
+				<div className="w-[100%] text-[18px] font-bold">イベントを作成</div>
+
+				<form 
+					ref={formRef}
+					onSubmit={submit} 
+					className="flex flex-col items-center w-[100%] py-[12px] gap-[28px] overflow-y-scroll"	
 				>
-
-				<div onClick={closeDialog} className="close-icon"></div>
-
-				<label className="flex flex-col justify-center w-[100%] gap-[10px]">
-					<p className="text-[16px] font-bold">会場名 (集合場所)</p>
-					<input 
-						type="text" name="venue" value={venue} onChange={e => setVenue(e.target.value)} required
-						className="px-[10px] py-[5px] border-[1px] rounded-[5px]" />
-				</label>
-
-				<label className="flex flex-col justify-center w-[100%] gap-[10px]">
-					<p className="text-[16px] font-bold">イベント名</p>
-					<input 
-						type="text" name="groupName" placeholder="イベント名"value={name} onChange={e => setName(e.target.value)} required 
-						className="px-[10px] py-[5px] border-[1px] rounded-[5px]" />
-				</label>
-
-				<label className="flex flex-col justify-center w-[100%] gap-[10px]">
-					<p className="text-[16px] font-bold">エリア</p>
-					<select name="area" value={area} onChange={e => setArea(e.target.value)} required>
-						<option value="" disabled>エリアを選択</option>
-						{areaList.map((area, index) => (
-							<option key={index} value={area}>{area}</option>
-						))}
-					</select>
-				</label>
-
-				<label className="flex flex-col justify-center w-[100%] gap-[10px]">
-					<p className="text-[16px] font-bold">開始日:</p>
-					<input 
-						type="date" name="startDate" value={startDate} onChange={e => setStartDate(e.target.value)} required
-						className="px-[10px] py-[5px] border-[1px] rounded-[5px]"/>
-					<input 
-						type="time" name="startTime" value={startTime} onChange={e => setStartTime(e.target.value)} required
-						className="px-[10px] py-[5px] border-[1px] rounded-[5px]"/>
-				</label>
-
-				<label  className="flex flex-col justify-center w-[100%] gap-[10px]">
-					<p className="text-[16px] font-bold">終了日:</p>
-					<input 
-						type="date" name="endDate" value={endDate} onChange={e => setEndDate(e.target.value)} required
-						className="px-[10px] py-[5px] border-[1px] rounded-[5px]" />
-					<input 
-						type="time" name="endTime" value={endTime} onChange={e => setEndTime(e.target.value)} required
-						className="px-[10px] py-[5px] border-[1px] rounded-[5px]" />
-				</label>
-
-				<label htmlFor="file" className="flex flex-col justify-center w-[100%] gap-[10px]">
-					<p className="text-[16px] font-bold">サムネイル:</p>
-					<input 
-						type="file" name="file" id="file" accept="image/*" onChange={fileChange} ref={fileInputRef} required
-						className="px-[10px] py-[5px] border-[1px] rounded-[5px]"/>
-				</label>
-
-				<label className="flex flex-col justify-center w-[100%] gap-[10px]">
-					<p className="text-[16px] font-bold">テーマ</p>
-					<div className="flex flex-wrap gap-[10px]">
-						{themeList.map((item) => (
-							<label key={item} className="flex items-center gap-[6px]">
-								<input
-									type="checkbox"
-									value={item}
-									checked={theme.includes(item)}
-									onChange={(e) => {
-										if (e.target.checked) {
-											setTheme([...theme, item]);
-										} else {
-											setTheme(theme.filter(t => t !== item));
-										}
-									}}
-								/>
-								<span>{item}</span>
-							</label>
-						))}
-					</div>
-				</label>
-
-
-				<MyEditor  key={editorKey} content={description} onChange={setDescription} />
-
-				<label className="flex flex-col justify-center w-[100%] gap-[10px]">
-					<p className="text-[16px] font-bold">参加人数:<span className="text-[13px] font-normal ml-[10px]">※主催者を含めた人数です</span></p>
 					
-					<select name="memberCount" value={memberCount} onChange={e => setmemberCount(Number(e.target.value))} required>
-					{Array.from({ length: 31 }, (_, i) => (
-						<option key={i} value={i}>{i}</option>
-					))}
-					</select>
-				</label>
 
-				<label className="flex flex-col justify-center w-[100%] gap-[10px]">
-					<p className="text-[16px] font-bold">値段</p>
-					<input 
-						type="number" min="0" step="100" inputMode="numeric" name="groupPrice" placeholder="100円" value={price} onChange={e => setPrice(e.target.value)} 
-						className="appearance-auto px-[10px] py-[5px] border-[1px] rounded-[5px]" />
-				</label>
+					<label className="flex flex-col justify-center w-[100%] gap-[2px]">
+						<p className="text-[14px] font-bold">イベント名</p>
+						<input 
+							type="text" name="groupName" placeholder="イベント名を記入"value={name} onChange={e => setName(e.target.value)} required 
+							className="px-[10px] py-[10px] bg-[#fff] rounded-[5px] text-[14px]" />
+					</label>
 
+					<MyEditor  key={editorKey} content={description} onChange={setDescription} />
 
-				<button type="submit" className="btn-submit w-[260px] my-[10px] py-[8px] bg-[#3048ff] text-white rounded-[100px] font-bold text-[15px]">登録する</button>
-			</form>
+					<div className="flex justify-center items-center w-[100%] gap-[6px]">
+						<div className="flex flex-col justify-center w-[33%] gap-[2px]">
+							<p className="text-[14px] font-bold">日程</p>
+							<DatePicker
+								selected={startDate}
+								onChange={(date) => setStartDate(date)}
+								placeholderText="2025/00/0"
+								dateFormat="yyyy/MM/dd"
+								className="w-[100%] px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[14px]"
+								required
+							/>
+						</div>
+
+						<label className="flex flex-col justify-center w-[33%] gap-[2px]">
+							<p className="text-[14px] font-bold">時間</p>
+							<TimePicker
+							onChange={setStartTime}
+							value={startTime}
+							clearIcon={null}
+							clockIcon={null}
+							className="px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[14px]"
+							required
+							/>
+						</label>
+
+						<label className="relative flex flex-col justify-center w-[33%] gap-[2px]">
+							<p className="text-[14px] font-bold">所要時間</p>
+							<input
+							type="text" 
+							value={formatDuration(duration)}
+							onChange={(e) => {
+								const val = e.target.value;
+								const match = val.match(/^(\d{1,2}):(\d{2})$/);
+								if (match) {
+								const h = parseInt(match[1], 10);
+								const m = parseInt(match[2], 10);
+								if (m >= 0 && m < 60) {
+									const totalMin = h * 60 + m;
+									setDuration(totalMin);
+								}
+								} else if (val === '') {
+									setDuration(0);
+								}
+							}}
+							className="px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[14px]"
+							/>
+
+							<div className="absolute flex flex-col justify-between items-center h-[30px] top-[25px] right-[5px]">
+								<button
+									type="button"
+									onClick={() => timeStep(1)}
+									className="w-[18px] h-[18px] bg-no-repeat bg-center bg-contain"
+									style={{backgroundImage: 'url("https://res.cloudinary.com/dnehmdy45/image/upload/v1752628034/nav-arrow-up_pnbz6g.svg")'}}
+								>
+								</button>
+								<button
+									type="button"
+									onClick={() => timeStep(-1)}
+									className="w-[18px] h-[18px] bg-no-repeat bg-center bg-contain"
+									style={{backgroundImage: 'url("https://res.cloudinary.com/dnehmdy45/image/upload/v1752628033/nav-arrow-down_uwlzxy.svg")'}}
+								>
+								</button>
+							</div>
+						</label>
+					</div>
+
+					<div className="flex justify-center items-center w-[100%] gap-[10px]">
+						<label className="flex flex-col justify-center w-[calc(50%-5px)] gap-[2px]">
+							<p className="text-[14px] font-bold">スタート(場所)</p>
+							<input 
+								type="text" name="venue" value={venue} onChange={e => setVenue(e.target.value)} required
+								placeholder="場所を選ぶ"
+								className="px-[10px] py-[10px] bg-[#fff] rounded-[5px] text-[13px]" />
+						</label>
+
+						<label className="flex flex-col justify-center w-[calc(50%-5px)] gap-[2px]">
+							<p className="text-[14px] font-bold">ゴール</p>
+							<input 
+								type="text" name="goal" value={goal} onChange={e => setGoal(e.target.value)} required
+								placeholder="場所を選ぶ"
+								className="px-[10px] py-[10px] bg-[#fff] rounded-[5px] text-[13px]" />
+						</label>
+					</div>			
+
+					<div className="flex justify-center items-center w-[100%] gap-[10px]">
+						<label className="flex flex-col justify-center w-[calc(50%-5px)] gap-[2px]">
+							<p className="text-[14px] font-bold">定員数</p>
+							
+							<select name="memberCount" value={memberCount} onChange={e => setmemberCount(Number(e.target.value))} 
+								className="appearance-auto px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[14px]" required>
+								{Array.from({ length: 31 }, (_, i) => (
+									<option key={i} value={i}>{i}</option>
+								))}
+							</select>
+						</label>
+
+						<label className="flex flex-col justify-center w-[calc(50%-5px)] gap-[2px]">
+							<p className="text-[14px] font-bold">参加費</p>
+							<input 
+								type="number" min="0" step="100" inputMode="numeric" name="groupPrice" placeholder="¥" value={price} onChange={e => setPrice(e.target.value)} 
+								className="appearance-auto px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[14px]" />
+						</label>
+					</div>	
+
+					<div className="flex flex-col justify-center items-center w-[100%] gap-[2px]">
+						<p className="w-[100%] text-[14px] font-bold">画像</p>
+						<label
+							htmlFor="file"
+							className="w-[100%] px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[14px]"
+						>
+							<span className="text-[14px] text-[#aaa]">カバーフォトを選ぶ</span>
+							<input
+							type="file"
+							id="file"
+							accept="image/*"
+							onChange={fileChange}
+							ref={fileInputRef}
+							className="hidden"
+							required
+							/>
+						</label>
+
+						{/* プレビュー表示 */}
+						{previewUrl && (
+							<div className="mt-2">
+							<img
+								src={previewUrl}
+								alt="プレビュー"
+								className="max-w-[100%] object-contain"
+							/>
+							</div>
+						)}
+					</div>
+
+				</form>
+					
+				<div className="flex justify-end items-center w-[100%] gap-[10px]">
+					<div onClick={closeDialog} className="flex justify-center items-center w-[100px] py-[8px] bg-[#fff] text-[#F26A21] border border-[#F26A21] rounded-[100px] text-[13px] font-bold">キャンセル</div>
+					<div onClick={() => formRef.current?.requestSubmit()} className="flex justify-center items-center w-[100px] py-[8px] bg-[#F26A21] text-[#fff] rounded-[100px] text-[13px] font-bold">作成</div>
+				</div>
+			</div>
 
 		</div>
 	);

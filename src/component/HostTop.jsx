@@ -2,7 +2,6 @@
 
 //react/next.js用ライブラリ
 import { useState, useEffect, useRef } from "react";
-import NewPostDialog from '@/component/NewPostDialog';
 
 //googleMap
 import {
@@ -304,7 +303,7 @@ export default function HostTop({ setSelectPost, setPostBtn, openDialog, setOpen
 
 			</GoogleMap>
 
-			<NewPostDialog openDialog={openDialog} closeDialog={() => setOpenDialog(false)} placeName={placeName} clickPosition={clickPosition}/>
+			
 
 
 		</div>

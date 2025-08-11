@@ -1,6 +1,7 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
+import { useSession } from 'next-auth/react';
 import { supabase } from '@/utils/supabase/supabaseClient';
 import liff from '@line/liff';
 
@@ -13,91 +14,98 @@ const UserContext = createContext({
 });
 
 export const UserProvider = ({ children }) => {
-	const [userId, setUserId]           = useState(null);
-	const [isHost, setIsHost]           = useState(false);
-	const [nowStatus, setNowStatus]     = useState(null);
-	const [userProfile, setUserProfile] = useState(null); 
+  const { data: session } = useSession();  // NextAuth session
+  const [userId, setUserId] = useState(null);
+  const [isHost, setIsHost] = useState(false);
+  const [nowStatus, setNowStatus] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
 
   useEffect(() => {
-		const fetchSupabaseUser = async () => {
-		const {
-			data: { user },
-			error,
-		} = await supabase.auth.getUser();
+    const loadProfileById = async (id) => {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('id', id)
+        .single();
 
-		if (!user || error) {
-			console.log('⚠️ Supabase未ログイン、LINE認証を試みます');
-			await fetchLineUser();
-			return;
-		}
+      if (data) {
+        setUserProfile(data);
+        setUserId(data.id);
+        setIsHost(data.is_host || false);
+        setNowStatus(data.now_status || null);
+      } else {
+        console.error('プロフィール取得エラー:', error);
+        setUserProfile(null);
+      }
+    };
 
-		if (user && !error) {
-			console.log('🔑 Supabase Auth 経由でユーザー取得:', user.id);
-			setUserId(user.id);
+    const loadProfileByLineId = async (lineId) => {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('line_id', lineId)
+        .single();
 
-			// user_profilesから全カラム取得
-			const { data, error: profileError } = await supabase
-			.from('user_profiles')
-			.select('*')
-			.eq('id', user.id)
-			.single();
+      if (data) {
+        setUserProfile(data);
+        setUserId(data.id);
+        setIsHost(data.is_host || false);
+        setNowStatus(data.now_status || null);
+      } else {
+        console.error('LINEプロフィール取得エラー:', error);
+        setUserProfile(null);
+      }
+    };
 
-			if (data) {
-			setUserProfile(data);
-			setIsHost(data.is_host || false);
-			setNowStatus(data.now_status || null);
-			} else {
-			console.error('プロフィール取得エラー:', profileError);
-			}
-		} else {
-			console.log('⚠️ Supabase Auth でユーザー取得できず、LINE認証にフォールバックします');
-			fetchLineUser();
-		}
-		};
+    const fetchUser = async () => {
+      // 1. Supabase Authからユーザー情報を取得してみる
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
 
-		const fetchLineUser = async () => {
-		try {
-			await liff.ready;
-			if (!liff.isLoggedIn()) {
-			console.log('⚠️ LINE未ログインのため処理を中止');
-			return;
-			}
+      if (user && !error) {
+        console.log('🔑 Supabase Auth 経由でユーザー取得:', user.id);
+        await loadProfileById(user.id);
+        return;
+      }
 
-			const profile = await liff.getProfile();
+      // 2. NextAuthのsessionにlineIdがあれば、それを使ってプロフィール取得
+      if (session?.user?.lineId) {
+        console.log('🌐 NextAuth LINEログイン経由でユーザー取得:', session.user.lineId);
+        await loadProfileByLineId(session.user.lineId);
+        return;
+      }
 
-			if (profile?.userId) {
-			console.log('📱 LINE LIFF 経由でユーザー取得:', profile.userId);
+      // 3. LIFFが初期化済みかつログイン済みならLIFFでプロフィール取得
+      try {
+        await liff.ready;
+        if (liff.isLoggedIn()) {
+          const profile = await liff.getProfile();
+          console.log('📱 LINE LIFF 経由でユーザー取得:', profile.userId);
+          await loadProfileByLineId(profile.userId);
+          return;
+        }
+      } catch (err) {
+        console.error('❌ LINE LIFF 認証エラー:', err);
+      }
 
-			const { data, error: profileError } = await supabase
-				.from('user_profiles')
-				.select('*')
-				.eq('line_id', profile.userId)
-				.single();
+      // 4. どれも該当しなければ未ログイン状態
+      console.log('🚫 認証済みユーザーなし');
+      setUserProfile(null);
+      setUserId(null);
+      setIsHost(false);
+      setNowStatus(null);
+    };
 
-			if (data) {
-				setUserProfile(data);
-				setIsHost(data.is_host || false);
-				setNowStatus(data.now_status || null);
-				setUserId(data.id);
-			} else {
-				console.error('LINEユーザープロフィール取得エラー:', profileError);
-			}
-			} else {
-			console.log('⚠️ LINE プロフィール取得失敗');
-			}
-		} catch (err) {
-			console.error('❌ LINE認証エラー:', err);
-		}
-		};
+    fetchUser();
+  }, [session]);
 
-		fetchSupabaseUser();
-	}, []);
-
-	return (
-		<UserContext.Provider value={{ userId, isHost, nowStatus, userProfile, setNowStatus }}>
-		{children}
-		</UserContext.Provider>
-	);
+  return (
+    <UserContext.Provider value={{ userId, isHost, nowStatus, userProfile, setNowStatus }}>
+      {children}
+    </UserContext.Provider>
+  );
 };
 
 export const useUserContext = () => useContext(UserContext);
