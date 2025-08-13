@@ -1,5 +1,5 @@
 // src/lib/addUserToGroup.js
-import { supabase } from '@/utils/supabaseClient';
+import { supabase } from '@/utils/supabase/supabaseClient';
 
 export async function addUserToGroup(userId, groupId) {
 	if (!userId || !groupId) return false;
