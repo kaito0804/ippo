@@ -15,6 +15,7 @@ export default function JoinSuccessPage({ searchParams }) {
       const data = await res.json();
       setResult(data.success);
     }
+	
     checkPayment();
   }, [sessionId]);
 
