@@ -37,6 +37,7 @@ export async function addUserToGroup(userId, groupId) {
   // group_members に追加
   const { error: insertError } = await supabase.from('group_members').insert({
     group_id: groupId,
+	group_name: group.name,
     user_id: userId,
     created_by: group.created_by,
   });

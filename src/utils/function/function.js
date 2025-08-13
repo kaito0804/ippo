@@ -26,3 +26,31 @@ export function formatDurationHM(durationStr) {
 	if (m > 0) return `${m}分`;
 	return '0分';
 }
+
+/*===============================
+  プロフィール情報を取得
+================================*/
+import { ageList, genderList, hobbyList, reasonList } from '@/utils/data/prfList';
+export function getLabelById(id, type) {
+	const listsMap = {
+		age: ageList,
+		gender: genderList,
+		hobby: hobbyList,
+		reason: reasonList,
+	};
+
+	if (!id || !listsMap[type]) return "未設定";
+
+	const list = listsMap[type];
+
+	// 複数選択の場合
+	if (Array.isArray(id)) {
+		const labels = id
+		.map(i => list.find(item => item.id === i)?.label)
+		.filter(Boolean);
+		return labels.length > 0 ? labels.join('、') : "未設定";
+	}
+
+	// 単一選択
+	return list.find(item => item.id === id)?.label || "未設定";
+};

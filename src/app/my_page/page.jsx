@@ -12,6 +12,7 @@ import { supabase } from "@/utils/supabase/supabaseClient";
 
 //コンポーネント
 import { useUserContext } from '@/utils/userContext';
+import { getLabelById } from '@/utils/function/function';
 import Header  from "@/component/Header";
 
 export default function UserPage() {
@@ -226,8 +227,8 @@ export default function UserPage() {
 		<div className="content-bg-color">
 			<Header title="プロフィール"/>
 			
-			<div className="header-adjust overflow-y-scroll">
-				<div className="flex flex-col items-center justify-center py-[30px] px-[20px]">
+			<div className="header-adjust h-adjust py-[30px] overflow-y-scroll">
+				<div className="flex flex-col items-center justify-center px-[20px]">
 					<div className="user-icon-box">
 						<div className="user-icon" style={{ backgroundImage: `url('${profile?.icon_path || 'https://res.cloudinary.com/dnehmdy45/image/upload/v1750906560/user-gray_jprhj3.svg'}')` }}></div>
 						<label className="change-icon">
@@ -256,23 +257,12 @@ export default function UserPage() {
 						</p>
 					)}
 
-					<div className="flex justify-around items-center w-[100%] mt-[20px]">
-						<div className="flex flex-col justify-center items-center gap-[2px] w-[33%]">
-							<div className="font-bold">0</div>
-							<div className="text-[14px] text-[#666]">フォロー</div>
-						</div>
-						<div className="flex flex-col justify-center items-center gap-[2px] w-[33%]">
-							<div className="font-bold">0</div>
-							<div className="text-[14px] text-[#666]">フォロワー</div>
-						</div>
-						<div className="flex flex-col justify-center items-center gap-[2px] w-[33%]">
-							<div className="font-bold">0</div>
-							<div className="text-[14px] text-[#666]">いいね</div>
-						</div>
+					<div className="flex flex-col justify-center items-center w-[100%] mt-[20px] gap-[5px]">
+						<p className="text-[13px]">年代 : {getLabelById(profile?.age, 'age')}</p>
+						<p className="text-[13px]">趣味 : {getLabelById(profile?.hobby, 'hobby')}</p>
 					</div>
-					<div className="flex justify-center items-center w-[100%] mt-[20px]">
-						<div className="flex justify-center items-center w-[160px] py-[8px] px-[5px] bg-[#e1e1e1] rounded-[10px] text-[14px] font-bold">プロフィールを編集</div>
-					</div>
+
+					
 					<div className="flex flex-col justify-center items-center w-[100%] mt-[20px]">
 						<p className="my-self-profile" onClick={setComment}>自己紹介文</p>
 						{isEditing ? (
@@ -297,38 +287,36 @@ export default function UserPage() {
 					</div>
 				</div>
 
-				<div className={`${friendList ? 'friend-active' : 'list-active'} relative flex justify-around items-center w-[100%] h-[50px] border-b border-[#e1e1e1]`}>
-					<div className="list-icon" onClick={() => setFriendList(false)}></div>
-					<div className="friend-icon" onClick={() => setFriendList(true)}></div>
-				</div>
+				<div className="flex flex-col justify-center items-center w-[100%] mt-[30px] px-[20px]">
+					<div className={`${friendList ? 'friend-active' : 'list-active'} relative flex justify-around items-center w-[100%] py-[8px] bg-[#D9D9D9] rounded-[6px] text-[#fff] text-[14px]`}>
+						<div className="list-icon" onClick={() => setFriendList(false)}>イベント参加歴</div>
+						<div className="friend-icon" onClick={() => setFriendList(true)}>友達リスト</div>
+					</div>
 
-				<ul className="flex flex-col justify-center items-center w-[100%] px-[10px]">
-					{friendList ? (
-						groupMemberProfiles.map((prf) => (
-							<li key={prf.id} className="flex justify-between items-center w-[100%] py-[10px] border-b border-[#e1e1e1]">
-								<div className="flex justify-center items-center mr-[10px]">
-									<Link href={`/user_page/${prf.id}`} className="w-[50px] h-[50px] rounded-full bg-center bg-cover bg-no-repeat border border-[#e1e1e1]" style={{ backgroundImage: `url('${prf.icon_path || 'https://res.cloudinary.com/dnehmdy45/image/upload/v1750906560/user-gray_jprhj3.svg'}')` }}></Link>
-								</div>
-								<div className="flex flex-col justify-center items-start w-[calc(100%-60px)]">
+					<ul className="flex flex-col justify-center items-center w-[100%] px-[20px] py-[20px] mt-[20px] bg-[#fff]">
+						<p className="icon-left smile w-[100%] text-[16px] font-bold mb-[14px]">友達リスト</p>
+						{friendList ? (
+							groupMemberProfiles.map((prf) => (
+								<li key={prf.id} className="flex flex-col justify-center items-center w-[100%] mt-[14px]">
 									<div className="flex justify-between items-center w-[100%]">
-										<p className="text-[14px] font-bold">{prf.display_name}<span className="text-[12px] ml-[1px]">さん</span></p>
-										<Link href={`message_detail?user=${prf.id}`} className="w-[24px] h-[24px] rounded-full bg-center bg-contain bg-no-repeat"  style={{ backgroundImage: `url('${'https://res.cloudinary.com/dnehmdy45/image/upload/v1752542554/mail_gzqdko.svg'}')` }}></Link>
+										<div className="flex justify-center items-center gap-[10px]">
+											<Link href={`/user_page/${prf.id}`} className="w-[30px] h-[30px] rounded-full bg-center bg-cover bg-no-repeat border border-[#e1e1e1]" style={{ backgroundImage: `url('${prf.icon_path || 'https://res.cloudinary.com/dnehmdy45/image/upload/v1750906560/user-gray_jprhj3.svg'}')` }}></Link>
+											<p className="text-[13px] font-bold">{prf.display_name}</p>
+										</div>
+										<div className="flex justify-center items-center gap-[10px]">
+											<Link href={`/user_page/${prf.id}`} className="w-[24px] h-[24px]  bg-center bg-cover bg-no-repeat" style={{backgroundImage: `url("https://res.cloudinary.com/dnehmdy45/image/upload/v1755074557/User_orange_epxik2.svg")`}}></Link>
+											<Link href={`message_detail?user=${prf.id}`} className="w-[24px] h-[24px] rounded-full bg-center bg-contain bg-no-repeat"  style={{ backgroundImage: `url('${'https://res.cloudinary.com/dnehmdy45/image/upload/v1755074557/Message_circle_btf7qp.svg'}')` }}></Link>
+										</div>
 									</div>
-									<div className="flex flex-wrap justify-left items-center mt-[5px] gap-[5px]">
-										{prf.group_details.map((group) => (
-											<p className="text-[12px] border border-[#e1e1e1] rounded-[10px] px-[5px] py-[2px]" key={group.id}>{group.name}</p>
-										))}
-									</div>
-									<p className="text-[12px] mt-[5px] truncate max-w-[100%] text-[13px] text-[#737373]">自己紹介：{prf.comment || "自己紹介が空欄です"}</p>
-								</div>
-							</li>
-						))
-					) : (
-						<div>
-							test
-						</div>
-					)}
-				</ul>
+								</li>
+							))
+						) : (
+							<div>
+								test
+							</div>
+						)}
+					</ul>
+				</div>
 			</div>
 
 		</div>

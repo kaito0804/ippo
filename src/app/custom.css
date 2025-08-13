@@ -1,9 +1,9 @@
 .header-adjust{
-	padding-top: 91px;
+	margin-top: 91px;
 }
 
 .header-notitle-adjust{
-	padding-top: 91px;
+	margin-top: 91px;
 }
 
 .h-adjust{
@@ -22,6 +22,29 @@ input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: inner-spin-button;
   appearance: auto;
+}
+
+.icon-left{
+	position: relative;
+	padding-left: 30px;
+}
+
+.icon-left::before{
+	content: '';
+	position: absolute;
+	background-size: contain;
+	background-position: center;
+	background-repeat: no-repeat;
+	left: 0;
+}
+
+.icon-left.smile::before{
+	width: 28px;
+	height: 28px;
+	margin-left: 8px;
+	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1755074557/Smile_utxmxt.svg");
+	left: -10px;
+	top: calc(50% - 28px/2);
 }
 
 .ippo_icon_n{
@@ -466,23 +489,23 @@ input:checked + .prf-label::before{
 /*my_page*/
 .user-icon-box{
 	position: relative;
-	width: 100px;
-	height: 100px;
+	width: 120px;
+	height: 120px;
 	border-radius: 50%;
 	background-color: #fff;
-	border: 4px solid #c4c4c4;
+	border: 1px solid #c4c4c4;
 }
 
 .user-icon{
 	position: absolute;
-	width: 92%;
-	height: 92%;
+	width: 100%;
+	height: 100%;
 	background-size: cover;
 	background-repeat: no-repeat;
 	background-position: center;
 	border-radius: 50%;
-	top: 4%;
-	left: 4%;
+	top: 0;
+	left: 0;
 }
 
 .change-icon{
@@ -516,16 +539,16 @@ input:checked + .prf-label::before{
 	align-items: center;
 	justify-content: center;
 	margin-top: 10px;
-	padding-left: 30px;
-	font-size: 14px;
+	padding-left: 20px;
+	font-size: 16px;
 	font-weight: bold;
 }
 
 .name-text::after{
 	content: '';
 	display: inline-flex;
-	width: 18px;
-	height: 18px;
+	width: 20px;
+	height: 20px;
 	margin-left: 5px;
 	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1751346643/edit-pencil_y8d6ns.svg");
 	background-size: contain;
@@ -561,10 +584,6 @@ input:checked + .prf-label::before{
 	justify-content: center;
 	width: 50%;
 	height: 100%;
-	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1750907289/list-gray_t47ppu.svg");
-	background-size: 26px;
-	background-repeat: no-repeat;
-	background-position: center;
 }
 
 .friend-icon{
@@ -574,34 +593,30 @@ input:checked + .prf-label::before{
 	justify-content: center;
 	width: 50%;
 	height: 100%;
-	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1752542553/group_vyqcbg.svg");
-	background-size: 26px;
-	background-repeat: no-repeat;
-	background-position: center;
 }
 
 .list-active::before{
 	content: "";
 	position: absolute;
-	background-image: linear-gradient(89deg, rgba(253, 152, 38, 1) 30%, rgba(253, 103, 139, 1) 100%);
-    border-radius: 3px;
-    width: 40%;
-    height: 3px;
+	background-color: #F26A21;
+    border-radius: 6px;
+    width: 50%;
+    height: 100%;
     position: absolute;
     bottom: 0;
-    left: calc(50% - 45%);
+    left: 0;
 	transition: 0.2s;
 }
 
 .friend-active::before{
 	content: "";
-	background-image: linear-gradient(89deg, rgba(253, 152, 38, 1) 30%, rgba(253, 103, 139, 1) 100%);
-    border-radius: 3px;
-    width: 40%;
-    height: 3px;
+	background-color: #F26A21;
+    border-radius: 6px;
+    width: 50%;
+    height: 100%;
     position: absolute;
     bottom: 0;
-    left: calc(50% + 5%);
+    left: calc(50% + 0%);
 	transition: 0.2s;
 }
 

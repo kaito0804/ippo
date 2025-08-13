@@ -102,6 +102,7 @@ export default function NewRegPost({openDialog, closeDialog, placeName, clickPos
 
 			const { error: memberError } = await supabase.from('group_members').insert({
 				group_id: groupData.id,
+				group_name: groupData.name,
 				user_id: userId,
 				created_by: userId,
 				joined_at: new Date().toISOString(),

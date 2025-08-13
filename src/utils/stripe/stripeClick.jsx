@@ -43,6 +43,7 @@ export const stripeClick = (userId) => {
 
 		const { error } = await supabase.from("group_members").insert({
 			group_id: group.id,
+			group_name: group.name,
 			user_id: userId,
 			created_by: groupData.created_by,
 		});
