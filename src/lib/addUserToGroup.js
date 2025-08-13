@@ -2,36 +2,61 @@
 import { supabase } from '@/utils/supabase/supabaseClient';
 
 export async function addUserToGroup(userId, groupId) {
-	if (!userId || !groupId) return false;
+  if (!userId || !groupId) return false;
 
-	//現在のメンバー配列を取得
-	const { data: group, error } = await supabase
-		.from('groups')
-		.select('member')
-		.eq('id', groupId)
-		.single();
+  // すでに参加しているか確認
+  const { data: existingMember, error: checkError } = await supabase
+    .from('group_members')
+    .select('id')
+    .eq('group_id', groupId)
+    .eq('user_id', userId)
+    .single();
 
-	if (error) {
-		console.error('グループ取得エラー:', error);
-		return false;
-	}
+  if (checkError && checkError.code !== 'PGRST116') {
+    console.error('参加確認エラー:', checkError);
+    return false;
+  }
 
-	// すでにメンバーに含まれていれば何もしない
-	if (group.member && group.member.includes(userId)) {
-		return true;
-	}
+  if (existingMember) {
+    // すでに参加している
+    return true;
+  }
 
-	// 配列にuserIdを追加
-	const updatedMembers = group.member ? [...group.member, userId] : [userId];
+  // groupsテーブルの created_by を取得
+  const { data: group, error: groupError } = await supabase
+    .from('groups')
+    .select('created_by, member')
+    .eq('id', groupId)
+    .single();
 
-	const { error: updateError } = await supabase
-		.from('groups')
-		.update({ member: updatedMembers })
-		.eq('id', groupId);
+  if (groupError) {
+    console.error('グループ取得エラー:', groupError);
+    return false;
+  }
 
-	if (updateError) {
-		console.error('グループメンバー更新エラー:', updateError);
-		return false;
-	}
-	return true;
+  // group_members に追加
+  const { error: insertError } = await supabase.from('group_members').insert({
+    group_id: groupId,
+    user_id: userId,
+    created_by: group.created_by,
+  });
+
+  if (insertError) {
+    console.error('group_members 追加エラー:', insertError);
+    return false;
+  }
+
+  // groups.member 配列にも追加（古い仕様との互換性）
+  const updatedMembers = group.member ? [...group.member, userId] : [userId];
+  const { error: updateError } = await supabase
+    .from('groups')
+    .update({ member: updatedMembers })
+    .eq('id', groupId);
+
+  if (updateError) {
+    console.error('groups.member 更新エラー:', updateError);
+    return false;
+  }
+
+  return true;
 }
