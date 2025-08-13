@@ -1,7 +1,7 @@
 // utils/stripe/stripeClick.jsx
 import { useState } from "react";
 import { supabase } from "@/utils/supabase/supabaseClient";
-import { handleStripeJoin } from "@/utils/stripe/stripeClient"; 
+import { stripeClient } from "@/utils/stripe/stripeClient"; 
 
 export const stripeClick = (userId) => {
 	const [joiningStatus, setJoiningStatus]       = useState({});
@@ -17,7 +17,7 @@ export const stripeClick = (userId) => {
 		// Stripe決済が必要な場合
 		if (group.price !== "free") {
 			try {
-				await handleStripeJoin(group);
+				await stripeClient(group, userId);
 			} catch (e) {
 				console.error("Stripe決済エラー:", e);
 				alert("決済処理に失敗しました");

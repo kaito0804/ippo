@@ -1,14 +1,12 @@
-// utils/stripe/handleStripeJoin.js
+// utils/stripe/stripeClient.js
 import { loadStripe } from '@stripe/stripe-js';
 
 const stripePromise = loadStripe(
   'pk_test_51Ri8ze2cMnMMoYxBqhGEVtg9IwEPeDfK9TkS8i6OTrZccOjJXZalwaevkyAcVDG0QOYAxptmvtrlK6PIn5pYP2dT00xSSSFJh4'
 );
 
-export const handleStripeJoin = async (group) => {
+export const stripeClient = async (group, userId) => {
   const stripe = await stripePromise;
-
-  // 直前のページURL（無ければデフォルトに）
   const previousUrl = document.referrer || `${window.location.origin}/top`;
 
   const res = await fetch('/api/stripeBackend', {
@@ -18,6 +16,7 @@ export const handleStripeJoin = async (group) => {
       groupId: group.id,
       price: group.price,
       returnUrl: previousUrl,
+      userId, 
     }),
   });
 
@@ -29,3 +28,4 @@ export const handleStripeJoin = async (group) => {
     console.error('Stripe セッション作成に失敗:', session);
   }
 };
+
