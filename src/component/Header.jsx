@@ -7,7 +7,6 @@ import Link from 'next/link';
 export default function Header() {
 
 	const { userId, isHost, nowStatus, userProfile, setNowStatus } = useUserContext();
-	const [openDialog, setOpenDialog]     = useState(false);
 
 	return (
 		<div className='fixed top-0 left-0 w-[100%] bg-[#fefaf1] z-50'>
@@ -24,7 +23,7 @@ export default function Header() {
 						<div className='w-[34px] h-[34px] bg-size-[160%] bg-no-repeat bg-center' style={{backgroundImage: `url("https://res.cloudinary.com/dnehmdy45/image/upload/v1753231432/IPPO_graphics-tulip_ydbmay.svg")`}}></div>
 						<p className='text-[11px] font-bold'>CHAT</p>
 					</Link>
-					<Link href="/list_box" className='flex flex-col justify-center items-center'>
+					<Link href="/about" className='flex flex-col justify-center items-center'>
 						<div className='w-[34px] h-[34px] bg-size-[150%] bg-no-repeat bg-position-[-10px_-7px]' style={{backgroundImage: `url("https://res.cloudinary.com/dnehmdy45/image/upload/v1753231432/IPPO_graphics-sneaker_cx4wns.svg")`}}></div>
 						<p className='text-[11px] font-bold'>ABOUT</p>
 					</Link>

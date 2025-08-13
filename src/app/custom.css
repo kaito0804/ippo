@@ -7,7 +7,7 @@
 }
 
 .h-adjust{
-	height: calc(100vh - 91px);
+	height: calc(100dvh - 91px);
 }
 
 .content-bg-color{
@@ -323,8 +323,7 @@ input:checked + .prf-label::before{
 .listDetailDialog{
 	position: fixed;
 	width: 100%;
-	height: 100dvh;
-	background-color: #fff;
+	padding: 00px 28px;
 	left: 0;
 	transition: 0.3s;
 	overflow-y: scroll;

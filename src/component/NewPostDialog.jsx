@@ -45,6 +45,7 @@ export default function NewRegPost({openDialog, closeDialog, placeName, clickPos
 	const fileChange = async (e) => {
 		const file = e.target.files[0];
 		if (file) {
+			setThumImage(file);
 			setPreviewUrl(URL.createObjectURL(file));
 		} else {
 			setPreviewUrl(null);
@@ -129,6 +130,7 @@ export default function NewRegPost({openDialog, closeDialog, placeName, clickPos
 			setmemberCount(0);
 			setPrice('');
 			setThumImage(null);
+			setPreviewUrl(null);
 			if (fileInputRef.current) {
 				fileInputRef.current.value = '';
 			}

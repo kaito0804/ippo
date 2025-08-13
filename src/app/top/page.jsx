@@ -74,7 +74,7 @@ export default function Home() {
 					<p className="text-xl text-[#ff7a00] font-bold animate-pulse">読み込み中です...</p>
 				</div>
             ) : userProfile.first_set ? (
-                <div className="flex flex-col justify-center items-center w-[100%] h-adjust header-adjust">
+                <div className="flex flex-col justify-center items-center w-[100%] h-[100dvh] header-adjust">
                     <Header title="HOME"/>
 
                         {selectSearch == "map" ? (

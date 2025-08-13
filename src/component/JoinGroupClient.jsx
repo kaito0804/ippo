@@ -1,52 +1,36 @@
-"use client";
+import { supabase } from '@/utils/supabaseClient';
 
-import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
+export async function addUserToGroup(userId, groupId) {
+  if (!userId || !groupId) return false;
 
-export default function JoinGroupClient({ groupId }) {
-  const [status, setStatus] = useState("参加登録中...");
+  //現在のメンバー配列を取得
+  const { data: group, error } = await supabase
+    .from('groups')
+    .select('member')
+    .eq('id', groupId)
+    .single();
 
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  );
+  if (error) {
+    console.error('グループ取得エラー:', error);
+    return false;
+  }
 
-  useEffect(() => {
-    async function joinGroup() {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+  // すでにメンバーに含まれていれば何もしない
+  if (group.member && group.member.includes(userId)) {
+    return true;
+  }
 
-      if (!session) {
-        setStatus("未ログインです。");
-        return;
-      }
+  // 配列にuserIdを追加
+  const updatedMembers = group.member ? [...group.member, userId] : [userId];
 
-      const token = session.access_token;
+  const { error: updateError } = await supabase
+    .from('groups')
+    .update({ member: updatedMembers })
+    .eq('id', groupId);
 
-      try {
-        const res = await fetch("/api/joinGroup", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ groupId }),
-        });
-
-        if (res.ok) {
-          setStatus("参加登録が完了しました！");
-        } else {
-          const { error, message } = await res.json();
-          setStatus(error || message || "参加登録に失敗しました。");
-        }
-      } catch {
-        setStatus("エラーが発生しました。");
-      }
-    }
-
-    joinGroup();
-  }, [groupId]);
-
-  return <p>{status}</p>;
+  if (updateError) {
+    console.error('グループメンバー更新エラー:', updateError);
+    return false;
+  }
+  return true;
 }
