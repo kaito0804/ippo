@@ -48,8 +48,8 @@ const GroupSlider = ({ title, groups, setDialogGroup, setImgLoading}) => {
 							focus  : 'center',
 							arrows : false,
 							speed: 350,       
-							flickPower: 50,    
-							flickVelocity: 0.3
+							flickPower: 20,    
+							flickVelocity: 0.05
 						} }
 					>
 						{groups.map((group, idx) => (
