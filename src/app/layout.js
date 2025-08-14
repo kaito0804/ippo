@@ -4,8 +4,6 @@ import { Zen_Maru_Gothic } from 'next/font/google';
 
 import "./globals.css";
 import Providers from "@/component/Providers";
-import "slick-carousel/slick/slick.css";
-import "slick-carousel/slick/slick-theme.css";
 
 import AuthWatcher from '@/component/AuthWatcher'
 import { UserProvider } from '@/utils/userContext';

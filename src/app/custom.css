@@ -32,6 +32,20 @@ input[type="number"]::-webkit-outer-spin-button {
   scrollbar-width: none;  
 }
 
+/* スライダーカスタム */
+.splide__pagination {
+  position: relative !important; 
+  bottom: -8px !important;
+}
+
+.splide__pagination__page {
+    background: #c7c7c7 !important;
+}
+
+.splide__pagination__page.is-active {
+    background: #F26A21 !important;
+}
+
 .icon-left{
 	position: relative;
 	padding-left: 30px;

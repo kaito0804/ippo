@@ -14,6 +14,7 @@ export default function ListTop() {
 
 	const [group, setGroup]   = useState({ thisMonth: [], nextMonth: [] });
 	const [dialogGroup, setDialogGroup] = useState();
+	const [imgLoading, setImgLoading] = useState(false);
 
 	useEffect(() => {
 		const GetGroups                = async () => {
@@ -25,7 +26,6 @@ export default function ListTop() {
 		const startOfNextMonthStr      = toDateString(startOfNextMonth);
 		const startOfFollowingMonthStr = toDateString(startOfFollowingMonth);
 		
-
 
 		// 今月グループ取得
 		const { data: thisMonthGroups, error: error1 } = await supabase
@@ -92,12 +92,12 @@ export default function ListTop() {
 
 	return (
 		<div className="flex flex-col justify-start items-center w-[100%] pt-[20px] pb-[50px] overflow-y-scroll overflow-x-hidden">
-			{!group ? (
-				<div className="fixed inset-0 bg-white bg-opacity-80 z-50 flex justify-center items-center">
-					<p className="text-xl text-[#ff7a00] font-bold animate-pulse">読み込み中です...</p>
-				</div>
-			) : (
-			<div>
+
+			<div style={{ display: imgLoading ? 'none' : 'flex' }} className="fixed inset-0 bg-white bg-opacity-80 z-50 justify-center items-center">
+				<p className="text-xl text-[#ff7a00] font-bold animate-pulse">読み込み中です...</p>
+			</div>
+
+			<div className="flex flex-col items-center justify-center w-[100%]">
 				<div className="flex flex-col items-center justify-center w-[100%]">
 					{group.recommend ? (
 					<div>
@@ -114,13 +114,12 @@ export default function ListTop() {
 					)}
 				</div>
 
-				<GroupSlider title="今月" groups={group.thisMonth} setDialogGroup={setDialogGroup}/>
-				<GroupSlider title="来月" groups={group.nextMonth} setDialogGroup={setDialogGroup}/>
+				<GroupSlider title="今月" groups={group.thisMonth} setDialogGroup={setDialogGroup} setImgLoading={setImgLoading}/>
+				<GroupSlider title="来月" groups={group.nextMonth} setDialogGroup={setDialogGroup} setImgLoading={setImgLoading}/>
 
 				<ListDetailDialog group={dialogGroup} setGroup={setDialogGroup}/>
 
 			</div>
-			)}
 		</div>
 	);
 }
