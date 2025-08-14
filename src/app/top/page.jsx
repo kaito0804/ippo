@@ -9,23 +9,13 @@ import { useUserContext }   from '@/utils/userContext';
 
 //コンポーネント
 import Header           from "@/component/Header";
-import Footer           from "@/component/Footer";
 import FirstSetPrf      from "@/component/FirstSetPrf";
 import ListTop          from "@/component/ListTop";
-import HostTop          from "@/component/HostTop";
-import MemberTop        from "@/component/MemberTop";
-import ListDetailDialog from '@/component/ListDetailDialog';
-
 
 
 export default function Home() {
 
     const { userId, isHost, nowStatus, userProfile, setNowStatus } = useUserContext();
-	const [postBtn, setPostBtn]           = useState(false);
-	const [openDialog, setOpenDialog]     = useState(false);
-	const [selectSearch, setSelectSearch] = useState(true);
-	const [selectPost, setSelectPost]     = useState();
-	const [groupData, setGroupData]       = useState({ thisMonth: [], nextMonth: [] });
     
     //初回登録時auth情報をuser_profilesに登録
     useEffect(() => {
@@ -74,23 +64,11 @@ export default function Home() {
 					<p className="text-xl text-[#ff7a00] font-bold animate-pulse">読み込み中です...</p>
 				</div>
             ) : userProfile.first_set ? (
-                <div className="flex flex-col justify-center items-center w-[100%] h-[100dvh] header-adjust">
+                <div className="flex flex-col justify-center items-center w-[100%] header-adjust h-adjust">
                     <Header title="HOME"/>
 
-                        {selectSearch == "map" ? (
-                            <div className="flex flex-col justify-center items-center w-[100%] h-adjust">
-                                {isHost ? (                
-                                    <HostTop setSelectPost={setSelectPost} openDialog={openDialog} setOpenDialog={setOpenDialog} setPostBtn={() => setPostBtn(true)}/>
-                                ) : (
-                                    <MemberTop setSelectPost={setSelectPost} openDialog={openDialog} setOpenDialog={setOpenDialog} setPostBtn={() => setPostBtn(true)}/>
-                                )}
-                            </div>
-                        ) : (
-                            <ListTop setSelectPost={setSelectPost}/>
-                        )}
+                    <ListTop/>
                   
-                    <ListDetailDialog selectPost={selectPost} setSelectPost={setSelectPost}/>
-                    {/*<Footer postBtn={postBtn} openDialog={() => setOpenDialog(true)}/>*/}
                 </div>
             ) : (
                 <FirstSetPrf />

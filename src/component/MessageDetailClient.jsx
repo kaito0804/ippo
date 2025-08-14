@@ -11,6 +11,9 @@ import { uploadToCloudinary } from "@/utils/cloudinary/cloudinary";
 import { supabase } from "@/utils/supabase/supabaseClient";
 import { useUserContext } from '@/utils/userContext';
 
+import {startDayJP} from '@/utils/function/function';
+
+
 
 export default function MessageDetailClient({ groupId, anotherUserId }) {
 	const pageSize = 30; // 1ページあたりのメッセージ取得件数
@@ -542,8 +545,41 @@ export default function MessageDetailClient({ groupId, anotherUserId }) {
 
 			<div ref={scrollContainerRef} className="w-[100%] h-[calc(100dvh-50px)] pt-[60px] px-[16px] overflow-y-scroll">
 				<ul className="w-[100%] py-[20px]">
-					{(() => {
+					{/*テンプレートメッセージ*/}
+					{isGroupChat && group && (
+						<div className="flex items-start w-[100%] whitespace-pre-wrap">
+							<div
+								className="w-[30px] h-[30px] min-w-[30px] mr-[7px] bg-[#fff] bg-size-[54px] bg-center bg-no-repeat rounded-full border border-[#e0e0e0]"
+								style={{backgroundImage: `url(https://res.cloudinary.com/dnehmdy45/image/upload/v1753231432/IPPO_graphics-camelhead_lwn5ui.svg)`}}
+							></div>
+							<div className="w-[100%]">
+								<div className="text-[10px] text-gray-500 font-bold mb-[1px]">IPPO運営</div>
+								<div className={`flex items-center my-1 text-sm`}>
+									<div className={`message-text others`}>
+										<p className="text-left py-[10px]">
+											<span className="absolute right-[-32px] bottom-[0px] text-[10px] text-gray-500"></span>
+											＼こんにちは🌿IPPOへようこそ／<br/>
+											<br/>
+											このチャットは、<span className="font-bold">{startDayJP(group.start_date)}</span> 開催の<span className="font-bold">【{group.name}】</span>にご参加くださる皆さんのためのゆるやかな交流スペースです☺️<br/>
+											<br/>
+											入室した方から簡単な自己紹介をお願いします！<br/>
+											<br/>
+											【自己紹介のヒント】<br/>
+											・ニックネーム（呼ばれたい名前）<br/>
+											・趣味、好きなこと<br/>
+											・ひとこと（楽しみにしてること、最近のマイブームなど）<br/>
+											<br/>
+											✅ご確認事項
+											プロフィールに集合情報を掲示していますので、一度目を通していただけたら嬉しいです！
+										</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					)}
 
+
+					{(() => {
 						const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
 						const jpDate   = (isoDateStr) => {
 							const date = new Date(isoDateStr);
@@ -603,28 +639,28 @@ export default function MessageDetailClient({ groupId, anotherUserId }) {
 											}}
 											></Link>
 											<div className="w-[100%]">
-											<div className="text-[10px] text-gray-500 font-bold mb-[1px]">{msg.user_profiles?.display_name || "匿名"}</div>
-											<div className={`flex items-center my-1 text-sm`}>
-												<div className={`message-text others`}>
-													{msg.image_url && (
-														<div className="flex items-center justify-center">
-														<div
-															className="w-[120px] h-[120px] m-[5px] mt-[10px] bg-cover bg-center bg-no-repeat rounded-lg"
-															style={{
-																backgroundImage: `url(${msg.image_url.replace(
-																	'/upload/',
-																	'/upload/w_200,h_200,c_fill,q_auto/'
-																)})`,
-															}}
-														/>
-														</div>
-													)}
-													<p className="text-left p-[5px]">
-														<span className="absolute right-[-32px] bottom-[0px] text-[10px] text-gray-500">{sendTime(msg.created_at)}</span>
-														{msg.content}
-													</p>
+												<div className="text-[10px] text-gray-500 font-bold mb-[1px]">{msg.user_profiles?.display_name || "匿名"}</div>
+												<div className={`flex items-center my-1 text-sm`}>
+													<div className={`message-text others`}>
+														{msg.image_url && (
+															<div className="flex items-center justify-center">
+															<div
+																className="w-[120px] h-[120px] m-[5px] mt-[10px] bg-cover bg-center bg-no-repeat rounded-lg"
+																style={{
+																	backgroundImage: `url(${msg.image_url.replace(
+																		'/upload/',
+																		'/upload/w_200,h_200,c_fill,q_auto/'
+																	)})`,
+																}}
+															/>
+															</div>
+														)}
+														<p className="text-left p-[5px]">
+															<span className="absolute right-[-32px] bottom-[0px] text-[10px] text-gray-500">{sendTime(msg.created_at)}</span>
+															{msg.content}
+														</p>
+													</div>
 												</div>
-											</div>
 											</div>
 										</div>
 									)}
@@ -663,6 +699,7 @@ export default function MessageDetailClient({ groupId, anotherUserId }) {
 
 					<div onClick={sendMessage} className="w-[22px] h-[22px] bg-cover bg-center bg-no-repeat" style={{backgroundImage : `url('https://res.cloudinary.com/dnehmdy45/image/upload/v1751332483/send_nfcvzx.svg')`}}></div>
 				</div>
+
 			</div>
 
 		</div>

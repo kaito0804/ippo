@@ -8,9 +8,12 @@ import GroupSlider from "@/component/slider";
 //データベース関連
 import { supabase }         from '@/utils/supabase/supabaseClient';
 
-export default function ListTop({ setSelectPost }) {
+import ListDetailDialog from '@/component/ListDetailDialog';
 
-	const [groupData, setGroupData] = useState({ thisMonth: [], nextMonth: [] });
+export default function ListTop() {
+
+	const [group, setGroup]   = useState({ thisMonth: [], nextMonth: [] });
+	const [dialogGroup, setDialogGroup] = useState();
 
 	useEffect(() => {
 		const GetGroups                = async () => {
@@ -21,6 +24,8 @@ export default function ListTop({ setSelectPost }) {
 		const todayStr                 = toDateString(today);
 		const startOfNextMonthStr      = toDateString(startOfNextMonth);
 		const startOfFollowingMonthStr = toDateString(startOfFollowingMonth);
+		
+
 
 		// 今月グループ取得
 		const { data: thisMonthGroups, error: error1 } = await supabase
@@ -63,10 +68,10 @@ export default function ListTop({ setSelectPost }) {
 			const filteredNextMonth = (nextMonthGroups || []).filter(g => g.id !== recommendedId);
 
 			// state に保存
-			setGroupData({
-			thisMonth: filteredThisMonth,
-			nextMonth: filteredNextMonth,
-			recommend: recommendedGroup || null,
+			setGroup({
+				thisMonth: filteredThisMonth,
+				nextMonth: filteredNextMonth,
+				recommend: recommendedGroup || null,
 			});
 
 			console.log("おすすめ:", recommendedGroup);
@@ -87,25 +92,35 @@ export default function ListTop({ setSelectPost }) {
 
 	return (
 		<div className="flex flex-col justify-start items-center w-[100%] pt-[20px] pb-[50px] overflow-y-scroll overflow-x-hidden">
-			<div className="flex flex-col items-center justify-center w-[100%]">
-				{groupData.recommend ? (
-				<div>
-					<p className="text-[18px] font-bold">おすすめ</p>
-					<div
-					onClick={() => setSelectPost(groupData.recommend.id)}
-					className="w-[335px] h-[200px] mt-[5px] bg-cover bg-center bg-no-repeat rounded-[8px]"
-					style={{ backgroundImage: `url('${optimizeImage(groupData.recommend.image_url)}')` }}
-
-					></div>
+			{!group ? (
+				<div className="fixed inset-0 bg-white bg-opacity-80 z-50 flex justify-center items-center">
+					<p className="text-xl text-[#ff7a00] font-bold animate-pulse">読み込み中です...</p>
 				</div>
-				) : (
-				<p>現在おすすめグループはありません。</p>
-				)}
+			) : (
+			<div>
+				<div className="flex flex-col items-center justify-center w-[100%]">
+					{group.recommend ? (
+					<div>
+						<p className="text-[18px] font-bold">おすすめ</p>
+						<div
+						onClick={() => {setDialogGroup(group.recommend);}}
+						className="w-[335px] h-[200px] mt-[5px] bg-cover bg-center bg-no-repeat rounded-[8px]"
+						style={{ backgroundImage: `url('${optimizeImage(group.recommend.image_url)}')` }}
+
+						></div>
+					</div>
+					) : (
+					<p>現在おすすめグループはありません。</p>
+					)}
+				</div>
+
+				<GroupSlider title="今月" groups={group.thisMonth} setDialogGroup={setDialogGroup}/>
+				<GroupSlider title="来月" groups={group.nextMonth} setDialogGroup={setDialogGroup}/>
+
+				<ListDetailDialog group={dialogGroup} setGroup={setDialogGroup}/>
+
 			</div>
-
-			<GroupSlider title="今月" groups={groupData.thisMonth} setSelectPost={setSelectPost}  />
-			<GroupSlider title="来月" groups={groupData.nextMonth} setSelectPost={setSelectPost}/>
-
+			)}
 		</div>
 	);
 }

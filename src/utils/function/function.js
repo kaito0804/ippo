@@ -13,6 +13,20 @@ export function startDay(dateStr) {
 }
 
 /*===============================
+時間フォーマット 2025-08-29 → 8月29日(金)
+================================*/
+export function startDayJP(dateStr) {
+  const date      = new Date(dateStr);
+  const days      = ['日', '月', '火', '水', '木', '金', '土'];
+  const month     = date.getMonth() + 1; // 1〜12
+  const day       = date.getDate();        // 1〜31
+  const dayOfWeek = days[date.getDay()];
+
+  return `${month}月${day}日(${dayOfWeek})`;
+}
+
+
+/*===============================
 時間フォーマット 00:00 → 00時間00分 
 ================================*/
 export function formatDurationHM(durationStr) {
@@ -54,3 +68,4 @@ export function getLabelById(id, type) {
 	// 単一選択
 	return list.find(item => item.id === id)?.label || "未設定";
 };
+

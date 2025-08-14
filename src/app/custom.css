@@ -24,6 +24,14 @@ input[type="number"]::-webkit-outer-spin-button {
   appearance: auto;
 }
 
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none; 
+  scrollbar-width: none;  
+}
+
 .icon-left{
 	position: relative;
 	padding-left: 30px;
@@ -45,6 +53,38 @@ input[type="number"]::-webkit-outer-spin-button {
 	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1755074557/Smile_utxmxt.svg");
 	left: -10px;
 	top: calc(50% - 28px/2);
+}
+
+.icon-left.reservation::before{
+	width: 28px;
+	height: 28px;
+	margin-left: 8px;
+	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1755132734/Check_square_gcokl1.svg");
+	left: -10px;
+	top: calc(50% - 28px/2);
+}
+
+.icon-left.history::before{
+	width: 28px;
+	height: 28px;
+	margin-left: 8px;
+	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1755132734/Bookmark_kidbqs.svg");
+	left: -10px;
+	top: calc(50% - 28px/2);
+}
+
+.bee-icon::after{
+	content: '';
+	position: absolute;
+	width: 220px;
+	height: 220px;
+	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1755147831/graphics-bee_mnvwbd.svg");
+	background-size: contain;
+	background-position: center;
+	background-repeat: no-repeat;
+	bottom: -80px;
+	right: -40px;
+	pointer-events: none;
 }
 
 .ippo_icon_n{
@@ -346,7 +386,7 @@ input:checked + .prf-label::before{
 .listDetailDialog{
 	position: fixed;
 	width: 100%;
-	padding: 00px 28px;
+	padding: 0px 28px;
 	left: 0;
 	transition: 0.3s;
 	overflow-y: scroll;
@@ -435,10 +475,11 @@ input:checked + .prf-label::before{
 }
 
 .message-text.others{
-	background-color: #858585;
-	color: #fff;
+	background-color: #fff;
+	color: #333;
+	border: 1px solid #cfcfcf;
 	text-align: left;
-	border-radius: 0 30px 30px 30px;
+	border-radius: 0 20px 20px 20px;
 }
 
 .message-text.mine:after{
@@ -458,7 +499,7 @@ input:checked + .prf-label::before{
 	top: -8px; 
 	left: -9px;
 	border: 6px solid transparent;
-	border-right: 12px solid #858585;
+	border-right: 12px solid #fff;
 	-webkit-transform: rotate(50deg);
 	transform: rotate(50deg);
 }

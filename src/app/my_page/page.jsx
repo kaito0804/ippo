@@ -14,6 +14,7 @@ import { supabase } from "@/utils/supabase/supabaseClient";
 import { useUserContext } from '@/utils/userContext';
 import { getLabelById } from '@/utils/function/function';
 import Header  from "@/component/Header";
+import PrfJoinGroup from "@/component/PrfJoinGroup";
 
 export default function UserPage() {
 
@@ -57,74 +58,72 @@ export default function UserPage() {
 
 	====================================*/
 	useEffect(() => {
-		const fetchMyExpiredGroupMembers = async () => {
-			if (!userId) return;
+		if (!userId) return;
 
-			const nowISOString = new Date().toISOString();
-
+		const fetchMyFinishedGroupMembers = async () => {
 			// ① RPC で自分が参加していた終了済みグループを取得
-			const { data: expiredGroups, error: groupError } = await supabase
-				.rpc("get_my_expired_groups", {
-					now_ts: nowISOString,
-					uid: userId
-				});
+			const { data: finishedGroups, error: groupError } = await supabase
+			.rpc("get_my_finished_groups", { user_id: userId });
 
 			if (groupError) {
-				console.error("RPC取得エラー:", groupError);
-				return;
+			console.error("RPC取得エラー:", groupError);
+			setGroupMemberProfiles([]);
+			return;
 			}
 
-			if (!expiredGroups || expiredGroups.length === 0) {
-				setGroupMemberProfiles([]);
-				return;
+			if (!finishedGroups || finishedGroups.length === 0) {
+			setGroupMemberProfiles([]);
+			return;
 			}
 
 			// ② 自分以外の user_id を抽出（重複なし）
 			const otherUserIds = [
-				...new Set(
-					expiredGroups.flatMap(group =>
-						(group.member || []).filter(uid => uid !== userId)
-					)
+			...new Set(
+				finishedGroups.flatMap(group =>
+				(group.member || []).filter(uid => uid !== userId)
 				)
+			)
 			];
 
 			if (otherUserIds.length === 0) {
-				setGroupMemberProfiles([]);
-				return;
+			setGroupMemberProfiles([]);
+			return;
 			}
 
 			// ③ user_profiles を取得
 			const { data: profiles, error: profileError } = await supabase
-				.from("user_profiles")
-				.select("id, display_name, icon_path, comment, is_host, now_status")
-				.in("id", otherUserIds);
+			.from("user_profiles")
+			.select("id, display_name, icon_path, comment, is_host, now_status")
+			.in("id", otherUserIds);
 
 			if (profileError) {
-				console.error("プロフィール取得エラー:", profileError);
-				return;
+			console.error("プロフィール取得エラー:", profileError);
+			setGroupMemberProfiles([]);
+			return;
 			}
 
 			// ④ ユーザーIDごとに所属グループをマッピング
 			const userToGroupsMap = {};
-			expiredGroups.forEach(group => {
-				(group.member || []).forEach(uid => {
-					if (uid === userId) return;
-					if (!userToGroupsMap[uid]) userToGroupsMap[uid] = [];
-					userToGroupsMap[uid].push(group);
-				});
+			finishedGroups.forEach(group => {
+			(group.member || []).forEach(uid => {
+				if (uid === userId) return;
+				if (!userToGroupsMap[uid]) userToGroupsMap[uid] = [];
+				userToGroupsMap[uid].push(group);
+			});
 			});
 
 			// ⑤ プロフィールにグループ詳細を結合
 			const combinedData = profiles.map(profile => ({
-				...profile,
-				group_details: userToGroupsMap[profile.id] || []
+			...profile,
+			group_details: userToGroupsMap[profile.id] || []
 			}));
 
 			setGroupMemberProfiles(combinedData);
 		};
 
-		fetchMyExpiredGroupMembers();
+		fetchMyFinishedGroupMembers();
 	}, [userId]);
+
 
 
 
@@ -293,29 +292,30 @@ export default function UserPage() {
 						<div className="friend-icon" onClick={() => setFriendList(true)}>友達リスト</div>
 					</div>
 
-					<ul className="flex flex-col justify-center items-center w-[100%] px-[20px] py-[20px] mt-[20px] bg-[#fff]">
-						<p className="icon-left smile w-[100%] text-[16px] font-bold mb-[14px]">友達リスト</p>
+					<div className="flex flex-col justify-center items-center w-[100%] mt-[20px] ">
+						
 						{friendList ? (
-							groupMemberProfiles.map((prf) => (
-								<li key={prf.id} className="flex flex-col justify-center items-center w-[100%] mt-[14px]">
-									<div className="flex justify-between items-center w-[100%]">
-										<div className="flex justify-center items-center gap-[10px]">
-											<Link href={`/user_page/${prf.id}`} className="w-[30px] h-[30px] rounded-full bg-center bg-cover bg-no-repeat border border-[#e1e1e1]" style={{ backgroundImage: `url('${prf.icon_path || 'https://res.cloudinary.com/dnehmdy45/image/upload/v1750906560/user-gray_jprhj3.svg'}')` }}></Link>
-											<p className="text-[13px] font-bold">{prf.display_name}</p>
+							<ul className="flex flex-col justify-center items-center w-[100%] px-[20px] py-[20px] bg-[#fff]">
+								<p className="icon-left smile w-[100%] text-[16px] font-bold mb-[14px]">友達リスト</p>
+								{groupMemberProfiles.map((prf) => (
+									<li key={prf.id} className="flex flex-col justify-center items-center w-[100%] mt-[14px]">
+										<div className="flex justify-between items-center w-[100%]">
+											<div className="flex justify-center items-center gap-[10px]">
+												<Link href={`/user_page/${prf.id}`} className="w-[30px] h-[30px] rounded-full bg-center bg-cover bg-no-repeat border border-[#e1e1e1]" style={{ backgroundImage: `url('${prf.icon_path || 'https://res.cloudinary.com/dnehmdy45/image/upload/v1750906560/user-gray_jprhj3.svg'}')` }}></Link>
+												<p className="text-[13px] font-bold">{prf.display_name}</p>
+											</div>
+											<div className="flex justify-center items-center gap-[10px]">
+												<Link href={`/user_page/${prf.id}`} className="w-[24px] h-[24px]  bg-center bg-cover bg-no-repeat" style={{backgroundImage: `url("https://res.cloudinary.com/dnehmdy45/image/upload/v1755074557/User_orange_epxik2.svg")`}}></Link>
+												<Link href={`message_detail?user=${prf.id}`} className="w-[24px] h-[24px] rounded-full bg-center bg-contain bg-no-repeat"  style={{ backgroundImage: `url('${'https://res.cloudinary.com/dnehmdy45/image/upload/v1755134489/Message_circle_orange_kpeayg.svg'}')` }}></Link>
+											</div>
 										</div>
-										<div className="flex justify-center items-center gap-[10px]">
-											<Link href={`/user_page/${prf.id}`} className="w-[24px] h-[24px]  bg-center bg-cover bg-no-repeat" style={{backgroundImage: `url("https://res.cloudinary.com/dnehmdy45/image/upload/v1755074557/User_orange_epxik2.svg")`}}></Link>
-											<Link href={`message_detail?user=${prf.id}`} className="w-[24px] h-[24px] rounded-full bg-center bg-contain bg-no-repeat"  style={{ backgroundImage: `url('${'https://res.cloudinary.com/dnehmdy45/image/upload/v1755074557/Message_circle_btf7qp.svg'}')` }}></Link>
-										</div>
-									</div>
-								</li>
-							))
+									</li>
+								))}
+							</ul>
 						) : (
-							<div>
-								test
-							</div>
+							<PrfJoinGroup userId={userId}/>
 						)}
-					</ul>
+					</div>
 				</div>
 			</div>
 

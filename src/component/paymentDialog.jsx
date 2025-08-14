@@ -24,7 +24,7 @@ export default function PaymentDialog({group, open, setOpen}) {
 			</div>
 			{group ? (
 				<div className="flex flex-col items-center justify-center w-[100%] mt-[10px]">
-					<div className="w-[100%] py-[10px] px-[15px] bg-[#fff]">
+					<div className="bee-icon relative w-[100%] py-[10px] px-[15px] bg-[#fff]">
 						<ul>
 							<li>
 								<p className="text-[#606060] text-[12px] font-bold">イベント</p>

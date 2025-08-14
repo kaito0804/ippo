@@ -1,7 +1,7 @@
 // src/component/slider.jsx
 import Slider from 'react-slick';
 
-const GroupSlider = ({ title, groups, setSelectPost }) => {
+const GroupSlider = ({ title, groups, setDialogGroup}) => {
 
 	const settings = {
 		dots: true,
@@ -38,7 +38,7 @@ const GroupSlider = ({ title, groups, setSelectPost }) => {
 				<div className="w-full max-w-[600px] mt-[10px] px-4">
 					<Slider {...settings}>
 						{groups.map((group) => (
-							<div onClick={() => setSelectPost(group.id)} key={group.id} className="flex justify-center">
+							<div onClick={() => {setDialogGroup(group);}} key={group.id} className="flex justify-center">
 								<div
 								className="w-[240px] h-[150px] bg-cover bg-center bg-no-repeat rounded-[10px]"
 								style={{ backgroundImage: `url('${optimizeImage(group.image_url)}')` }}
