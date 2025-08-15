@@ -532,17 +532,16 @@ export default function MessageDetailClient({ groupId, anotherUserId }) {
 				</div>
 			)}
 
-			<div className="fixed top-[0] flex justify-left items-center w-[100%] py-[10px] px-[5px] bg-[#fff] border-b border-[#e0e0e0] z-[100]">
+			<div className="fixed top-[0] flex justify-left items-center w-[100%] py-[10px] px-[5px] content-bg-color border-b border-[#e0e0e0] z-[100]">
 				<Link href="/message_box" className="w-[28px] h-[28px] mr-[10px] bg-cover bg-center bg-no-repeat" style={{backgroundImage: `url('https://res.cloudinary.com/dnehmdy45/image/upload/v1751266821/nav-arrow-left_orpd2v.svg')`}}></Link>
 				{isGroupChat && group ? (
 					<div className="flex items-center">
 						<div className="w-[32px] h-[32px] mr-[10px] bg-cover bg-center bg-no-repeat rounded-full" style={{ backgroundImage: `url(${group.image_url})` }}></div>
 						<div className="flex flex-col">
 							<div className="flex items-center justify-start">
-								<p className="flex items-center text-[13px] font-bold">{group.name}</p>
-								<p className="ml-[5px] text-[10px]"><span className="text-[11px] font-bold">{group.member_count}人</span>が参加中</p>
+								<p className="flex items-center text-[14px] font-bold">{group.name}</p>
 							</div>
-							<p className="meeting-place-text"><span>{group.venue}</span>{startDay(group.start_date)} </p>
+							<p className="text-[11px] font-bold"><span>{startDay(group.start_date)} {group.start_time.slice(0, 5)}  {group.venue}</span></p>
 						</div>
 					</div>
 				) : (isDirectChat && anotherUser) ? (
@@ -697,17 +696,26 @@ export default function MessageDetailClient({ groupId, anotherUserId }) {
 				<div ref={bottomRef} />
 
 				{!groupFinished ? (
-					<div className="fixed bottom-[0] left-[0] flex justify-between items-center w-[100%] pt-[10px] pb-[15px] px-[15px] bg-[#fff] z-[100]">
-						{selectedImage && isGroupChat(
-							<div className="img-preview-box">
-								<img src={URL.createObjectURL(selectedImage)} alt="プレビュー" className="w-[100px] rounded-lg"/>
+					<div
+					className={`fixed bottom-[0] left-[0] flex items-center w-[100%] pt-[10px] pb-[15px]  bg-[#fff] z-[100] ${
+						isGroupChat ? 'justify-between px-[15px]' : 'justify-center gap-[20px]'
+					}`}
+					>						
+						{isGroupChat && (
+							<div>
+							{selectedImage && (
+								<div className="img-preview-box">
+									<img src={URL.createObjectURL(selectedImage)} alt="プレビュー" className="w-[100px] rounded-lg"/>
+								</div>
+							)}
+							<label className="block w-[22px] h-[22px] bg-cover bg-center bg-no-repeat cursor-pointer"
+								style={{ backgroundImage: `url('https://res.cloudinary.com/dnehmdy45/image/upload/v1751332855/camera_igrw7c.svg')` }}
+							>
+								<input type="file" accept="image/*" onChange={imageChange} className="hidden"/>
+							</label>
 							</div>
 						)}
-						<label className="w-[22px] h-[22px] bg-cover bg-center bg-no-repeat cursor-pointer"
-							style={{ backgroundImage: `url('https://res.cloudinary.com/dnehmdy45/image/upload/v1751332855/camera_igrw7c.svg')` }}
-						>
-							<input type="file" accept="image/*" onChange={imageChange} className="hidden"/>
-						</label>					
+											
 						
 						<textarea
 							ref  ={textareaRef}

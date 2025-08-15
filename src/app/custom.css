@@ -48,7 +48,7 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .icon-left{
 	position: relative;
-	padding-left: 30px;
+	padding-left: 34px;
 }
 
 .icon-left::before{
@@ -83,6 +83,15 @@ input[type="number"]::-webkit-outer-spin-button {
 	height: 28px;
 	margin-left: 8px;
 	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1755132734/Bookmark_kidbqs.svg");
+	left: -10px;
+	top: calc(50% - 28px/2);
+}
+
+.icon-left.users::before{
+	width: 28px;
+	height: 28px;
+	margin-left: 8px;
+	background-image: url("https://res.cloudinary.com/dnehmdy45/image/upload/v1755235445/Users_cwngr4.svg");
 	left: -10px;
 	top: calc(50% - 28px/2);
 }

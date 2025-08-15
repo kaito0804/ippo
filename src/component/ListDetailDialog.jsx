@@ -62,7 +62,11 @@ export default function ListDetailDialog({group, setGroup}) {
 					</div>
 
 					<div className="sticky bottom-[10px] flex items-center justify-center w-[100%]">
-						{group.member?.includes(userId) ? (
+						{group.is_finished ? (
+							<div className="flex items-center justify-center w-[280px] py-[10px] bg-[#888] rounded-[100px] text-white text-[16px] font-bold">
+								終了しました
+							</div>
+						) : group.member?.includes(userId) ? (
 							<div className="flex items-center justify-center w-[280px] py-[10px] bg-[#888] rounded-[100px] text-white text-[16px] font-bold">
 								参加済み
 							</div>
