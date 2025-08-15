@@ -2,7 +2,7 @@
 年代
 ================================*/
 export const ageList = [
-  { id: 1, label: '20代以下' },
+  { id: 1, label: '20代未満' },
   { id: 2, label: '20代' },
   { id: 3, label: '30代' },
   { id: 4, label: '40代' },

@@ -5,49 +5,45 @@ import { useRouter, usePathname } from 'next/navigation';
 import { supabase } from '@/utils/supabase/supabaseClient';
 
 export default function AuthWatcher() {
-  const { data: session, status } = useSession();
-  const [supaSession, setSupaSession] = useState(null);
-  const router = useRouter();
-  const pathname = usePathname();
+    const { data: session, status }     = useSession();
+    const [supaSession, setSupaSession] = useState(null);
+    const router   = useRouter();
+    const pathname = usePathname();
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => setSupaSession(data.session));
+    useEffect(() => {
+        supabase.auth.getSession().then(({ data }) => setSupaSession(data.session));
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSupaSession(session);
-    });
+        const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+            setSupaSession(session);
+        });
 
-    return () => {
-      listener.subscription.unsubscribe();
-    };
-  }, []);
+        return () => {
+            listener.subscription.unsubscribe();
+        };
+    }, []);
 
-  useEffect(() => {
-    if (status === 'loading') return;
+    useEffect(() => {
+        if (status === 'loading') return;
 
-    console.log('🔑 Supabase Auth 経由でユーザー取得:', supaSession);
-    console.log('📱 LINE LIFF 経由でユーザー取得:', session);
-    const loggedIn = session || supaSession;
+        console.log('🔑 Supabase Auth 経由でユーザー取得:', supaSession);
+        console.log('📱 LINE LIFF 経由でユーザー取得:', session);
+        const loggedIn = session || supaSession;
 
-    // ログインページ
-    if (pathname === '/') {
-      if (loggedIn) {
-        router.push('/top');
-      }
-      // 未ログインならそのままログインページにいる
-      return;
-    }
+        // ログインページ
+        if (pathname === '/') {
+            if (loggedIn) {
+                router.push('/top');
+            }
+            // 未ログインならそのままログインページにいる
+            return;
+        }else{
+            if (!loggedIn) {
+                router.push('/');
+            }
+            return;
+        }
 
-    // トップページやその他保護されたページ
-    if (pathname === '/top') {
-      if (!loggedIn) {
-        router.push('/');
-      }
-      return;
-    }
+    }, [session, status, supaSession, pathname, router]);
 
-    // 他のパスに対しては任意の処理（今回は何もしない）
-  }, [session, status, supaSession, pathname, router]);
-
-  return null;
+    return null;
 }

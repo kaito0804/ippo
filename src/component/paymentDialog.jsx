@@ -1,8 +1,5 @@
 "use client";
 
-//react/next.js用ライブラリ
-import { useState, useEffect, useRef } from "react";
-
 //stripe関連
 import { stripeClick } from '@/utils/stripe/stripeClick';
 
@@ -13,11 +10,11 @@ import {startDay, formatDurationHM} from '@/utils/function/function';
 
 export default function PaymentDialog({group, open, setOpen}) {
 
-	const { userId, isHost, nowStatus }    = useUserContext();
-	const { onStripeClick, joiningStatus } = stripeClick(userId);
+	const { userId }        = useUserContext();
+	const { onStripeClick } = stripeClick(userId);
 
 	return (
-		<div className="listDetailDialog h-adjust content-bg-color" style={open ? {bottom:'0'} : {bottom:'-100%'}}>
+		<div className="listDetailDialog h-adjust content-bg-color overflow-y-scroll overflow-x-hidden" style={open ? {bottom:'0'} : {bottom:'-100%'}}>
 			<div className="content-bg-color sticky flex justify-between items-center py-[10px] top-0 left-0 w-[100%]">
 				<p className="text-[16px] font-bold leading-[1]">選択中のイベント</p>
 				<div onClick={() => {setOpen('');}} className="w-[28px] h-[28px] bg-center bg-contain bg-no-repeat" style={{backgroundImage: 'url("https://res.cloudinary.com/dnehmdy45/image/upload/v1750818660/xmark_dv4bnv.svg")'}}></div>
@@ -50,7 +47,7 @@ export default function PaymentDialog({group, open, setOpen}) {
 					</div>
 
 					<div onClick={() => onStripeClick(group)} className="flex items-center justify-center w-[280px] mt-[50px] py-[10px] bg-[#F26A21] rounded-[100px] text-white text-[16px] font-bold">
-							チケットを購入する
+						チケットを購入する
 					</div>
 
 				</div>

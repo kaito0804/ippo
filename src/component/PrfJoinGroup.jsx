@@ -70,13 +70,14 @@ export default function PrfJoinGroup({userId}) {
 	return (
 		<div className="flex flex-col justify-center items-center w-[100%]">
 			{/*予約中*/}
-			{joinGroup && joinGroup.length > 0 && (
+			
 				<ul className="flex flex-col justify-center items-center w-[100%] px-[20px] py-[20px] bg-[#fff]">
 					<div className="flex justify-center items-center w-[100%] mb-[14px]">
 						<p className="icon-left reservation w-[100%] text-[16px] font-bold">予約中</p>
 						<div className="flex justify-center items-center w-[24px] h-[24px] bg-[#F26A21] text-[#fff] text-[13px] rounded-[3px]">{joinGroup.length}</div>
 					</div>
-					{joinGroup.map((group) => (
+					{joinGroup && joinGroup.length > 0 ? (
+					joinGroup.map((group) => (
 						<li key={group.id} className="flex flex-col justify-center items-center w-[100%] mt-[14px]">
 							<div className="flex justify-between items-center w-[100%]">
 								<div className="flex justify-start items-center  max-w-[calc(100%-78px)] gap-[10px]">
@@ -88,9 +89,16 @@ export default function PrfJoinGroup({userId}) {
 								</div>
 							</div>
 						</li>
-					))}
+					))
+					) : (
+						<div className="flex flex-col justify-center items-center w-[100%] mt-[14px]">
+							<p className="text-[14px] text-[#333] font-bold">予約中のイベントがありません</p>
+							<p className="text-[14px] text-[#F26A21] font-bold">イベントを予約しましょう！</p>
+							<Link href="/top" className="flex justify-center items-center w-[220px] py-[10px] bg-[#F26A21] text-[#fff] rounded-[100px] text-[14px] font-bold mt-[20px]">散歩イベントを探す</Link>
+						</div>
+					)}
 				</ul>
-			)}
+			
 
 			{/*参加歴*/}
 			{joinedGroup && joinedGroup.length > 0 && (

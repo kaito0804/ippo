@@ -42,6 +42,21 @@ export function formatDurationHM(durationStr) {
 }
 
 /*===============================
+イベントの期間終了判定 message関連用 
+================================*/
+export function isGroupFinished(startDate) {
+	if (!startDate) return false; 
+
+	const today = new Date();
+	today.setHours(0, 0, 0, 0); // 今日の0時にリセット
+
+	const groupDate = new Date(startDate);
+	groupDate.setHours(0, 0, 0, 0); // 比較用に0時にリセット
+
+	return groupDate < today;
+}
+
+/*===============================
   プロフィール情報を取得
 ================================*/
 import { ageList, genderList, hobbyList, reasonList } from '@/utils/data/prfList';

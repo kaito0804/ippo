@@ -444,6 +444,21 @@ input:checked + .prf-label::before{
 	left: calc(50% + 5%);
 }
 
+.end-group{
+	position: relative;
+}
+
+.end-group::before{
+	content: '';
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background-color: #0000000d;
+	bottom: 0;
+	left: 0;
+	pointer-events: none;
+}
+
 /*message-detail*/
 .meeting-place-text{
 	display: inline-flex;
@@ -507,7 +522,8 @@ input:checked + .prf-label::before{
 	transform: rotate(-50deg);
 }
 
-.message-text.others:after{
+.message-text.others:after,
+.message-text.others:before{
 	content: "";
 	position: absolute;
 	top: -8px; 
@@ -516,6 +532,13 @@ input:checked + .prf-label::before{
 	border-right: 12px solid #fff;
 	-webkit-transform: rotate(50deg);
 	transform: rotate(50deg);
+}
+
+.message-text.others:before{
+	top: -9px; 
+	left: -10px;
+	border: 6px solid transparent;
+	border-right: 12px solid #cfcfcf;
 }
 
 .img-preview-box{

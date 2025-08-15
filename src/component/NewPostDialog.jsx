@@ -15,12 +15,12 @@ import { supabase } from '@/utils/supabase/supabaseClient';
 import { useUserContext } from '@/utils/userContext';
 
 
-export default function NewRegPost({openDialog, closeDialog, placeName, clickPosition }) {
+export default function NewPostDialog({openDialog, closeDialog, placeName }) {
 
 	const { userId }                    = useUserContext();
 	const [name, setName]               = useState('');
 	const [startDate, setStartDate]     = useState('');
-	const [startTime, setStartTime]     = useState('');
+	const [startTime, setStartTime]     = useState('12:00');
 	const [duration, setDuration]       = useState(''); 
 	const [venue, setVenue]             = useState('');
 	const [goal, setGoal]               = useState('');
@@ -184,6 +184,7 @@ export default function NewRegPost({openDialog, closeDialog, placeName, clickPos
 								placeholderText="2025/00/0"
 								dateFormat="yyyy/MM/dd"
 								className="w-[100%] px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[14px]"
+								popperPlacement="bottom-end"
 								required
 							/>
 						</div>

@@ -1,12 +1,11 @@
 "use client";
 
-import { useState } from 'react';
 import { useUserContext } from '@/utils/userContext';
 import Link from 'next/link';
 
 export default function Header() {
 
-	const { userId, isHost, nowStatus, userProfile, setNowStatus } = useUserContext();
+	const { userId, isHost} = useUserContext();
 
 	return (
 		<div className='fixed top-0 left-0 w-[100%] bg-[#fefaf1] z-50'>
@@ -33,7 +32,7 @@ export default function Header() {
 					</Link>
 					{isHost && (
 						<Link href="/event_setting" className='flex flex-col justify-center items-center'>
-							<div className='w-[20px] h-[34px] bg-size-[360%] bg-no-repeat bg-center' style={{backgroundImage: `url("https://res.cloudinary.com/dnehmdy45/image/upload/v1753231432/IPPO_graphics-camelhead_lwn5ui.svg")`}}></div>
+							<div className='w-[34px] h-[34px] bg-size-[40px] bg-no-repeat bg-position-[-10px_-7px]' style={{backgroundImage: `url("https://res.cloudinary.com/dnehmdy45/image/upload/v1755147831/graphics-bee_mnvwbd.svg")`}}></div>
 							<p className='text-[11px] font-bold'>POST</p>
 						</Link>
 					)}

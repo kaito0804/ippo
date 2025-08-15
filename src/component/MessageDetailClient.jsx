@@ -11,7 +11,7 @@ import { uploadToCloudinary } from "@/utils/cloudinary/cloudinary";
 import { supabase } from "@/utils/supabase/supabaseClient";
 import { useUserContext } from '@/utils/userContext';
 
-import {startDayJP} from '@/utils/function/function';
+import {startDayJP, isGroupFinished} from '@/utils/function/function';
 
 
 
@@ -37,7 +37,9 @@ export default function MessageDetailClient({ groupId, anotherUserId }) {
 	const [anotherUser, setAnotherUser] = useState(null);
 
 	//グループ情報
-	const [group, setGroup] = useState(null); // 現在のグループ情報（名前やメンバー数など）
+	const [group, setGroup]                 = useState(null); // 現在のグループ情報（名前やメンバー数など）
+	const [groupFinished, setGroupFinished] = useState(false); // グループチャットの終了判定
+	const [groupFinishedDialog, setGroupFinishedDialog] = useState(true);
 
 	//選択画像・入力関連
 	const [selectedImage, setSelectedImage] = useState(null);  // 選択中の画像（スタンプや写真送信用）
@@ -83,7 +85,9 @@ export default function MessageDetailClient({ groupId, anotherUserId }) {
 					.eq("group_id", groupId);
 
 				if (groupError) throw groupError;
-				setGroup({ ...groupData, member_count: count });
+				 	const groupInfo = { ...groupData, member_count: count };
+					setGroup(groupInfo);
+					setGroupFinished(isGroupFinished(groupInfo.start_date));
 			}
 
 			if (isDirectChat) {
@@ -169,7 +173,7 @@ export default function MessageDetailClient({ groupId, anotherUserId }) {
 							// プロフィール取得は非同期で行い、後で更新
 							supabase
 								.from("user_profiles")
-								.select("id, display_name, icon_path")
+								.select("id, display_name, icon_path, is_host")
 								.eq("id", newMessage.user_id)
 								.single()
 								.then(({ data: profile }) => {
@@ -232,6 +236,7 @@ export default function MessageDetailClient({ groupId, anotherUserId }) {
 			}, 1000);
 		}
 	}, [messages]);
+	
 
 
 /*----------------------------------------------------------------------------------
@@ -259,7 +264,8 @@ export default function MessageDetailClient({ groupId, anotherUserId }) {
 				user_profiles:user_id (
 					id,
 					display_name,
-					icon_path
+					icon_path,
+					is_host
 				)`
 			)
 			.order("created_at", { ascending: false })
@@ -516,6 +522,16 @@ export default function MessageDetailClient({ groupId, anotherUserId }) {
 
 	return (
 		<div>
+
+			{isGroupChat && group && groupFinished && groupFinishedDialog && (
+				<div className="fixed flex justify-center items-center bg-[#606060cc] z-[9999] w-[340px] py-[50px] rounded-[7px] top-[50%] left-[calc(50%-170px)] transform translate-y-[-50%] text-[#fff] text-center">
+					<p className="text-[14px] font-bold">こちらのイベントは<br />終了しております</p>
+					<div onClick={() => setGroupFinishedDialog(false)} 
+						className="absolute top-[16px] right-[16px] w-[18px] h-[18px] bg-cover bg-center bg-no-repeat" 
+						style={{backgroundImage: `url('https://res.cloudinary.com/dnehmdy45/image/upload/v1755226933/Icon_close_white_wzvaag.svg')`}}></div>
+				</div>
+			)}
+
 			<div className="fixed top-[0] flex justify-left items-center w-[100%] py-[10px] px-[5px] bg-[#fff] border-b border-[#e0e0e0] z-[100]">
 				<Link href="/message_box" className="w-[28px] h-[28px] mr-[10px] bg-cover bg-center bg-no-repeat" style={{backgroundImage: `url('https://res.cloudinary.com/dnehmdy45/image/upload/v1751266821/nav-arrow-left_orpd2v.svg')`}}></Link>
 				{isGroupChat && group ? (
@@ -629,7 +645,7 @@ export default function MessageDetailClient({ groupId, anotherUserId }) {
 										<div className="flex items-start w-[100%] whitespace-pre-wrap">
 											<Link
 												href={`/user_page/${msg.user_id}`}
-												className="w-[30px] h-[30px] min-w-[30px] mr-[7px] bg-cover bg-center bg-no-repeat rounded-full border border-[#e0e0e0]"
+												className="relative w-[30px] h-[30px] min-w-[30px] mr-[7px] bg-cover bg-center bg-no-repeat rounded-full border border-[#e0e0e0]"
 												style={{
 													backgroundImage: `url(${
 													msg.user_profiles?.icon_path
@@ -637,9 +653,16 @@ export default function MessageDetailClient({ groupId, anotherUserId }) {
 														: 'https://res.cloudinary.com/dnehmdy45/image/upload/v1750917949/user-middle-gray_z3eql3.svg'
 													})`,
 											}}
-											></Link>
+											>
+											
+											</Link>
 											<div className="w-[100%]">
-												<div className="text-[10px] text-gray-500 font-bold mb-[1px]">{msg.user_profiles?.display_name || "匿名"}</div>
+												<div className="text-[10px] text-gray-500 font-bold mb-[1px]">
+													{msg.user_profiles?.display_name || "匿名"}
+													{msg.user_profiles?.is_host == true && (
+														<p className="inline-flex items-center justify-center w-[34px] py-[1px] ml-[3px] rounded-[100px] text-[9px] text-[#fff] bg-[#ff9a49]">運営</p>
+													)}
+												</div>
 												<div className={`flex items-center my-1 text-sm`}>
 													<div className={`message-text others`}>
 														{msg.image_url && (
@@ -673,32 +696,39 @@ export default function MessageDetailClient({ groupId, anotherUserId }) {
 
 				<div ref={bottomRef} />
 
-				<div className="fixed bottom-[0] left-[0] flex justify-between items-center w-[100%] pt-[10px] pb-[15px] px-[15px] bg-[#fff] z-[100]">
-					{selectedImage && (
-						<div className="img-preview-box">
-							<img src={URL.createObjectURL(selectedImage)} alt="プレビュー" className="w-[100px] rounded-lg"/>
-						</div>
-					)}
-					<label className="w-[22px] h-[22px] bg-cover bg-center bg-no-repeat cursor-pointer"
-						style={{ backgroundImage: `url('https://res.cloudinary.com/dnehmdy45/image/upload/v1751332855/camera_igrw7c.svg')` }}
-					>
-						<input type="file" accept="image/*" onChange={imageChange} className="hidden"/>
-					</label>					
-					 
-					<textarea
-						ref  ={textareaRef}
-						value={newMsg}
-						onChange={(e) => setNewMsg(e.target.value)}
-						onInput={textAreaManager}
-						rows={1}
-						placeholder="メッセージを入力"
-						className={`w-[80%] px-[10px] py-[6px] text-[13px] bg-[#f5f5f5] resize-none overflow-hidden leading-[1.4] transition-all duration-200 ${
-							isMultiLine ? "rounded-lg" : "rounded-[100px]"
-						}`}
-					/>	
+				{!groupFinished ? (
+					<div className="fixed bottom-[0] left-[0] flex justify-between items-center w-[100%] pt-[10px] pb-[15px] px-[15px] bg-[#fff] z-[100]">
+						{selectedImage && isGroupChat(
+							<div className="img-preview-box">
+								<img src={URL.createObjectURL(selectedImage)} alt="プレビュー" className="w-[100px] rounded-lg"/>
+							</div>
+						)}
+						<label className="w-[22px] h-[22px] bg-cover bg-center bg-no-repeat cursor-pointer"
+							style={{ backgroundImage: `url('https://res.cloudinary.com/dnehmdy45/image/upload/v1751332855/camera_igrw7c.svg')` }}
+						>
+							<input type="file" accept="image/*" onChange={imageChange} className="hidden"/>
+						</label>					
+						
+						<textarea
+							ref  ={textareaRef}
+							value={newMsg}
+							onChange={(e) => setNewMsg(e.target.value)}
+							onInput={textAreaManager}
+							rows={1}
+							placeholder="メッセージを入力"
+							className={`w-[80%] px-[10px] py-[6px] text-[13px] bg-[#f5f5f5] resize-none overflow-hidden leading-[1.4] transition-all duration-200 ${
+								isMultiLine ? "rounded-lg" : "rounded-[100px]"
+							}`}
+						/>	
 
-					<div onClick={sendMessage} className="w-[22px] h-[22px] bg-cover bg-center bg-no-repeat" style={{backgroundImage : `url('https://res.cloudinary.com/dnehmdy45/image/upload/v1751332483/send_nfcvzx.svg')`}}></div>
-				</div>
+						<div onClick={sendMessage} className="w-[22px] h-[22px] bg-cover bg-center bg-no-repeat" style={{backgroundImage : `url('https://res.cloudinary.com/dnehmdy45/image/upload/v1751332483/send_nfcvzx.svg')`}}></div>
+					</div>
+				) : (
+					<div className="fixed bottom-[0] left-[0] flex justify-center items-center w-[100%] pt-[10px] pb-[15px] px-[15px] bg-[#fff] z-[100]">
+						<p className="text-[12px] text-gray-500">イベントは終了しました</p>
+					</div>
+				)}
+				
 
 			</div>
 

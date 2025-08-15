@@ -5,12 +5,16 @@ import Header from "@/component/Header";
 import Link from 'next/link';
 import { useUserContext } from '@/utils/userContext';
 
+import { isGroupFinished } from '@/utils/function/function';
+
+
 
 export default function MessageBox() {
-	const { userId, isHost, nowStatus }   = useUserContext();
+	const { userId }   = useUserContext();
 	const [joinedGroups, setJoinedGroups] = useState([]);
 	const [chatUsers, setChatUsers]       = useState([]);
 	const [selectTab, setSelectTab]       = useState("group");
+	const [loading, setLoading]           = useState(true);
 
 	useEffect(() => {
 		if (!userId) return;
@@ -47,6 +51,7 @@ export default function MessageBox() {
 			});
 
 			setJoinedGroups(groupData);
+			setLoading(false);
 		};
 
 		getJoinedGroups();
@@ -108,6 +113,11 @@ export default function MessageBox() {
 	return (
 		<div className="content-bg-color">
 			<Header/>
+
+			<div style={{ display: loading ? 'flex' : 'none' }} className="fixed inset-0 bg-white bg-opacity-80 z-50 justify-center items-center">
+				<p className="text-xl text-[#ff7a00] font-bold animate-pulse">読み込み中です...</p>
+			</div>
+
 			<div className="header-notitle-adjust">
 				<div className={`${selectTab == 'group' ? 'select-group' : 'select-user'} select-tab `}>
 					<div onClick={() => setSelectTab("group")} className="w-[50%] flex items-center justify-center text-[14px]">イベントグループ</div>
@@ -116,7 +126,7 @@ export default function MessageBox() {
 
 				{/*イベントグループ*/}
 				{selectTab == 'group' && (
-					<ul>
+					<ul className="w-[100%] flex flex-col justify-center">
 						{joinedGroups.length ? (
 							[...joinedGroups]
 							.sort((a, b) => {
@@ -124,7 +134,7 @@ export default function MessageBox() {
 								const dateB = new Date(b.last_message_at || 0).getTime();
 								return dateB - dateA; //メッセージが新しい順
 							}).map((group) => (
-								<li key={group.id}>
+								<li key={group.id} className={isGroupFinished(group.start_date) ? 'order-[1] end-group' : 'order-[0]'}>
 									<Link href={`/message_detail?groupId=${group.id}`}
 										className="flex items-center justify-between border-b border-gray-200 py-[14px] px-[14px]">
 										<div className="flex items-center">
@@ -145,13 +155,16 @@ export default function MessageBox() {
 														{group.unread_count}
 													</p>
 												)}
+												{isGroupFinished(group.start_date) && (
+													<p className="flex justify-center items-center w-[100px] py-[4px] bg-[#cecece] rounded-full text-[#fff] text-[12px] z-10">イベント終了</p>
+												)}
 											</div>
 										</div>
 									</Link>
 								</li>
 							))
 						) : (
-							<p className="text-gray-500 text-sm mt-4">参加しているグループはありません。</p>
+							<p className="flex justify-center items-center w-[100%] text-[#5d5d5d] font-bold text-[14px] mt-[30px]">参加しているグループはありません</p>
 						)}
 					</ul>
 				)}
@@ -188,7 +201,7 @@ export default function MessageBox() {
 								</Link>
 							</li>
 						)) : (
-							<p className="text-gray-500 text-sm mt-4">話したことのある相手がいません</p>
+							<p className="flex justify-center items-center w-[100%] text-[#5d5d5d] font-bold text-[14px] mt-[30px]">話したことのある相手がいません</p>
 						)}
 					</ul>
 				)}

@@ -18,7 +18,7 @@ import PrfJoinGroup from "@/component/PrfJoinGroup";
 
 export default function UserPage() {
 
-	const { userId, isHost, nowStatus, setNowStatus }   = useUserContext();
+	const { userId, isHost }   = useUserContext();
 	const [profile, setProfile]                         = useState(null);
 	const [groupMemberProfiles, setGroupMemberProfiles] = useState([]);
 	const [nameChangeTrigger, setNameChangeTrigger]     = useState(false);
@@ -33,19 +33,18 @@ export default function UserPage() {
 		if (!userId) return;
 
 		const fetchProfile = async () => {
-		setLoading(true);
-		const { data, error } = await supabase
-			.from("user_profiles")
-			.select("*")
-			.eq("id", userId)
-			.single();
+			const { data, error } = await supabase
+				.from("user_profiles")
+				.select("*")
+				.eq("id", userId)
+				.single();
 
-		if (error) {
-			console.error("プロフィール取得エラー:", error.message);
-		} else {
-			setProfile(data);
-		}
-		setLoading(false);
+			if (error) {
+				console.error("プロフィール取得エラー:", error.message);
+			} else {
+				setProfile(data);
+			}
+			setLoading(false);
 		};
 
 		fetchProfile();
@@ -123,9 +122,6 @@ export default function UserPage() {
 
 		fetchMyFinishedGroupMembers();
 	}, [userId]);
-
-
-
 
 	useEffect(() => {
 		if (isEditing && textareaRef.current) {
@@ -220,104 +216,117 @@ export default function UserPage() {
 	};
 
 
-	if (loading) return <div>読み込み中...</div>;
-
 	return (
 		<div className="content-bg-color">
-			<Header title="プロフィール"/>
+			<Header/>
+
+			<div style={{ display: loading ? 'flex' : 'none' }} className="fixed inset-0 bg-white bg-opacity-80 z-50 justify-center items-center">
+				<p className="text-xl text-[#ff7a00] font-bold animate-pulse">読み込み中です...</p>
+			</div>
 			
-			<div className="header-adjust h-adjust py-[30px] overflow-y-scroll">
-				<div className="flex flex-col items-center justify-center px-[20px]">
-					<div className="user-icon-box">
-						<div className="user-icon" style={{ backgroundImage: `url('${profile?.icon_path || 'https://res.cloudinary.com/dnehmdy45/image/upload/v1750906560/user-gray_jprhj3.svg'}')` }}></div>
-						<label className="change-icon">
-							<input type="file" accept="image/*" onChange={iconChange} className="hidden"/>
-						</label>
-					</div>
-					{nameChangeTrigger ? (
-						<input
-							type="text"
-							value={editName}
-							onChange={nameChange}
-							onBlur={saveName} // フォーカス外れたら保存
-							onKeyDown={(e) => e.key === "Enter" && saveName()}
-							className="py-[2px] px-[5px] text-[14px] font-bold mt-[10px] rounded-[5px] border border-[#e1e1e1]"
-							autoFocus
-						/>
-						) : (
-						<p
-							onClick={() => {
-							setEditName(profile.display_name || ""); // 編集用にセット
-							setNameChangeTrigger(true);
-							}}
-							className="name-text text-[14px] font-bold mt-[10px] py-[3px]"
-						>
-							{profile.display_name || "匿名"}
-						</p>
-					)}
-
-					<div className="flex flex-col justify-center items-center w-[100%] mt-[20px] gap-[5px]">
-						<p className="text-[13px]">年代 : {getLabelById(profile?.age, 'age')}</p>
-						<p className="text-[13px]">趣味 : {getLabelById(profile?.hobby, 'hobby')}</p>
-					</div>
-
-					
-					<div className="flex flex-col justify-center items-center w-[100%] mt-[20px]">
-						<p className="my-self-profile" onClick={setComment}>自己紹介文</p>
-						{isEditing ? (
-							<>
-							<textarea
-								ref={textareaRef}
-								className="w-full mt-[10px] border rounded p-2 text-[13px]"
-								rows={4}
-								value={commentText}
-								onChange={(e) => setCommentText(e.target.value)}
+			{profile && (
+				<div className="header-adjust h-adjust py-[30px] overflow-y-scroll">
+					<div className="flex flex-col items-center justify-center px-[20px]">
+						<div className="user-icon-box">
+							<div className="user-icon" style={{ backgroundImage: `url('${profile?.icon_path || 'https://res.cloudinary.com/dnehmdy45/image/upload/v1750906560/user-gray_jprhj3.svg'}')` }}></div>
+							<label className="change-icon">
+								<input type="file" accept="image/*" onChange={iconChange} className="hidden"/>
+							</label>
+						</div>
+						{nameChangeTrigger ? (
+							<input
+								type="text"
+								value={editName}
+								onChange={nameChange}
+								onBlur={saveName} // フォーカス外れたら保存
+								onKeyDown={(e) => e.key === "Enter" && saveName()}
+								className="py-[2px] px-[5px] text-[14px] font-bold mt-[10px] rounded-[5px] border border-[#e1e1e1]"
+								autoFocus
 							/>
-							<div className="flex justify-center items-center mt-[15px] gap-[20px]">
-								<div onClick={changeComment} className="flex justify-center items-center w-[100px] py-1 bg-blue-500 text-white text-[13px] rounded">保存</div>
-								<div onClick={() => setIsEditing(false)} className="flex justify-center items-center w-[100px] py-1 bg-gray-300 text-[13px] rounded">キャンセル</div>
-							</div>
-							</>
-						) : (
-							<p className="flex justify-left items-center w-[100%] text-[13px] mt-[10px] mx-auto cursor-pointer whitespace-pre-wrap">
-								{profile?.comment || "自己紹介が空欄です"}
+							) : (
+							<p
+								onClick={() => {
+								setEditName(profile.display_name || ""); // 編集用にセット
+								setNameChangeTrigger(true);
+								}}
+								className="name-text text-[14px] font-bold mt-[10px] py-[3px]"
+							>
+								{profile.display_name || "匿名"}
 							</p>
 						)}
-					</div>
-				</div>
 
-				<div className="flex flex-col justify-center items-center w-[100%] mt-[30px] px-[20px]">
-					<div className={`${friendList ? 'friend-active' : 'list-active'} relative flex justify-around items-center w-[100%] py-[8px] bg-[#D9D9D9] rounded-[6px] text-[#fff] text-[14px]`}>
-						<div className="list-icon" onClick={() => setFriendList(false)}>イベント参加歴</div>
-						<div className="friend-icon" onClick={() => setFriendList(true)}>友達リスト</div>
-					</div>
+						<div className="flex flex-col justify-center items-center w-[100%] mt-[20px] gap-[5px]">
+							<p className="text-[13px]">年代 : {getLabelById(profile?.age, 'age')}</p>
+							<p className="text-[13px]">趣味 : {getLabelById(profile?.hobby, 'hobby')}</p>
+						</div>
 
-					<div className="flex flex-col justify-center items-center w-[100%] mt-[20px] ">
 						
-						{friendList ? (
-							<ul className="flex flex-col justify-center items-center w-[100%] px-[20px] py-[20px] bg-[#fff]">
-								<p className="icon-left smile w-[100%] text-[16px] font-bold mb-[14px]">友達リスト</p>
-								{groupMemberProfiles.map((prf) => (
-									<li key={prf.id} className="flex flex-col justify-center items-center w-[100%] mt-[14px]">
-										<div className="flex justify-between items-center w-[100%]">
-											<div className="flex justify-center items-center gap-[10px]">
-												<Link href={`/user_page/${prf.id}`} className="w-[30px] h-[30px] rounded-full bg-center bg-cover bg-no-repeat border border-[#e1e1e1]" style={{ backgroundImage: `url('${prf.icon_path || 'https://res.cloudinary.com/dnehmdy45/image/upload/v1750906560/user-gray_jprhj3.svg'}')` }}></Link>
-												<p className="text-[13px] font-bold">{prf.display_name}</p>
+						<div className="flex flex-col justify-center items-center w-[100%] mt-[20px]">
+							<p className="my-self-profile" onClick={setComment}>自己紹介文</p>
+							{isEditing ? (
+								<>
+								<textarea
+									ref={textareaRef}
+									className="w-full mt-[10px] border rounded p-2 text-[13px]"
+									rows={4}
+									value={commentText}
+									onChange={(e) => setCommentText(e.target.value)}
+								/>
+								<div className="flex justify-center items-center mt-[15px] gap-[20px]">
+									<div onClick={changeComment} className="flex justify-center items-center w-[100px] py-1 bg-blue-500 text-white text-[13px] rounded">保存</div>
+									<div onClick={() => setIsEditing(false)} className="flex justify-center items-center w-[100px] py-1 bg-gray-300 text-[13px] rounded">キャンセル</div>
+								</div>
+								</>
+							) : (
+								<p className="flex justify-left items-center w-[100%] text-[13px] mt-[10px] mx-auto cursor-pointer whitespace-pre-wrap">
+									{profile?.comment || "自己紹介が空欄です"}
+								</p>
+							)}
+						</div>
+					</div>
+
+					<div className="flex flex-col justify-center items-center w-[100%] mt-[30px] px-[20px]">
+						<div className={`${friendList ? 'friend-active' : 'list-active'} relative flex justify-around items-center w-[100%] py-[8px] bg-[#D9D9D9] rounded-[6px] text-[#fff] text-[14px]`}>
+							<div className="list-icon" onClick={() => setFriendList(false)}>イベント参加歴</div>
+							<div className="friend-icon" onClick={() => setFriendList(true)}>友達リスト</div>
+						</div>
+
+						<div className="flex flex-col justify-center items-center w-[100%] mt-[20px] ">
+							
+							{friendList ? (
+								<ul className="flex flex-col justify-center items-center w-[100%] px-[20px] py-[20px] bg-[#fff]">
+									<p className="icon-left smile w-[100%] text-[16px] font-bold mb-[14px]">友達リスト</p>
+									{groupMemberProfiles && groupMemberProfiles.length > 0 ? (
+									groupMemberProfiles.map((prf) => (
+										<li key={prf.id} className="flex flex-col justify-center items-center w-[100%] mt-[14px]">
+											<div className="flex justify-between items-center w-[100%]">
+												<div className="flex justify-center items-center gap-[10px]">
+													<Link href={`/user_page/${prf.id}`} className="w-[30px] h-[30px] rounded-full bg-center bg-cover bg-no-repeat border border-[#e1e1e1]" style={{ backgroundImage: `url('${prf.icon_path || 'https://res.cloudinary.com/dnehmdy45/image/upload/v1750906560/user-gray_jprhj3.svg'}')` }}></Link>
+													<p className="text-[13px] font-bold">{prf.display_name}</p>
+												</div>
+												<div className="flex justify-center items-center gap-[10px]">
+													<Link href={`/user_page/${prf.id}`} className="w-[24px] h-[24px]  bg-center bg-cover bg-no-repeat" style={{backgroundImage: `url("https://res.cloudinary.com/dnehmdy45/image/upload/v1755074557/User_orange_epxik2.svg")`}}></Link>
+													<Link href={`message_detail?user=${prf.id}`} className="w-[24px] h-[24px] rounded-full bg-center bg-contain bg-no-repeat"  style={{ backgroundImage: `url('${'https://res.cloudinary.com/dnehmdy45/image/upload/v1755134489/Message_circle_orange_kpeayg.svg'}')` }}></Link>
+												</div>
 											</div>
-											<div className="flex justify-center items-center gap-[10px]">
-												<Link href={`/user_page/${prf.id}`} className="w-[24px] h-[24px]  bg-center bg-cover bg-no-repeat" style={{backgroundImage: `url("https://res.cloudinary.com/dnehmdy45/image/upload/v1755074557/User_orange_epxik2.svg")`}}></Link>
-												<Link href={`message_detail?user=${prf.id}`} className="w-[24px] h-[24px] rounded-full bg-center bg-contain bg-no-repeat"  style={{ backgroundImage: `url('${'https://res.cloudinary.com/dnehmdy45/image/upload/v1755134489/Message_circle_orange_kpeayg.svg'}')` }}></Link>
-											</div>
+										</li>
+									))
+									) : (
+										<div className="flex flex-col justify-center items-center w-[100%] mt-[14px]">
+											<p className="text-[14px] text-[#333] font-bold">友達リストがありません</p>
+											<p className="text-[14px] text-[#F26A21] font-bold">イベントに参加して友達になりましょう！</p>
+											<Link href="/top" className="flex justify-center items-center w-[220px] py-[10px] bg-[#F26A21] text-[#fff] rounded-[100px] text-[14px] font-bold mt-[20px]">散歩イベントを探す</Link>
 										</div>
-									</li>
-								))}
-							</ul>
-						) : (
-							<PrfJoinGroup userId={userId}/>
-						)}
+									)}
+								</ul>
+								
+							) : (
+								<PrfJoinGroup userId={userId}/>
+							)}
+						</div>
 					</div>
 				</div>
-			</div>
+			)}
 
 		</div>
 	);
