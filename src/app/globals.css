@@ -36,6 +36,5 @@ body {
     color: var(--foreground);
     color: #333;
     font-family: var(--font-noto-sans-jp), sans-serif;
-    height: 100vh;
     overflow: hidden;
 }
