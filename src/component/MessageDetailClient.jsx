@@ -724,7 +724,7 @@ export default function MessageDetailClient({ groupId, anotherUserId }) {
 							onInput={textAreaManager}
 							rows={1}
 							placeholder="メッセージを入力"
-							className={`w-[80%] px-[10px] py-[6px] text-[13px] bg-[#f5f5f5] resize-none overflow-hidden leading-[1.4] transition-all duration-200 ${
+							className={`w-[80%] px-[12px] py-[8px] text-[16px] bg-[#f5f5f5] resize-none overflow-hidden leading-[1.4] transition-all duration-200 ${
 								isMultiLine ? "rounded-lg" : "rounded-[100px]"
 							}`}
 						/>	
