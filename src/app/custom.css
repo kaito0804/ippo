@@ -7,7 +7,7 @@
 }
 
 .h-adjust{
-	height: calc(100dvh - 91px);
+	height: calc(100vh - 91px);
 }
 
 .content-bg-color{
@@ -323,7 +323,7 @@ input:checked + .prf-label::before{
 	justify-content: center;
 	align-items: center;
 	width: 100%;
-	height: 100dvh;
+	height: 100vh;
 	background-color: rgba(0, 0, 0, 0.6);
 	top: 0;
 	left: 0;
