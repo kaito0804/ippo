@@ -7,6 +7,8 @@ import Providers from "@/component/Providers";
 
 import AuthWatcher from '@/component/AuthWatcher'
 import { UserProvider } from '@/utils/userContext';
+import VhProvider  from '@/component/VhProvider';
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,10 +41,12 @@ export const metadata = {
 };
 
 export default function RootLayout({ children }) {
+  
 	return (
 		<html lang="jp">
 			<body className={`content-bg-color ${geistSans.variable} ${geistMono.variable} ${notoSansJp.variable} ${zenMaruGothic.variable} antialiased`}>
-				<div id="contents" className="w-[100%]">
+				<VhProvider />
+                <div id="contents" className="w-[100%]">
 					<Providers>
 						<AuthWatcher />
 						<UserProvider>

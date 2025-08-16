@@ -558,7 +558,7 @@ export default function MessageDetailClient({ groupId, anotherUserId }) {
 				)}
 			</div>
 
-			<div ref={scrollContainerRef} className="w-[100%] h-[calc(100vh-50px)] pt-[60px] px-[16px] overflow-y-scroll">
+			<div ref={scrollContainerRef} className="w-[100%] h-[calc(var(--vh)_*100-50px)] pt-[60px] px-[16px] overflow-y-scroll">
 				<ul className="w-[100%] py-[20px]">
 					{/*テンプレートメッセージ*/}
 					{isGroupChat && group && (

@@ -145,7 +145,7 @@ export default function AuthButtons({ user }) {
 
 
 	return (
-		<div className="font-zen-maru-gothic w-[100%] h-[100vh] py-[30px] bg-[#FEFAF1] overflow-y-scroll">
+		<div className="font-zen-maru-gothic w-[100%] h-[calc(var(--vh)_*100)] py-[30px] bg-[#FEFAF1] overflow-y-scroll">
 			{isLoading && (
 				<div className="fixed inset-0 bg-white bg-opacity-80 z-50 flex justify-center items-center">
 					<p className="text-xl text-[#ff7a00] font-bold animate-pulse">ログイン処理中です...</p>
