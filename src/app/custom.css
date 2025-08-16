@@ -24,6 +24,17 @@ input[type="number"]::-webkit-outer-spin-button {
   appearance: auto;
 }
 
+input {
+  border: 1px solid transparent; 
+  box-sizing: border-box;       
+}
+
+input:focus {
+	outline: none;
+	box-shadow: none;
+	border: 1px solid #F26A21;
+}
+
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
