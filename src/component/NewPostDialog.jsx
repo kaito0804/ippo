@@ -170,7 +170,7 @@ export default function NewPostDialog({openDialog, closeDialog, placeName }) {
 						<p className="text-[14px] font-bold">イベント名</p>
 						<input 
 							type="text" name="groupName" placeholder="イベント名を記入"value={name} onChange={e => setName(e.target.value)} required 
-							className="px-[10px] py-[10px] bg-[#fff] rounded-[5px] text-[14px]" />
+							className="px-[10px] py-[10px] bg-[#fff] rounded-[5px] text-[16px]" />
 					</label>
 
 					<MyEditor  key={editorKey} content={description} onChange={setDescription} />
@@ -183,7 +183,7 @@ export default function NewPostDialog({openDialog, closeDialog, placeName }) {
 								onChange={(date) => setStartDate(date)}
 								placeholderText="2025/00/0"
 								dateFormat="yyyy/MM/dd"
-								className="w-[100%] px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[14px]"
+								className="w-[100%] px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[16px]"
 								popperPlacement="bottom-end"
 								required
 							/>
@@ -196,7 +196,7 @@ export default function NewPostDialog({openDialog, closeDialog, placeName }) {
 							value={startTime}
 							clearIcon={null}
 							clockIcon={null}
-							className="px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[14px]"
+							className="px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[16px]"
 							required
 							/>
 						</label>
@@ -220,7 +220,7 @@ export default function NewPostDialog({openDialog, closeDialog, placeName }) {
 									setDuration(0);
 								}
 							}}
-							className="px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[14px]"
+							className="px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[16px]"
 							/>
 
 							<div className="absolute flex flex-col justify-between items-center h-[30px] top-[25px] right-[5px]">
@@ -248,7 +248,7 @@ export default function NewPostDialog({openDialog, closeDialog, placeName }) {
 							<input 
 								type="text" name="venue" value={venue} onChange={e => setVenue(e.target.value)} required
 								placeholder="場所を選ぶ"
-								className="px-[10px] py-[10px] bg-[#fff] rounded-[5px] text-[13px]" />
+								className="px-[10px] py-[10px] bg-[#fff] rounded-[5px] text-[16px]" />
 						</label>
 
 						<label className="flex flex-col justify-center w-[calc(50%-5px)] gap-[2px]">
@@ -256,7 +256,7 @@ export default function NewPostDialog({openDialog, closeDialog, placeName }) {
 							<input 
 								type="text" name="goal" value={goal} onChange={e => setGoal(e.target.value)} required
 								placeholder="場所を選ぶ"
-								className="px-[10px] py-[10px] bg-[#fff] rounded-[5px] text-[13px]" />
+								className="px-[10px] py-[10px] bg-[#fff] rounded-[5px] text-[16px]" />
 						</label>
 					</div>			
 
@@ -265,7 +265,7 @@ export default function NewPostDialog({openDialog, closeDialog, placeName }) {
 							<p className="text-[14px] font-bold">定員数</p>
 							
 							<select name="memberCount" value={memberCount} onChange={e => setmemberCount(Number(e.target.value))} 
-								className="appearance-auto px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[14px]" required>
+								className="appearance-auto px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[16px]" required>
 								{Array.from({ length: 31 }, (_, i) => (
 									<option key={i} value={i}>{i}</option>
 								))}
@@ -276,7 +276,7 @@ export default function NewPostDialog({openDialog, closeDialog, placeName }) {
 							<p className="text-[14px] font-bold">参加費</p>
 							<input 
 								type="number" min="0" step="100" inputMode="numeric" name="groupPrice" placeholder="¥" value={price} onChange={e => setPrice(e.target.value)} 
-								className="appearance-auto px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[14px]" />
+								className="appearance-auto px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[16px]" />
 						</label>
 					</div>	
 
@@ -286,7 +286,7 @@ export default function NewPostDialog({openDialog, closeDialog, placeName }) {
 							htmlFor="file"
 							className="w-[100%] px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[14px]"
 						>
-							<span className="text-[14px] text-[#aaa]">カバーフォトを選ぶ</span>
+							<span className="text-[16px] text-[#aaa]">カバーフォトを選ぶ</span>
 							<input
 							type="file"
 							id="file"

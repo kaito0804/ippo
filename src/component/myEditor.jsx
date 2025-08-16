@@ -33,7 +33,7 @@ export default function MyEditor({ content = '', onChange }) {
     return (
         <div className='w-[100%]'>
             <p className="text-[14px] font-bold">イベント詳細</p>
-            <div className="w-[100%] bg-[#fff] rounded p-4">
+            <div className="w-[100%] bg-[#fff] rounded p-4 text-[16px]">
                 <EditorContent editor={editor} />
             </div>
         </div>
