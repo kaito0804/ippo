@@ -7,7 +7,7 @@ import { useUserContext } from '@/utils/userContext';
 
 export default function Footer({postBtn, openDialog}) {
 
-	const { userId, isHost, nowStatus } = useUserContext();
+	const { userProfile } = useUserContext();
 	const pathname = usePathname();
 	
 	const canShowPostBtn = pathname === "/top" && nowStatus === "host";

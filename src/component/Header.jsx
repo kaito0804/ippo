@@ -5,7 +5,8 @@ import Link from 'next/link';
 
 export default function Header() {
 
-	const { userId, isHost} = useUserContext();
+	const { userProfile } = useUserContext();
+	const isHost = userProfile?.is_host;
 
 	return (
 		<div className='fixed top-0 left-0 w-[100%] bg-[#fefaf1] z-50'>

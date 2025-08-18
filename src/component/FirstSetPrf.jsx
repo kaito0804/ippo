@@ -12,6 +12,7 @@ export default function FirstSetPrf() {
 	const [gender, setGender]           = useState(""); 
 	const [hobby, setHobby]             = useState([]); 
 	const [reason, setReason]           = useState([]);
+	const [email, setEmail]             = useState(userProfile?.email);
 
 	// userProfileが取得されたらdisplayNameにセット
 	useEffect(() => {
@@ -20,9 +21,15 @@ export default function FirstSetPrf() {
 		}
 	}, [userProfile]);
 
+	// メールアドレスの簡易チェック
+	const isValidEmail = (email) => {
+		return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+	};
+
+
 	// ステージ6で2.5秒後にトップページへリダイレクト
 	useEffect(() => {
-		if (stage === "6") {
+		if (stage === "7") {
 			const timer = setTimeout(() => {
 				window.location.href = '/top'; 
 			}, 2500);
@@ -43,6 +50,7 @@ export default function FirstSetPrf() {
 			gender,
 			hobby,
 			reason,
+			email,
 			first_set: true,
 		}, { returning: 'minimal' });
 
@@ -50,14 +58,27 @@ export default function FirstSetPrf() {
 			alert('更新に失敗しました: ' + error.message);
 			return;
 		}
-		setStage('6');
+		setStage('7');
 	};
+
+	// 戻る処理
+	const stageBack = () => {
+		const stageNum = Number(stage);
+		if (stageNum > 1 && stageNum < 6) {
+			setStage(String(stageNum - 1));
+		}
+	};
+
 
 	const isActive = displayName.trim() !== "";
 
 	return (
-		<div className='font-zen-maru-gothic flex flex-col items-center justify-center w-full h-screen bg-[#FEFAF1]'>
+		<div className='firstSet font-zen-maru-gothic flex flex-col items-center justify-center w-full h-screen bg-[#FEFAF1]'>
 			
+			{stage !== "7" && (
+				<p className='text-[22px] font-bold text-[#f26a21]'>{stage}/{email ? "5" : "6"}</p>
+			)}
+
 			{stage === "1" ? (
 				/*ユーザーネーム登録*/
 				<div className='flex flex-col items-center justify-center'>
@@ -178,15 +199,53 @@ export default function FirstSetPrf() {
 							</div>
 						))}
 					</div>
-					<div onClick={() => {if (reason.length > 0) {prfSubmit();}}} className={`${reason.length > 0 ? 'bg-[#f26a21]' : 'bg-[#b6b6b6]'} flex items-center justify-center w-[224px] mt-[40px] py-[14px] rounded-[100px] text-white`}>次へ</div>
+					{email ? (
+						<div onClick={() => {if (reason.length > 0) {prfSubmit();}}} className={`${reason.length > 0 ? 'bg-[#f26a21]' : 'bg-[#b6b6b6]'} flex items-center justify-center w-[224px] mt-[40px] py-[14px] rounded-[100px] text-white`}>次へ</div>
+					) : (
+						<div onClick={() => {if (hobby.length > 0) {setStage('6');}}} className={`${hobby.length > 0 ? 'bg-[#f26a21]' : 'bg-[#b6b6b6]'} flex items-center justify-center w-[224px] mt-[40px] py-[14px] rounded-[100px] text-white`}>次へ</div>
+					)}
 				</div>
 
 			) : stage === "6" ? (
+			/*メールアドレス登録*/
+			<div className='flex flex-col items-center justify-center w-[90%]'>
+				<p className='text-[22px] font-bold text-[#f26a21] text-center'>メールアドレスの<br/>ご登録をお願いします。</p>
+				<input
+					type="text"
+					name="email"
+					id="email"
+					value={email}
+					onChange={(e) => setEmail(e.target.value)}
+					placeholder="例) abc@example.com"
+					className="w-[100%] mt-[8px] py-[14px] px-[18px] border-[3px] border-[#b6b6b6] rounded-[14px]"
+				/>
+				<div onClick={() => {
+					if (email.length > 0 && isValidEmail(email)) {
+						prfSubmit();
+					} else {
+						alert('正しいメールアドレスを入力してください');
+					}
+					}} className={`${email.length > 0 ? 'bg-[#f26a21]' : 'bg-[#b6b6b6]'} flex items-center justify-center w-[224px] mt-[40px] py-[14px] rounded-[100px] text-white`}>
+					次へ
+				</div>
+			</div>
+
+			) : stage === "7" ? (
 				<div className='fade-in flex flex-col items-center justify-center'>
 					<div className="flex items-center justify-center w-[100px] h-[100px] bg-contains bg-no-repeat bg-center" style={{backgroundImage: `url(${"https://res.cloudinary.com/dnehmdy45/image/upload/v1753058128/camel_dm5s3s.svg"})`}}></div>
 					<p className="text-[20px] font-bold text-[#f26a21] mt-[10px]">ようこそ！</p>
 				</div>
 			) : null}
+
+			{stage !== "1" && stage !== "7" && (
+				<div 
+					onClick={stageBack} 
+					className="mt-[20px] px-[2px] pb-[2px] text-[#333] border-b"
+				>
+					戻る
+				</div>
+			)}
+
 
 		</div>
 	);

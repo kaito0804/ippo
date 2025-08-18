@@ -10,7 +10,8 @@ import {startDay, formatDurationHM} from '@/utils/function/function';
 
 export default function PaymentDialog({group, open, setOpen}) {
 
-	const { userId }        = useUserContext();
+	const { userProfile }   = useUserContext();
+	const userId = userProfile.id;
 	const { onStripeClick } = stripeClick(userId);
 
 	return (

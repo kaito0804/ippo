@@ -24,15 +24,21 @@ input[type="number"]::-webkit-outer-spin-button {
   appearance: auto;
 }
 
-input {
-  border: 1px solid transparent; 
-  box-sizing: border-box;       
+.listDetailDialog input {
+	border: 1px solid transparent; 
+	box-sizing: border-box;       
 }
 
-input:focus {
+.listDetailDialog input:focus {
 	outline: none;
 	box-shadow: none;
 	border: 1px solid #F26A21;
+}
+
+.firstSet input:focus {
+	outline: none;
+	box-shadow: none;
+	border: 3px solid #ffa06d;
 }
 
 .scrollbar-hide::-webkit-scrollbar {

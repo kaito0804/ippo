@@ -123,7 +123,7 @@ export const authOptions = {
           // 2. ユーザー情報の抽出
           console.log('📝 ステップ2: ユーザー情報抽出');
           const userLineId = decoded.sub;
-          const email = decoded.email || `${userLineId}@line.example.com`;
+          const email = decoded.email || ``;
           const displayName = decoded.name || decoded.given_name || 'LINEユーザー';
 
           console.log('✅ ユーザー情報:', { 

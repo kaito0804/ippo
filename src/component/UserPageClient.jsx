@@ -11,7 +11,8 @@ import Header from "@/component/Header";
 import ListDetailDialog from '@/component/ListDetailDialog';
 
 export default function UserPageClient({ targetUserId }) {
-	const { userId } = useUserContext();
+	const { userProfile } = useUserContext();
+	const userId          = userProfile?.id;
 
 	const [profile, setProfile] = useState(null);
 	const [groups, setGroups] = useState([]);

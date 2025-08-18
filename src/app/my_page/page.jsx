@@ -19,41 +19,26 @@ import PrfJoinGroup from "@/component/PrfJoinGroup";
 
 export default function UserPage() {
 
-	const { userId, isHost }   = useUserContext();
-	const [profile, setProfile]                         = useState(null);
+	const { userProfile, setUserProfile }   = useUserContext();
+	const userId            = userProfile?.id;
 	const [groupMemberProfiles, setGroupMemberProfiles] = useState([]);
 	const [offset, setOffset] = useState(0);
 	const [hasMore, setHasMore] = useState(true);
 	const [nameChangeTrigger, setNameChangeTrigger]     = useState(false);
 	const [editName, setEditName]                       = useState(""); 
 	const [isEditing, setIsEditing]                     = useState(false);
-  	const [commentText, setCommentText]                 = useState(profile?.comment || "");
+  	const [commentText, setCommentText]                 = useState(userProfile?.comment || "");
 	const textareaRef                                   = useRef(null);
 	const [friendList, setFriendList]                   = useState();
 	const [loading, setLoading]                         = useState(true);
 	const limit = 10;
 
+	
 	useEffect(() => {
-		if (!userId) return;
-
-		const fetchProfile = async () => {
-			const { data, error } = await supabase
-				.from("user_profiles")
-				.select("*")
-				.eq("id", userId)
-				.single();
-
-			if (error) {
-				console.error("プロフィール取得エラー:", error.message);
-			} else {
-				setProfile(data);
-			}
-			setLoading(false);
-		};
-
-		fetchProfile();
-	}, [userId]);
-
+		if (userProfile) {
+			setLoading(false); 
+		}
+	}, [userProfile]);
 
 	/*===================================
 
@@ -89,7 +74,6 @@ export default function UserPage() {
 	}, [userId]);
 
 
-
 	useEffect(() => {
 		if (isEditing && textareaRef.current) {
 			const el = textareaRef.current;
@@ -119,7 +103,7 @@ export default function UserPage() {
 			}
 
 			// 表示用profile state更新
-			setProfile((prev) => ({ ...prev, icon_path: imageUrl }));
+			setUserProfile((prev) => ({ ...prev, icon_path: imageUrl }));
 		} catch (error) {
 			console.error("エラー:", error);
 		}
@@ -133,7 +117,7 @@ export default function UserPage() {
 
 	// 名前保存処理（Enterキー or フォーカス外れ時）
 	const saveName = async () => {
-		if (!editName || editName === profile.display_name) {
+		if (!editName || editName === userProfile.display_name) {
 			setNameChangeTrigger(false);
 			return;
 		}
@@ -150,12 +134,12 @@ export default function UserPage() {
 		}
 
 		// 表示用に更新
-		setProfile((prev) => ({ ...prev, display_name: editName }));
+		setUserProfile((prev) => ({ ...prev, display_name: editName }));
 		setNameChangeTrigger(false);
 	};
 
 	const setComment = () => {
-		setCommentText(profile?.comment || ""); // 保存されたコメントを初期値に
+		setCommentText(userProfile?.comment || ""); // 保存されたコメントを初期値に
 		setIsEditing(true); 
 	}
 
@@ -175,7 +159,7 @@ export default function UserPage() {
 		}
 
 		// ステート更新して編集モード解除
-		setProfile((prev) => ({ ...prev, comment: commentText }));
+		setUserProfile((prev) => ({ ...prev, comment: commentText }));
 		setIsEditing(false);
 		} catch (err) {
 		console.error("保存中エラー:", err);
@@ -190,11 +174,11 @@ export default function UserPage() {
 				<p className="text-xl text-[#ff7a00] font-bold animate-pulse">読み込み中です...</p>
 			</div>
 			
-			{profile && (
+			{userProfile && (
 				<div className="header-adjust h-adjust py-[30px] overflow-y-scroll">
 					<div className="flex flex-col items-center justify-center px-[20px]">
 						<div className="user-icon-box">
-							<div className="user-icon" style={{ backgroundImage: `url('${profile?.icon_path || 'https://res.cloudinary.com/dnehmdy45/image/upload/v1750906560/user-gray_jprhj3.svg'}')` }}></div>
+							<div className="user-icon" style={{ backgroundImage: `url('${userProfile?.icon_path || 'https://res.cloudinary.com/dnehmdy45/image/upload/v1750906560/user-gray_jprhj3.svg'}')` }}></div>
 							<label className="change-icon">
 								<input type="file" accept="image/*" onChange={iconChange} className="hidden"/>
 							</label>
@@ -212,18 +196,18 @@ export default function UserPage() {
 							) : (
 							<p
 								onClick={() => {
-								setEditName(profile.display_name || ""); // 編集用にセット
+								setEditName(userProfile.display_name || ""); // 編集用にセット
 								setNameChangeTrigger(true);
 								}}
 								className="name-text mt-[10px] py-[3px]"
 							>
-								{profile.display_name || "匿名"}
+								{userProfile.display_name || "匿名"}
 							</p>
 						)}
 
 						<div className="flex flex-col justify-center items-center w-[100%] mt-[20px] gap-[5px]">
-							<p className="text-[13px]">年代 : {getLabelById(profile?.age, 'age')}</p>
-							<p className="text-[13px]">趣味 : {getLabelById(profile?.hobby, 'hobby')}</p>
+							<p className="text-[13px]">年代 : {getLabelById(userProfile?.age, 'age')}</p>
+							<p className="text-[13px]">趣味 : {getLabelById(userProfile?.hobby, 'hobby')}</p>
 						</div>
 
 						
@@ -245,7 +229,7 @@ export default function UserPage() {
 								</>
 							) : (
 								<p className="flex justify-left items-center w-[100%] text-[13px] mt-[10px] mx-auto cursor-pointer whitespace-pre-wrap">
-									{profile?.comment || "自己紹介が空欄です"}
+									{userProfile?.comment || "自己紹介が空欄です"}
 								</p>
 							)}
 						</div>

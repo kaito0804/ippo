@@ -36,10 +36,10 @@ export const groupListTemplate = (group) => {
   //groupが存在する場合のみ表示
   const eventDetailHtml = group ? `
 <h2 class="text-[20px] font-bold mt-[36px]">📍イベント詳細</h2>
-<p class="mt-[5px]">集合時間：${startDay(group.start_date)} ${group.start_time?.slice(0, 5)}-${group.end_time?.slice(0, 5)}</p>
+<p class="mt-[5px]">集合時間：${startDay(group.start_date)} ${group.start_time?.slice(0, 5)}~</p>
 <p>開催場所：${group.venue}</p>
 <p>定員：${group.member_count != null ? `${group.member_count}人` : '未定'}</p>
-<p>参加費：${group.price || "無料"}</p>
+<p>参加費：${group.price + '円' || "無料"}</p>
 ` : "";
 
   return `
@@ -55,7 +55,7 @@ export const groupListTemplate = (group) => {
 <ul class="flex flex-col gap-[3px] list-disc pl-5 mt-[5px]">
   <li>飲食代は各自ご負担をお願いいたします。</li>
   <li>お申し込み後のキャンセル・返金は、原則お受けしておりません。</li>
-  <li>ただし、やむを得ない理由の場合は、システム手数料（340円）を差し引いた金額での返金となります。</li>
+  <li>ただし、やむを得ない理由の場合は、システム手数料を差し引いた金額での返金となります。</li>
   <li>天候や主催者都合でイベントが中止になった場合は、全額返金いたします。</li>
 </ul>
 

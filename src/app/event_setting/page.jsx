@@ -13,7 +13,8 @@ import NewPostDialog from '@/component/NewPostDialog';
 export default function EventSetting() {
 
 	const router = useRouter();
-	const { userId, isHost} = useUserContext();
+	const { userProfile } = useUserContext();
+	const isHost = userProfile?.is_host;
 	const [openDialog, setOpenDialog]     = useState(false);
 
 	useEffect(() => {

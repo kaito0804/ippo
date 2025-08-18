@@ -23,7 +23,8 @@ export default function MessageDetailClient({ groupId, anotherUserId }) {
 	const isDirectChat  = !!anotherUserId && !groupId; //両方指定された場合は group 優先
 
 	//ユーザー関連情報（コンテキストから取得）
-	const { userId, isHost, nowStatus, setNowStatus } = useUserContext();
+	const { userProfile } = useUserContext();
+	const userId = userProfile?.id;
 
 	//メッセージデータ関連の状態管理
 	const [messages, setMessages]       = useState([]);    // 表示中のメッセージ一覧

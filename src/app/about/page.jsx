@@ -6,7 +6,7 @@ import { useUserContext } from '@/utils/userContext';
 
 export default function ListBox() {
 
- 	const { userId, isHost, nowStatus } = useUserContext();
+ 	const { userProfile } = useUserContext();
 
 	return (
 		<div className="content-bg-color">

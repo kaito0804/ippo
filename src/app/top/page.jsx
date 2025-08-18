@@ -13,12 +13,14 @@ import FirstSetPrf      from "@/component/FirstSetPrf";
 import ListTop          from "@/component/ListTop";
 
 
-export default function Home() {
+export default function Top() {
 
-    const { userId, isHost, nowStatus, userProfile, setNowStatus } = useUserContext();
+    const { userProfile, loading } = useUserContext();
     
     //初回登録時auth情報をuser_profilesに登録
     useEffect(() => {
+        if (userProfile) return;
+        
         const registerUserProfile = async () => {
             const { data: { user } } = await supabase.auth.getUser();
 
@@ -52,6 +54,7 @@ export default function Home() {
                 }
             }
         };
+        console.log("初回登録時auth情報をuser_profilesに登録");
         registerUserProfile();
     }, []);
 
@@ -59,7 +62,7 @@ export default function Home() {
     return (
         <div>
             {/* ユーザープロファイルの読み込み中表示 */}
-            {userProfile === null || userProfile === undefined ? (
+            {loading ? (
                 <div className="fixed inset-0 bg-white bg-opacity-80 z-50 flex justify-center items-center">
 					<p className="text-xl text-[#ff7a00] font-bold animate-pulse">読み込み中です...</p>
 				</div>

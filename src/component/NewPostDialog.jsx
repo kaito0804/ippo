@@ -17,7 +17,8 @@ import { useUserContext } from '@/utils/userContext';
 
 export default function NewPostDialog({openDialog, closeDialog, placeName }) {
 
-	const { userId }                    = useUserContext();
+	const { userProfile }               = useUserContext();
+	const userId                        = userProfile?.id;
 	const [name, setName]               = useState('');
 	const [startDate, setStartDate]     = useState('');
 	const [startTime, setStartTime]     = useState('12:00');

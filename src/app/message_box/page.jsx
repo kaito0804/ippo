@@ -10,7 +10,8 @@ import { isGroupFinished } from '@/utils/function/function';
 
 
 export default function MessageBox() {
-	const { userId }   = useUserContext();
+	const { userProfile }   = useUserContext();
+	const userId = userProfile?.id;
 	const [joinedGroups, setJoinedGroups] = useState([]);
 	const [chatUsers, setChatUsers]       = useState([]);
 	const [selectTab, setSelectTab]       = useState("group");
