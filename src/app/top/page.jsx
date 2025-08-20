@@ -66,7 +66,7 @@ export default function Top() {
                 <div className="fixed inset-0 bg-white bg-opacity-80 z-50 flex justify-center items-center">
 					<p className="text-xl text-[#ff7a00] font-bold animate-pulse">読み込み中です...</p>
 				</div>
-            ) : userProfile.first_set ? (
+            ) : userProfile?.first_set ? (
                 <div className="flex flex-col justify-center items-center w-[100%] header-adjust h-adjust">
                     <Header title="HOME"/>
 

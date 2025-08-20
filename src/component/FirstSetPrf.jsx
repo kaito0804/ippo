@@ -5,14 +5,15 @@ import { useUserContext } from '@/utils/userContext';
 import { ageList, genderList, hobbyList, reasonList } from "@/utils/data/prfList";
 
 export default function FirstSetPrf() {
-	const { userProfile }               = useUserContext();
-	const [stage, setStage]             = useState("1");
-	const [displayName, setDisplayName] = useState("");
-	const [age, setAge]                 = useState("");
-	const [gender, setGender]           = useState(""); 
-	const [hobby, setHobby]             = useState([]); 
-	const [reason, setReason]           = useState([]);
-	const [email, setEmail]             = useState(userProfile?.email);
+	const { userProfile }                 = useUserContext();
+	const [stage, setStage]               = useState("1");
+	const [displayName, setDisplayName]   = useState("");
+	const [age, setAge]                   = useState("");
+	const [gender, setGender]             = useState(""); 
+	const [hobby, setHobby]               = useState([]); 
+	const [reason, setReason]             = useState([]);
+	const [email, setEmail]               = useState(userProfile?.email);
+	const [emailReceive, setEmailReceive] = useState(true);
 
 	// userProfileが取得されたらdisplayNameにセット
 	useEffect(() => {
@@ -219,6 +220,17 @@ export default function FirstSetPrf() {
 					placeholder="例) abc@example.com"
 					className="w-[100%] mt-[8px] py-[14px] px-[18px] border-[3px] border-[#b6b6b6] rounded-[14px]"
 				/>
+
+				<input 
+					type="checkbox" 
+					name="mail_receive_flg" 
+					id="mail_receive_flg" 
+					defaultChecked
+					value="" 
+					className="hidden"
+				/>
+				<label htmlFor="mail_receive_flg" className="prf-label small mt-[20px]">イベント情報などのお知らせをメールで受け取る</label>
+
 				<div onClick={() => {
 					if (email.length > 0 && isValidEmail(email)) {
 						prfSubmit();
