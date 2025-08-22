@@ -13,7 +13,7 @@ import PaymentDialog from '@/component/paymentDialog';
 export default function ListDetailDialog({group, setGroup}) {
 
  	const { userProfile } = useUserContext();
-	const userId = userProfile.id;
+	const userId          = userProfile.id;
 	const [open, setOpen] = useState(false);
 
 	return (

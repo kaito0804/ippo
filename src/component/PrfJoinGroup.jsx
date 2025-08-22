@@ -11,60 +11,9 @@ import { supabase } from "@/utils/supabase/supabaseClient";
 import {startDay, formatDurationHM} from '@/utils/function/function';
 import ListDetailDialog from '@/component/ListDetailDialog';
 
-export default function PrfJoinGroup({userId}) {
+export default function PrfJoinGroup({joinGroup, joinedGroup}) {
 
-	const [joinGroup, setJoinGroup]     = useState([]);
-	const [joinedGroup, setJoinedGroup] = useState([]);
-	const [group, setGroup]             = useState();
-
-	/*===================================
-	参加済みかつまだ終了していないグループを取得
-	====================================*/
-	useEffect(() => {
-		if (!userId) return;
-
-		const fetchOngoingGroups = async () => {
-			const { data, error } = await supabase
-			.rpc("get_my_ongoing_groups", { user_id: userId });
-
-			if (error) {
-			console.error("RPC取得エラー:", error);
-			return;
-			}
-
-			setJoinGroup(data || []);
-			console.log("参加済みかつ未終了グループ:", data);
-		};
-
-		fetchOngoingGroups();
-	}, [userId]);
-
-
-	/*===================================
-
-	参加済みかつ既に終了しているグループを取得
-
-	====================================*/
-	useEffect(() => {
-		if (!userId) return;
-
-		const fetchFinishedGroups = async () => {
-			const { data, error } = await supabase
-				.rpc("get_my_finished_groups", { user_id: userId });
-
-			if (error) {
-				console.error("RPC取得エラー:", error);
-				return;
-			}
-
-			setJoinedGroup(data || []);
-			console.log("参加済みかつ終了済みグループ:", data);
-		};
-
-		fetchFinishedGroups();
-	}, [userId]);
-
-
+	const [group, setGroup] = useState();
 
 
 	return (

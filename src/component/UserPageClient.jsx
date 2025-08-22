@@ -23,29 +23,29 @@ export default function UserPageClient({ targetUserId }) {
 		if (!targetUserId || !userId) return;
 
 		const fetchData = async () => {
-		try {
-			const { data: profileData, error: profileError } = await supabase
-			.from("user_profiles")
-			.select("*")
-			.eq("id", targetUserId)
-			.single();
+			try {
+				const { data: profileData, error: profileError } = await supabase
+				.from("user_profiles")
+				.select("*")
+				.eq("id", targetUserId)
+				.single();
 
-			if (profileError) throw profileError;
-			setProfile(profileData);
+				if (profileError) throw profileError;
+				setProfile(profileData);
 
-			const { data: groupsData, error: groupsError } = await supabase
-			.rpc("get_my_groups_with_user", {
-				p_current_user: userId,
-				p_target_user: targetUserId,
-			});
+				const { data: groupsData, error: groupsError } = await supabase
+				.rpc("get_my_groups_with_user", {
+					p_current_user: userId,
+					p_target_user: targetUserId,
+				});
 
-			if (groupsError) throw groupsError;
-			setGroups(groupsData || []);
-		} catch (error) {
-			console.error(error);
-		} finally {
-			setLoading(false);
-		}
+				if (groupsError) throw groupsError;
+				setGroups(groupsData || []);
+			} catch (error) {
+				console.error(error);
+			} finally {
+				setLoading(false);
+			}
 		};
 
 		fetchData();

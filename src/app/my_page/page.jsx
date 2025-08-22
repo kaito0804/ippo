@@ -19,18 +19,23 @@ import PrfJoinGroup from "@/component/PrfJoinGroup";
 
 export default function UserPage() {
 
-	const { userProfile, setUserProfile }   = useUserContext();
-	const userId            = userProfile?.id;
+	const { userProfile, setUserProfile }           = useUserContext();
+	const userId                                    = userProfile?.id;
 	const [groupMemberProfiles, setGroupMemberProfiles] = useState([]);
-	const [offset, setOffset] = useState(0);
-	const [hasMore, setHasMore] = useState(true);
-	const [nameChangeTrigger, setNameChangeTrigger]     = useState(false);
-	const [editName, setEditName]                       = useState(""); 
-	const [isEditing, setIsEditing]                     = useState(false);
-  	const [commentText, setCommentText]                 = useState(userProfile?.comment || "");
-	const textareaRef                                   = useRef(null);
-	const [friendList, setFriendList]                   = useState();
-	const [loading, setLoading]                         = useState(true);
+	const [joinGroup, setJoinGroup]                 = useState([]);
+	const [joinedGroup, setJoinedGroup]             = useState([]);
+	const [offset, setOffset]                       = useState(0);
+	const [hasMore, setHasMore]                     = useState(true);
+	const [nameChangeTrigger, setNameChangeTrigger] = useState(false);
+	const [editName, setEditName]                   = useState(""); 
+	const [isEditing, setIsEditing]                 = useState(false);
+	const [isEditingMail, setIsEditingMail]         = useState(false);
+  	const [commentText, setCommentText]             = useState(userProfile?.comment || "");
+	const textareaRef                               = useRef(null);
+	const [mail, setMail]                           = useState(userProfile?.email || "");
+	const [emailReceive, setEmailReceive]           = useState(userProfile?.mail_receive_flg ?? true);
+	const [friendList, setFriendList]               = useState();
+	const [loading, setLoading]                     = useState(true);
 	const limit = 10;
 
 	
@@ -39,6 +44,8 @@ export default function UserPage() {
 			setLoading(false); 
 		}
 	}, [userProfile]);
+
+	
 
 	/*===================================
 
@@ -74,14 +81,78 @@ export default function UserPage() {
 	}, [userId]);
 
 
+
+	/*======================================
+
+	参加済みかつまだ終了していないグループを取得
+
+	========================================*/
+	const fetchOngoingGroups = async () => {
+		if (!userId) return;
+
+		const { data, error } = await supabase
+		.rpc("get_my_ongoing_groups", { user_id: userId });
+
+		if (error) {
+			console.error("RPC取得エラー1:", error);
+			return;
+		}
+
+		setJoinGroup(data || []);
+		console.log("参加済みかつ未終了グループ:", data);
+	};
+	
+
+
+	/*===================================
+
+	参加済みかつ既に終了しているグループを取得
+
+	====================================*/
+	const fetchFinishedGroups = async () => {
+		if (!userId) return;
+		const { data, error } = await supabase
+			.rpc("get_my_finished_groups", { user_id: userId });
+
+		if (error) {
+			console.error("RPC取得エラー2:", error);
+			return;
+		}
+
+		setJoinedGroup(data || []);
+		console.log("参加済みかつ終了済みグループ:", data);
+	};
+
+
+
+	//初回ロード時にグループ情報を取得
 	useEffect(() => {
-		if (isEditing && textareaRef.current) {
+		fetchOngoingGroups();
+		fetchFinishedGroups();
+	}, [userId]);
+
+
+
+	/*========================================
+
+	名前変更処理
+
+	=========================================*/
+	useEffect(() => {
+		if ((isEditing  || isEditingMail) && textareaRef.current) {
 			const el = textareaRef.current;
 			el.focus();
 			el.setSelectionRange(el.value.length, el.value.length); // カーソルを末尾に
 		}
-	}, [isEditing]);
+	}, [isEditing, isEditingMail]);
 
+
+
+	/*========================================
+
+	アイコン変更処理
+
+	=========================================*/
 	const iconChange = async (e) => {
 		const file = e.target.files?.[0];
 		if (!file) return;
@@ -110,12 +181,23 @@ export default function UserPage() {
 	};
 
 
-	// 名前入力変更時
+
+	/*========================================
+
+	名前入力変更時
+
+	=========================================*/
 	const nameChange = (e) => {
 		setEditName(e.target.value);
 	};
 
-	// 名前保存処理（Enterキー or フォーカス外れ時）
+
+
+	/*========================================
+
+	名前保存処理（Enterキー or フォーカス外れ時）
+
+	=========================================*/
 	const saveName = async () => {
 		if (!editName || editName === userProfile.display_name) {
 			setNameChangeTrigger(false);
@@ -138,13 +220,19 @@ export default function UserPage() {
 		setNameChangeTrigger(false);
 	};
 
-	const setComment = () => {
+
+
+	/*========================
+
+	自己紹介文の変更
+
+	=========================*/
+	const setCommentChange = () => {
 		setCommentText(userProfile?.comment || ""); // 保存されたコメントを初期値に
 		setIsEditing(true); 
 	}
 
 	const changeComment = async () => {
-		
 		try {
 		// Supabaseに保存
 		const { error } = await supabase
@@ -166,8 +254,73 @@ export default function UserPage() {
 		}
 	};
 
+
+
+	/*========================
+
+	メール変更
+
+	=========================*/
+	const setMailChange = () => {
+		setMail(userProfile?.email || "");
+		setIsEditingMail(true); 
+	}
+
+	const changeMail = async () => {
+			try {
+		// Supabaseに保存
+		const { error } = await supabase
+			.from("user_profiles")
+			.update({ email: mail })
+			.eq("id", userId);
+
+		if (error) {
+			console.error("mailの更新に失敗:", error.message);
+			alert("メールアドレスの保存に失敗しました");
+			return;
+		}
+
+		// ステート更新して編集モード解除
+		setUserProfile((prev) => ({ ...prev, email: mail }));
+		setIsEditingMail(false);
+		} catch (err) {
+			console.error("保存中エラー:", err);
+		}
+	};
+
+
+
+	/*========================
+
+	メール受信設定の変更
+
+	=========================*/
+	const changeMailReceive = async () => {
+		const newValue = !emailReceive;
+		setEmailReceive(newValue);
+
+		try {
+			// Supabaseに保存
+			const { error } = await supabase
+			.from("user_profiles")
+			.update({ mail_receive_flg: newValue })
+			.eq("id", userId);
+
+			if (error) {
+			console.error("mail受信設定更新に失敗:", error.message);
+			alert("mail受信設定更新に失敗しました");
+			return;
+			}
+
+			setUserProfile((prev) => ({ ...prev, mail_receive_flg: newValue }));
+		} catch (err) {
+			console.error("保存中エラー:", err);
+		}
+	};
+
+
 	return (
-		<div className="content-bg-color">
+		<div className="my-page content-bg-color">
 			<Header/>
 
 			<div style={{ display: loading ? 'flex' : 'none' }} className="fixed inset-0 bg-white bg-opacity-80 z-50 justify-center items-center">
@@ -212,12 +365,12 @@ export default function UserPage() {
 
 						
 						<div className="flex flex-col justify-center items-center w-[100%] mt-[14px]">
-							<p className="my-self-profile" onClick={setComment}>自己紹介文</p>
+							<p className="my-self-profile" onClick={setCommentChange}>自己紹介文</p>
 							{isEditing ? (
 								<>
 								<textarea
 									ref={textareaRef}
-									className="w-full mt-[10px] border rounded p-2 text-[13px]"
+									className="w-full mt-[10px] border rounded p-[5px] text-[13px]"
 									rows={4}
 									value={commentText}
 									onChange={(e) => setCommentText(e.target.value)}
@@ -228,10 +381,49 @@ export default function UserPage() {
 								</div>
 								</>
 							) : (
-								<p className="flex justify-left items-center w-[100%] text-[13px] mt-[10px] mx-auto cursor-pointer whitespace-pre-wrap">
+								<p className="flex justify-left items-center w-[100%] text-[13px] mt-[5px] mx-auto cursor-pointer whitespace-pre-wrap">
 									{userProfile?.comment || "自己紹介が空欄です"}
 								</p>
 							)}
+						</div>
+
+						<div className="flex flex-col justify-center items-center w-[100%] mt-[28px]">
+							<p className="my-self-profile" onClick={setMailChange}>メールアドレス</p>
+							{isEditingMail ? (
+							<>
+								<textarea
+									ref={textareaRef}
+									className="w-full mt-[10px] border rounded p-[5px] text-[13px]"
+									rows={1}
+									value={mail}
+									onChange={(e) => setMail(e.target.value)}
+								/>
+								<div className="flex justify-center items-center mt-[15px] gap-[20px]">
+									<div onClick={changeMail} className="flex justify-center items-center w-[100px] py-1 bg-blue-500 text-white text-[13px] rounded">保存</div>
+									<div onClick={() => setIsEditingMail(false)} className="flex justify-center items-center w-[100px] py-1 bg-gray-300 text-[13px] rounded">キャンセル</div>
+								</div>
+								</>
+							) : (
+								<p className="flex justify-left items-center w-[100%] text-[13px] mt-[5px] mx-auto cursor-pointer whitespace-pre-wrap">
+									{userProfile?.email || "メールアドレスが設定されていません"}
+								</p>
+							)}
+						</div>
+
+						<div className="flex flex-col justify-center items-center w-[100%] mt-[28px]">
+							<p className="flex justify-start items-center w-[100%] text-[14px] font-bold" >メール通知設定</p>
+							<input 
+								type="checkbox" 
+								name="mail_receive_flg" 
+								id="mail_receive_flg" 
+								checked={userProfile?.mail_receive_flg ?? true}
+								onChange={changeMailReceive}
+								className="hidden"
+							/>
+							<label htmlFor="mail_receive_flg" className="prf-label left small mt-[7px]">メール通知</label>
+							<div className="notice flex justify-start items-center w-[100%] text-[13px] mt-[10px] px-[10px] py-[5px] bg-[#ffe3d1] text-[#333] p-[5px] rounded-[6px]">
+								特定のイベント開催時やイベントチケット購入時に<br/>お知らせ通知を送ります。
+							</div>
 						</div>
 					</div>
 
@@ -246,7 +438,7 @@ export default function UserPage() {
 							{friendList ? (
 								<PrfFriendList groupMemberProfiles={groupMemberProfiles} fetchNextUser={fetchNextUser} hasMore={hasMore}/>
 							) : (
-								<PrfJoinGroup userId={userId}/>
+								<PrfJoinGroup joinGroup={joinGroup} joinedGroup={joinedGroup}/>
 							)}
 						</div>
 					</div>

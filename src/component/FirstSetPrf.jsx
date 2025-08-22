@@ -52,6 +52,7 @@ export default function FirstSetPrf() {
 			hobby,
 			reason,
 			email,
+			mail_receive_flg: emailReceive,
 			first_set: true,
 		}, { returning: 'minimal' });
 
@@ -226,7 +227,8 @@ export default function FirstSetPrf() {
 					name="mail_receive_flg" 
 					id="mail_receive_flg" 
 					defaultChecked
-					value="" 
+					value={emailReceive}
+					onChange={(e) => setEmailReceive(e.target.checked)}
 					className="hidden"
 				/>
 				<label htmlFor="mail_receive_flg" className="prf-label small mt-[20px]">イベント情報などのお知らせをメールで受け取る</label>

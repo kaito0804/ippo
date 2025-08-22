@@ -1,7 +1,7 @@
 "use client";
 
 //react/next.js用ライブラリ
-import { useState, useEffect, use} from "react";
+import { useEffect } from "react";
 
 //データベース関連
 import { supabase }         from '@/utils/supabase/supabaseClient';
@@ -62,7 +62,7 @@ export default function Top() {
     return (
         <div>
             {/* ユーザープロファイルの読み込み中表示 */}
-            {loading ? (
+            {loading || !userProfile ? (
                 <div className="fixed inset-0 bg-white bg-opacity-80 z-50 flex justify-center items-center">
 					<p className="text-xl text-[#ff7a00] font-bold animate-pulse">読み込み中です...</p>
 				</div>

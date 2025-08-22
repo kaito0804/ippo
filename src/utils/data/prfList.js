@@ -21,6 +21,20 @@ export const genderList = [
 ];
 
 /*===============================
+エリア
+================================*/
+export const areaList = [
+  { id: 1, label: '北海道' },
+  { id: 2, label: '東北' },
+  { id: 3, label: '関東' },
+  { id: 4, label: '中部' },
+  { id: 5, label: '近畿' },
+  { id: 6, label: '中国' },
+  { id: 7, label: '四国' },
+  { id: 8, label: '九州' },
+];
+
+/*===============================
 趣味
 ================================*/
 export const hobbyList = [

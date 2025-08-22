@@ -14,6 +14,9 @@ import { uploadToCloudinary } from "@/utils/cloudinary/cloudinary";
 import { supabase } from '@/utils/supabase/supabaseClient';
 import { useUserContext } from '@/utils/userContext';
 
+//クライアントコンポーネント
+import { areaList, hobbyList } from "@/utils/data/prfList";
+
 
 export default function NewPostDialog({openDialog, closeDialog, placeName }) {
 
@@ -26,15 +29,20 @@ export default function NewPostDialog({openDialog, closeDialog, placeName }) {
 	const [venue, setVenue]             = useState('');
 	const [goal, setGoal]               = useState('');
 	const [description, setDescription] = useState('');
-	const [memberCount, setmemberCount] = useState(0);
+	const [memberCount, setMemberCount] = useState(0);
+	const [noLimitMemberCount, setNoLimitMemberCount] = useState('');
 	const [thumImage, setThumImage]     = useState(null);
-	const [theme, setTheme]             = useState([]); 
 	const [editorKey, setEditorKey]     = useState(0);
 	const [price, setPrice]             = useState('');
+	const [area, setArea]               = useState('');
+	const [theme, setTheme]             = useState([]); 
 	const fileInputRef                  = useRef(null);
 	const [previewUrl, setPreviewUrl]   = useState(null);
+	const [emailSend, setEmailSend]     = useState(true);
 	const [isLoading, setIsLoading]     = useState(false);
 	const formRef                       = useRef(null);
+	
+	const maxLimit = 40; //定員無制限時の最大参加人数
 
 
 	useEffect(() => {
@@ -78,6 +86,8 @@ export default function NewPostDialog({openDialog, closeDialog, placeName }) {
 				imageUrl = await uploadToCloudinary(thumImage);
 			}
 
+			const memberCountLimit = noLimitMemberCount ? maxLimit : memberCount;
+
 			const { data: groupData, error } = await supabase.from('groups').insert({
 				created_by : userId,
 				name,
@@ -88,8 +98,10 @@ export default function NewPostDialog({openDialog, closeDialog, placeName }) {
 				venue        : venue,  
 				goal         : goal,   
 				image_url    : imageUrl, 
+				area         : area,
 				theme        : theme,        
-				member_count : memberCount,
+				member_count : memberCountLimit,
+				noLimitFlg   : noLimitMemberCount,
 				price        : price
 			})
 			.select()
@@ -113,23 +125,44 @@ export default function NewPostDialog({openDialog, closeDialog, placeName }) {
 			if (memberError) {
 				console.error('ホスト登録エラー:', memberError);
 				alert('グループは作成されましたが、ホストの参加登録に失敗しました');
-				// ここで return せずに処理継続するかどうかはお好みで
 			}
 
-			setIsLoading(false);
+			// 通知メール
+			/* awsアカウント作成後に実装
+			if (emailSend) {
+				const { data: matchedUsers, error: matchError } = await supabase
+					.from("user_profiles")
+					.select("id, email, display_name")
+					.eq("mail_receive_flg", true)
+					.or(`area.eq.${area},hobby.ov.{${theme.join(",")}}`);
+
+				if (matchError) {
+					console.error("通知対象取得エラー:", matchError);
+				} else if (matchedUsers.length > 0) {
+					await fetch("/api/sendMail", {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({ users: matchedUsers, group: groupData }),
+					});
+				}
+			}
+			*/
+
 			alert('登録完了！');
 
 			// フォーム初期化
 			setName('');
 			setStartDate('');
-			setStartTime('');
+			setStartTime('12:00');
 			setDuration('');
 			setVenue('');
 			setGoal('');
-			setTheme('');
+			setArea('');
+			setTheme([]);
 			setDescription('');
 			setEditorKey(prev => prev + 1);
-			setmemberCount(0);
+			setMemberCount(0);
+			setNoLimitMemberCount(false);
 			setPrice('');
 			setThumImage(null);
 			setPreviewUrl(null);
@@ -160,163 +193,227 @@ export default function NewPostDialog({openDialog, closeDialog, placeName }) {
 
 				<div className="w-[100%] text-[18px] font-bold">イベントを作成</div>
 
-				<form 
-					ref={formRef}
-					onSubmit={submit} 
-					className="flex flex-col items-center w-[100%] py-[12px] gap-[28px] overflow-y-scroll"	
-				>
-					
+				{openDialog && (
+				<div className="flex flex-col items-center w-[100%] py-[12px] gap-[28px] overflow-y-scroll">
+					<form 
+						ref={formRef}
+						onSubmit={submit} 
+						className="flex flex-col items-center w-[100%] gap-[28px] overflow-y-scroll"	
+					>
+						
 
-					<label className="flex flex-col justify-center w-[100%] gap-[2px]">
-						<p className="text-[14px] font-bold">イベント名</p>
-						<input 
-							type="text" name="groupName" placeholder="イベント名を記入"value={name} onChange={e => setName(e.target.value)} required 
-							className="px-[10px] py-[10px] bg-[#fff] rounded-[5px] text-[16px]" />
-					</label>
+						<label className="flex flex-col justify-center w-[100%] gap-[2px]">
+							<p className="text-[14px] font-bold">イベント名</p>
+							<input 
+								type="text" name="groupName" placeholder="イベント名を記入"value={name} onChange={e => setName(e.target.value)} required 
+								className="px-[10px] py-[10px] bg-[#fff] rounded-[5px] text-[16px]" />
+						</label>
+						
+						<MyEditor  key={editorKey} content={description} onChange={setDescription} />
 
-					<MyEditor  key={editorKey} content={description} onChange={setDescription} />
+						<div className="flex justify-center items-center w-[100%] gap-[6px]">
+							<div className="flex flex-col justify-center w-[33%] gap-[2px]">
+								<p className="text-[14px] font-bold">日程</p>
+								<DatePicker
+									selected={startDate}
+									onChange={(date) => setStartDate(date)}
+									placeholderText="2025/00/0"
+									dateFormat="yyyy/MM/dd"
+									className="w-[100%] px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[16px]"
+									popperPlacement="bottom-end"
+									required
+								/>
+							</div>
 
-					<div className="flex justify-center items-center w-[100%] gap-[6px]">
-						<div className="flex flex-col justify-center w-[33%] gap-[2px]">
-							<p className="text-[14px] font-bold">日程</p>
-							<DatePicker
-								selected={startDate}
-								onChange={(date) => setStartDate(date)}
-								placeholderText="2025/00/0"
-								dateFormat="yyyy/MM/dd"
-								className="w-[100%] px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[16px]"
-								popperPlacement="bottom-end"
+							<label className="flex flex-col justify-center w-[33%] gap-[2px]">
+								<p className="text-[14px] font-bold">時間</p>
+								<TimePicker
+								onChange={setStartTime}
+								value={startTime}
+								clearIcon={null}
+								clockIcon={null}
+								className="px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[16px]"
 								required
-							/>
+								/>
+							</label>
+
+							<label className="relative flex flex-col justify-center w-[33%] gap-[2px]">
+								<p className="text-[14px] font-bold">所要時間</p>
+								<input
+								type="text" 
+								value={formatDuration(duration)}
+								onChange={(e) => {
+									const val = e.target.value;
+									const match = val.match(/^(\d{1,2}):(\d{2})$/);
+									if (match) {
+									const h = parseInt(match[1], 10);
+									const m = parseInt(match[2], 10);
+									if (m >= 0 && m < 60) {
+										const totalMin = h * 60 + m;
+										setDuration(totalMin);
+									}
+									} else if (val === '') {
+										setDuration(0);
+									}
+								}}
+								className="px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[16px]"
+								/>
+
+								<div className="absolute flex flex-col justify-between items-center h-[30px] top-[25px] right-[5px]">
+									<button
+										type="button"
+										onClick={() => timeStep(1)}
+										className="w-[18px] h-[18px] bg-no-repeat bg-center bg-contain"
+										style={{backgroundImage: 'url("https://res.cloudinary.com/dnehmdy45/image/upload/v1752628034/nav-arrow-up_pnbz6g.svg")'}}
+									>
+									</button>
+									<button
+										type="button"
+										onClick={() => timeStep(-1)}
+										className="w-[18px] h-[18px] bg-no-repeat bg-center bg-contain"
+										style={{backgroundImage: 'url("https://res.cloudinary.com/dnehmdy45/image/upload/v1752628033/nav-arrow-down_uwlzxy.svg")'}}
+									>
+									</button>
+								</div>
+							</label>
 						</div>
 
-						<label className="flex flex-col justify-center w-[33%] gap-[2px]">
-							<p className="text-[14px] font-bold">時間</p>
-							<TimePicker
-							onChange={setStartTime}
-							value={startTime}
-							clearIcon={null}
-							clockIcon={null}
-							className="px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[16px]"
-							required
-							/>
-						</label>
+						<div className="flex justify-center items-center w-[100%] gap-[10px]">
+							<label className="flex flex-col justify-center w-[calc(50%-5px)] gap-[2px]">
+								<p className="text-[14px] font-bold">スタート(場所)</p>
+								<input 
+									type="text" name="venue" value={venue} onChange={e => setVenue(e.target.value)} required
+									placeholder="場所を選ぶ"
+									className="px-[10px] py-[10px] bg-[#fff] rounded-[5px] text-[16px]" />
+							</label>
 
-						<label className="relative flex flex-col justify-center w-[33%] gap-[2px]">
-							<p className="text-[14px] font-bold">所要時間</p>
-							<input
-							type="text" 
-							value={formatDuration(duration)}
-							onChange={(e) => {
-								const val = e.target.value;
-								const match = val.match(/^(\d{1,2}):(\d{2})$/);
-								if (match) {
-								const h = parseInt(match[1], 10);
-								const m = parseInt(match[2], 10);
-								if (m >= 0 && m < 60) {
-									const totalMin = h * 60 + m;
-									setDuration(totalMin);
-								}
-								} else if (val === '') {
-									setDuration(0);
-								}
-							}}
-							className="px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[16px]"
-							/>
+							<label className="flex flex-col justify-center w-[calc(50%-5px)] gap-[2px]">
+								<p className="text-[14px] font-bold">ゴール</p>
+								<input 
+									type="text" name="goal" value={goal} onChange={e => setGoal(e.target.value)} required
+									placeholder="場所を選ぶ"
+									className="px-[10px] py-[10px] bg-[#fff] rounded-[5px] text-[16px]" />
+							</label>
+						</div>			
 
-							<div className="absolute flex flex-col justify-between items-center h-[30px] top-[25px] right-[5px]">
-								<button
-									type="button"
-									onClick={() => timeStep(1)}
-									className="w-[18px] h-[18px] bg-no-repeat bg-center bg-contain"
-									style={{backgroundImage: 'url("https://res.cloudinary.com/dnehmdy45/image/upload/v1752628034/nav-arrow-up_pnbz6g.svg")'}}
-								>
-								</button>
-								<button
-									type="button"
-									onClick={() => timeStep(-1)}
-									className="w-[18px] h-[18px] bg-no-repeat bg-center bg-contain"
-									style={{backgroundImage: 'url("https://res.cloudinary.com/dnehmdy45/image/upload/v1752628033/nav-arrow-down_uwlzxy.svg")'}}
-								>
-								</button>
-							</div>
-						</label>
-					</div>
+						<div className="flex justify-center items-center w-[100%] gap-[10px]">
+							<label className="flex flex-col justify-center w-[calc(50%-5px)] gap-[2px]">
+								<p className="text-[14px] font-bold">定員数</p>
+								
+								<div className="relative w-[100%]">
+									<select name="memberCount" value={memberCount} onChange={e => setMemberCount(Number(e.target.value))} 
+										className={` ${noLimitMemberCount ? 'bg-[#eee]' : 'bg-[#fff]'} appearance-auto w-[100%] px-[10px] py-[5px] rounded-[5px] text-[16px]`} disabled={noLimitMemberCount} required>
+										{Array.from({ length: 31 }, (_, i) => (
+											<option key={i} value={i}>{i}</option>
+										))}
+									</select>
+									<div className="absolute right-[24px] top-[calc(50%-18px/2)] flex items-center justify-center gap-[5px]">
+										<p className="text-[12px] font-bold">無制限</p>
+										<div onClick={() => setNoLimitMemberCount(!noLimitMemberCount)} className={`toggle-switch ${noLimitMemberCount ? 'on' : ''}`}></div>
+									</div>
+								</div>
 
-					<div className="flex justify-center items-center w-[100%] gap-[10px]">
-						<label className="flex flex-col justify-center w-[calc(50%-5px)] gap-[2px]">
-							<p className="text-[14px] font-bold">スタート(場所)</p>
-							<input 
-								type="text" name="venue" value={venue} onChange={e => setVenue(e.target.value)} required
-								placeholder="場所を選ぶ"
-								className="px-[10px] py-[10px] bg-[#fff] rounded-[5px] text-[16px]" />
-						</label>
+							</label>
 
-						<label className="flex flex-col justify-center w-[calc(50%-5px)] gap-[2px]">
-							<p className="text-[14px] font-bold">ゴール</p>
-							<input 
-								type="text" name="goal" value={goal} onChange={e => setGoal(e.target.value)} required
-								placeholder="場所を選ぶ"
-								className="px-[10px] py-[10px] bg-[#fff] rounded-[5px] text-[16px]" />
-						</label>
-					</div>			
+							<label className="flex flex-col justify-center w-[calc(50%-5px)] gap-[2px]">
+								<p className="text-[14px] font-bold">参加費</p>
+								<input 
+									type="number" min="0" step="100" inputMode="numeric" name="groupPrice" placeholder="¥" value={price} onChange={e => setPrice(e.target.value)} 
+									className="appearance-auto px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[16px]" />
+							</label>
+						</div>	
 
-					<div className="flex justify-center items-center w-[100%] gap-[10px]">
-						<label className="flex flex-col justify-center w-[calc(50%-5px)] gap-[2px]">
-							<p className="text-[14px] font-bold">定員数</p>
-							
-							<select name="memberCount" value={memberCount} onChange={e => setmemberCount(Number(e.target.value))} 
-								className="appearance-auto px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[16px]" required>
-								{Array.from({ length: 31 }, (_, i) => (
-									<option key={i} value={i}>{i}</option>
+						<label className="flex flex-col justify-center w-[100%] gap-[2px]">
+							<p className="text-[14px] font-bold">エリア</p>
+							<select  className="text-[14px] px-[10px] py-[5px] bg-[#fff] rounded-[5px]" name="area" value={area} onChange={e => setArea(e.target.value)} required>
+								<option value="" disabled>エリアを選択</option>
+								{areaList.map((area, index) => (
+									<option key={index} value={area.id}>{area.label}</option>
 								))}
 							</select>
 						</label>
 
-						<label className="flex flex-col justify-center w-[calc(50%-5px)] gap-[2px]">
-							<p className="text-[14px] font-bold">参加費</p>
-							<input 
-								type="number" min="0" step="100" inputMode="numeric" name="groupPrice" placeholder="¥" value={price} onChange={e => setPrice(e.target.value)} 
-								className="appearance-auto px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[16px]" />
-						</label>
-					</div>	
-
-					<div className="flex flex-col justify-center items-center w-[100%] gap-[2px]">
-						<p className="w-[100%] text-[14px] font-bold">画像</p>
-						<label
-							htmlFor="file"
-							className="w-[100%] px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[14px]"
-						>
-							<span className="text-[16px] text-[#aaa]">カバーフォトを選ぶ</span>
-							<input
-							type="file"
-							id="file"
-							accept="image/*"
-							onChange={fileChange}
-							ref={fileInputRef}
-							className="hidden"
-							required
-							/>
-						</label>
-
-						{/* プレビュー表示 */}
-						{previewUrl && (
-							<div className="mt-2">
-							<img
-								src={previewUrl}
-								alt="プレビュー"
-								className="max-w-[100%] object-contain"
-							/>
+						<label className="flex flex-col justify-center w-[100%] gap-[2px]">
+							<p className="text-[14px] font-bold">テーマ</p>
+							<div className="flex flex-wrap gap-[10px]">
+								{hobbyList.map((item) => (
+									<label key={item.id} className="flex items-center gap-[6px]">
+										<input
+											type="checkbox"
+											value={item.id}
+											checked={theme.includes(item.id)}
+											onChange={(e) => {
+												if (e.target.checked) {
+													setTheme([...theme, item.id]);
+												} else {
+													setTheme(theme.filter(t => t !== item.id));
+												}
+											}}
+										/>
+										<span>{item.label}</span>
+									</label>
+								))}
 							</div>
-						)}
-					</div>
+						</label>
 
-				</form>
+						<div className="flex flex-col justify-center items-center w-[100%] gap-[2px]">
+							<p className="w-[100%] text-[14px] font-bold">画像</p>
+							<label
+								htmlFor="file"
+								className="w-[100%] px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[14px]"
+							>
+								<span className="text-[16px] text-[#aaa]">カバーフォトを選ぶ</span>
+								<input
+								type="file"
+								id="file"
+								accept="image/*"
+								onChange={fileChange}
+								ref={fileInputRef}
+								className="hidden"
+								required
+								/>
+							</label>
+
+							{/* プレビュー表示 */}
+							{previewUrl && (
+								<div className="mt-2">
+								<img
+									src={previewUrl}
+									alt="プレビュー"
+									className="max-w-[100%] object-contain"
+								/>
+								</div>
+							)}
+						</div>
+
+						<div className="flex flex-col justify-center items-center w-[100%]">
+							<p className="w-[100%] text-[14px] font-bold">メール通知設定</p>
+							<input 
+								type="checkbox" 
+								name="mail_send_flg" 
+								id="mail_send_flg" 
+								defaultChecked
+								value={emailSend}
+								onChange={(e) => setEmailSend(e.target.checked)}
+								className="hidden"
+							/>
+							<label htmlFor="mail_send_flg" className="prf-label left small mt-[7px]">メール通知</label>
+
+							{emailSend && (
+								<div className="notice flex justify-start items-center w-[100%] text-[13px] mt-[10px] px-[10px] py-[5px] bg-[#ffe3d1] text-[#333] p-[5px] rounded-[6px]">
+									エリア、テーマに該当するユーザーに、<br/>イベント開催のメール通知を送ります。
+								</div>
+							)}
+						</div>	
+
+					</form>
 					
-				<div className="flex justify-end items-center w-[100%] gap-[10px]">
-					<div onClick={closeDialog} className="flex justify-center items-center w-[100px] py-[8px] bg-[#fff] text-[#F26A21] border border-[#F26A21] rounded-[100px] text-[13px] font-bold">キャンセル</div>
-					<div onClick={() => formRef.current?.requestSubmit()} className="flex justify-center items-center w-[100px] py-[8px] bg-[#F26A21] text-[#fff] rounded-[100px] text-[13px] font-bold">作成</div>
+					<div className="flex justify-end items-center w-[100%] gap-[10px]">
+						<div onClick={closeDialog} className="flex justify-center items-center w-[100px] py-[8px] bg-[#fff] text-[#F26A21] border border-[#F26A21] rounded-[100px] text-[13px] font-bold">キャンセル</div>
+						<div onClick={() => formRef.current?.requestSubmit()} className="flex justify-center items-center w-[100px] py-[8px] bg-[#F26A21] text-[#fff] rounded-[100px] text-[13px] font-bold">作成</div>
+					</div>
 				</div>
+				)}
 			</div>
 
 		</div>

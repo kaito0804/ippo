@@ -28,7 +28,12 @@ export default function EventSetting() {
 		<div className="content-bg-color">
 			<Header/>
 
-			{isHost ? (
+			{!userProfile ? (
+			<div className="fixed inset-0 bg-white bg-opacity-80 z-50 flex justify-center items-center">
+				<p className="text-xl text-[#ff7a00] font-bold animate-pulse">読み込み中です...</p>
+			</div>
+
+			) : isHost ? (
 				<div className="header-adjust">
 					<div className='h-adjust flex flex-col justify-start items-center'>
 						<p className='text-[20px] font-bold mt-[60px]'>イベント設定</p>

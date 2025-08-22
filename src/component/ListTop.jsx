@@ -33,6 +33,7 @@ export default function ListTop() {
 			.select('*')
 			.gte('start_date', todayStr)
 			.lt('start_date', startOfNextMonthStr)
+			.or('part.is.null,part.eq.1')  
 			.order('start_date', { ascending: true });
 
 			if (error1) {
@@ -46,6 +47,7 @@ export default function ListTop() {
 			.select('*')
 			.gte('start_date', startOfNextMonthStr)
 			.lt('start_date', startOfFollowingMonthStr)
+			.or('part.is.null,part.eq.1')
 			.order('start_date', { ascending: true });
 
 			if (error2) {
