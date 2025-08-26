@@ -2,6 +2,7 @@
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { createClient } from '@supabase/supabase-js';
 import jwt from 'jsonwebtoken';
+import jwksClient from 'jwks-rsa';
 import { v4 as uuidv4 } from 'uuid';
 
 // Supabase 初期化
@@ -22,224 +23,169 @@ console.log('🔧 環境変数チェック:', {
   SUPABASE_SERVICE_ROLE_KEY: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
   NEXTAUTH_URL: process.env.NEXTAUTH_URL,
   NEXTAUTH_SECRET: !!process.env.NEXTAUTH_SECRET,
+  LINE_CHANNEL_ID: process.env.LINE_CHANNEL_ID,
 });
 
-// LINE LIFF IDトークンを検証する関数
-async function verifyLiffIdToken(idToken) {
+// LINE JWK クライアント
+const client = jwksClient({
+  jwksUri: "https://api.line.me/oauth2/v2.1/certs",
+});
+
+// 公開鍵を取得する関数
+async function getSigningKey(kid) {
+  const key = await client.getSigningKey(kid);
+  return key.getPublicKey();
+}
+
+export async function verifyLiffIdToken(idToken) {
   try {
-    console.log('🔍 トークン検証開始:', {
-      tokenLength: idToken?.length,
-      tokenStart: idToken?.substring(0, 50) + '...'
+    const decodedHeader = jwt.decode(idToken, { complete: true });
+    if (!decodedHeader) return null;
+
+    const { kid, alg } = decodedHeader.header;
+    if (!kid || !['RS256', 'ES256'].includes(alg)) {
+		console.error('❌ JWTヘッダー不正', { kid, alg });
+		return null;
+    }
+
+    const key = await getSigningKey(kid);
+
+    const decoded = jwt.verify(idToken, key, {
+		algorithms: [alg], // ヘッダーに応じて動的に設定
+		audience: process.env.LINE_CHANNEL_ID,
+		issuer: 'https://access.line.me',
     });
 
-    const decoded = jwt.decode(idToken, { complete: true });
-    console.log('📋 デコード結果:', {
-      header: decoded?.header,
-      payload: decoded?.payload ? {
-        sub: decoded.payload.sub,
-        iss: decoded.payload.iss,
-        aud: decoded.payload.aud,
-        exp: decoded.payload.exp,
-        iat: decoded.payload.iat,
-        name: decoded.payload.name,
-        email: decoded.payload.email,
-      } : null
-    });
-    
-    if (!decoded || !decoded.payload) {
-      console.log('❌ トークンのデコードに失敗');
-      return null;
-    }
+    console.log('✅ トークン検証成功:', { sub: decoded.sub, name: decoded.name, email: decoded.email });
+    return decoded;
 
-    const payload = decoded.payload;
-
-    // 基本的な検証
-    if (!payload.sub || !payload.iss) {
-      console.log('❌ 必要なフィールドが不足:', { 
-        sub: payload.sub, 
-        iss: payload.iss 
-      });
-      return null;
-    }
-
-    // LINE のissuerかどうかチェック
-    if (!payload.iss.includes('line.me')) {
-      console.log('❌ LINE以外のissuer:', payload.iss);
-      return null;
-    }
-
-    // 有効期限チェック
-    const now = Math.floor(Date.now() / 1000);
-    if (payload.exp && payload.exp < now) {
-      console.log('❌ トークンの有効期限切れ:', {
-        exp: payload.exp,
-        now: now,
-        diff: now - payload.exp
-      });
-      return null;
-    }
-
-    console.log('✅ トークン検証成功');
-    return payload;
-  } catch (error) {
-    console.error('💥 トークン検証エラー:', error);
+  } catch (err) {
+    console.error('❌ トークン検証例外:', err.message);
     return null;
   }
 }
 
+
+// NextAuth 設定
 export const authOptions = {
-  debug: true,
-  providers: [
-    CredentialsProvider({
-      id: 'liff',
-      name: 'LINE LIFF',
-      credentials: {
-        idToken: { label: 'ID Token', type: 'text' },
-      },
-      authorize: async (credentials) => {
-        console.log('🚀 authorize 関数開始');
-        console.log('📨 受信したクレデンシャル:', { 
-          hasIdToken: !!credentials?.idToken,
-          tokenLength: credentials?.idToken?.length 
-        });
+  	debug: true,
+  	providers: [
+		CredentialsProvider({
+			id: 'liff',
+			name: 'LINE LIFF',
+			credentials: {
+				idToken: { label: 'ID Token', type: 'text' },
+			},
 
-        // 基本的な検証
-        if (!credentials?.idToken) {
-          console.log('❌ idToken がありません');
-          return null;
-        }
+			authorize: async (credentials) => {
+				console.log('🚀 authorize 関数開始');
+				console.log('📨 受信したクレデンシャル:', { 
+					hasIdToken: !!credentials?.idToken,
+					tokenLength: credentials?.idToken?.length 
+				});
 
-        const { idToken } = credentials;
+				if (!credentials?.idToken) {
+					console.log('❌ idToken がありません');
+					return null;
+				}
 
-        try {
-          // 1. IDトークンの検証
-          console.log('🔍 ステップ1: IDトークン検証');
-          const decoded = await verifyLiffIdToken(idToken);
-          if (!decoded) {
-            console.log('❌ ステップ1失敗: トークンの検証に失敗');
-            return null;
-          }
+				const { idToken } = credentials;
 
-          // 2. ユーザー情報の抽出
-          console.log('📝 ステップ2: ユーザー情報抽出');
-          const userLineId = decoded.sub;
-          const email = decoded.email || ``;
-          const displayName = decoded.name || decoded.given_name || 'LINEユーザー';
+				try {	
+					console.log('🔍 ステップ1: IDトークン検証');
+					const decoded = await verifyLiffIdToken(idToken);
+					if (!decoded) {
+						console.log('❌ ステップ1失敗: トークンの検証に失敗');
+						return null;
+					}
 
-          console.log('✅ ユーザー情報:', { 
-            userLineId, 
-            email, 
-            displayName 
-          });
+					console.log('📝 ステップ2: ユーザー情報抽出');
+					const userLineId = decoded.sub;
+					const email = decoded.email || '';
+					const displayName = decoded.name || decoded.given_name || 'LINEユーザー';
+					const pictureUrl = decoded.picture || null;
 
-          // 3. Supabaseの接続確認
-          console.log('🔍 ステップ3: Supabase接続確認');
-          if (!supabase) {
-            console.log('❌ Supabaseが初期化されていません');
-            return null;
-          }
+					console.log('✅ ユーザー情報:', { userLineId, email, displayName });
 
-          // 4. 既存ユーザーの確認
-          console.log('🔍 ステップ4: 既存ユーザー確認');
-          const { data: existingUser, error: selectError } = await supabase
-            .from('user_profiles')
-            .select('*')
-            .eq('line_id', userLineId)
-            .single();
+					console.log('🔍 ステップ3: Supabase接続確認');
+					if (!supabase) return null;
 
-          console.log('📋 既存ユーザー検索結果:', {
-            found: !!existingUser,
-            error: selectError,
-            errorCode: selectError?.code
-          });
+					console.log('🔍 ステップ4: 既存ユーザー確認');
+					const { data: existingUser, error: selectError } = await supabase
+					.from('user_profiles')
+					.select('*')
+					.eq('line_id', userLineId)
+					.single();
 
-          if (selectError && selectError.code !== 'PGRST116') {
-            console.log('❌ ステップ4失敗: Supabase select エラー:', selectError);
-            return null;
-          }
+					console.log('📋 既存ユーザー検索結果:', {
+						found: !!existingUser,
+						error: selectError,
+						errorCode: selectError?.code
+					});
 
-          // 5. 新規ユーザーの作成（必要な場合）
-          if (!existingUser) {
-            console.log('🔍 ステップ5: 新規ユーザー作成');
-            const newUuid = uuidv4()
-            const { data: newUser, error: insertError } = await supabase
-              .from('user_profiles')
-              .insert({
-                id: newUuid,
-                display_name: displayName,
-                email,
-                created_at: new Date().toISOString(),
-                line_id: userLineId
-              })
-              .select()
-              .single();
+					if (selectError && selectError.code && selectError.code !== 'PGRST116') {
+						console.log('❌ Supabase select エラー:', selectError);
+						return null;
+					}
 
-            console.log('📋 新規ユーザー作成結果:', {
-              success: !!newUser,
-              error: insertError,
-              newUser: newUser
-            });
+					if (!existingUser) {
+						console.log('🔍 ステップ5: 新規ユーザー作成');
+						const newUuid = uuidv4();
+						const { data: newUser, error: insertError } = await supabase
+							.from('user_profiles')
+							.insert({
+							id: newUuid,
+							display_name: displayName,
+							email,
+							icon_path: pictureUrl,
+							created_at: new Date().toISOString(),
+							line_id: userLineId
+							})
+							.select()
+							.single();
 
-            if (insertError) {
-              console.log('❌ ステップ5失敗: Supabase insert エラー:', insertError);
-              return null;
-            }
-          } else {
-            console.log('✅ 既存ユーザー使用:', existingUser);
-          }
+						console.log('📋 新規ユーザー作成結果:', { success: !!newUser, error: insertError });
 
-          // 6. 認証成功
-          console.log('🎉 認証成功 - 最終ステップ');
-          const result = {
-            id: userLineId,
-            name: displayName,
-            email,
-            lineId: userLineId,
-          };
-          
-          console.log('✅ 返却するユーザー情報:', result);
-          return result;
+						if (insertError) return null;
+					} else {
+						console.log('✅ 既存ユーザー使用:', existingUser);
+						// 既存ユーザーにも最新の pictureUrl を保存したい場合
+						await supabase
+						.from('user_profiles')
+						.update({ icon_path: pictureUrl })
+						.eq('line_id', userLineId);
+					}
 
-        } catch (err) {
-          console.error('💥 authorize内例外 - 詳細:', {
-            error: err,
-            message: err.message,
-            stack: err.stack
-          });
-          return null;
-        }
-      }
-    }),
-  ],
-  session: {
-    strategy: 'jwt',
-  },
-  callbacks: {
-    async jwt({ token, user, account }) {
-      console.log('🔄 JWT callback:', { 
-        hasToken: !!token, 
-        hasUser: !!user, 
-        hasAccount: !!account 
-      });
-      if (account && user) {
-        token.id = user.id;
-        token.lineId = user.lineId;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      console.log('🔄 Session callback:', { 
-        hasSession: !!session, 
-        hasToken: !!token 
-      });
-      if (session.user) {
-        session.user.id = token.id;
-        session.user.lineId = token.lineId;
-      }
-      return session;
-    },
-  },
-  pages: {
-    signIn: '/top',
-  },
+					console.log('🎉 認証成功 - 最終ステップ');
+					return { id: userLineId, name: displayName, email, lineId: userLineId };
+
+				} catch (err) {
+					console.error('💥 authorize内例外:', err);
+					return null;
+				}
+			}
+		}),
+	],
+	session: { strategy: 'jwt' },
+	callbacks: {
+		async jwt({ token, user, account }) {
+		if (account && user) {
+			token.id = user.id;
+			token.lineId = user.lineId;
+			token.jti = user.jti || null;
+			token.provider = 'line';
+		}
+		return token;
+		},
+		async session({ session, token }) {
+		if (session.user) {
+			session.user.id = token.id;
+			session.user.lineId = token.lineId;
+			session.user.jti = token.jti;
+			session.user.provider = 'line';
+		}
+		return session;
+		},
+	},
+	pages: { signIn: '/top' },
 };

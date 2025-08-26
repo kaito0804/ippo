@@ -113,6 +113,7 @@ export default function MessageDetailClient({ groupId, anotherUserId }) {
 	}, [groupId, anotherUserId, userId]);
 
 
+	
 	/*============================
 
 	メッセージをページングごとに取得

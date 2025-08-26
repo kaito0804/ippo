@@ -19,44 +19,37 @@ export default function AuthButtons({ user }) {
 	const contentRef = useRef(null);
 
 	useEffect(() => {
-		// LIFF初期化中または未ログインの場合は何もしない
 		if (!isInitialized) return;
 
-		// LINEにログイン済みの場合はIDトークンを取得してサインイン
 		const handleSignIn = async () => {
 			try {
-				setIsLoading(true);
-				setAuthError(null);
+			setIsLoading(true);
+			setAuthError(null);
 
-				// IDトークンを取得
-				const idToken = await getIdToken();
-				if (!idToken) {
+			const idToken = await getIdToken();
+			if (!idToken) {
 				setAuthError('IDトークンの取得に失敗しました');
 				return;
-				}
+			}
 
-				// Auth.jsでサインイン
-				const result = await signIn('liff', {
+			const result = await signIn('liff', {
 				idToken,
 				redirect: false,
-				});
+			});
 
-				if (result?.error) {
+			if (result?.error) {
 				setAuthError(result.error);
-				} else if (result?.url) {
-					// 認証成功時はリダイレクト
-					router.push(result.url);
-				}
+			} else if (result?.url) {
+				router.push(result.url);
+			}
 			} catch (err) {
-				setAuthError('認証中にエラーが発生しました');
-				console.error('認証エラー:', err);
+			setAuthError('認証中にエラーが発生しました');
+			console.error('認証エラー:', err);
 			} finally {
-				setIsLoading(false);
+			setIsLoading(false);
 			}
 		};
 
-		// 自動サインイン実行
-		handleSignIn();
 	}, [isInitialized, isLoggedIn, liffObject, getIdToken, router]);
 
 
@@ -75,7 +68,8 @@ export default function AuthButtons({ user }) {
 	const LineLogin = async () => {
 		// LINEにログインしていない場合はLINEログインを実行
 		if (!isLoggedIn && liffObject) {
-			liffObject.login({ redirectUri: window.location.href });
+			const cleanUrl = window.location.origin + window.location.pathname;
+			liffObject.login({ redirectUri: cleanUrl });
 			return;
 		}else{
 			try {
@@ -85,23 +79,24 @@ export default function AuthButtons({ user }) {
 				// IDトークンを取得
 				const idToken = await getIdToken();
 				if (!idToken) {
-				setAuthError('IDトークンの取得に失敗しました');
-				return;
+					setAuthError('IDトークンの取得に失敗しました');
+					return;
 				}
 
 				// Auth.jsでサインイン
 				const result = await signIn('liff', {
-				idToken,
-				redirect: false,
+					idToken,
+					redirect: false,
+					callbackUrl: "/top",
 				});
+		
 
 				if (result?.error) {
-				setAuthError(result.error);
-				} else if (result?.url) {
-					requestAnimationFrame(() => {
-						router.push(result.url);
-					});
-					return;
+					setAuthError(result.error);
+				} else {
+					// result.url が undefined の場合でも /top に飛ばす
+					const targetUrl = result?.url ?? "/top";
+					router.push(targetUrl);
 				}
 
 			} catch (err) {

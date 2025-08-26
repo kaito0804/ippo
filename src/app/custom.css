@@ -497,7 +497,6 @@ input:checked + .prf-label::before{
 
 /*message_box*/
 .select-tab{
-	position: relative;
 	display: flex;
 	justify-content: center;
 	align-items: center;

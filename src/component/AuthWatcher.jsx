@@ -13,6 +13,8 @@ export default function AuthWatcher() {
 
     // Supabase セッション監視
     useEffect(() => {
+        if (hasChecked.current) return; 
+       
         supabase.auth.getSession().then(({ data }) => setSupaSession(data.session));
         const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
             setSupaSession(session);
@@ -20,25 +22,30 @@ export default function AuthWatcher() {
         return () => {
             listener.subscription.unsubscribe();
         };
+        
     }, []);
 
     // ページ遷移制御
     useEffect(() => {
         if (status === 'loading') return;
-        if (hasChecked.current) return; 
-        hasChecked.current = true;
 
+        hasChecked.current = true;
+        
         console.log('🔑 Supabase Auth 経由でユーザー取得:', supaSession);
         console.log('📱 LINE LIFF 経由でユーザー取得:', session);
         const loggedIn = session || supaSession;
 
         if (pathname === '/') {
             if (loggedIn) router.push('/top');
+            console.log('✅ 認証成功');
         } else {
             if (!loggedIn) router.push('/');
+            console.log('❌ 認証失敗');
         }
 
-         // ログイン成功時にlast_loginを更新
+        if (hasChecked.current) return; 
+
+        // ログイン成功時にlast_loginを更新
         const updateLoginTime = async () => {
             let userId, column;
 

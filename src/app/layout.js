@@ -1,3 +1,4 @@
+// src/app/layout.js
 import { Geist, Geist_Mono } from "next/font/google";
 import { Noto_Sans_JP } from 'next/font/google';
 import { Zen_Maru_Gothic } from 'next/font/google';
@@ -46,7 +47,7 @@ export default function RootLayout({ children }) {
 		<html lang="jp">
 			<body className={`content-bg-color ${geistSans.variable} ${geistMono.variable} ${notoSansJp.variable} ${zenMaruGothic.variable} antialiased`}>
 				<VhProvider />
-                <div id="contents" className="w-[100%]">
+          		<div id="contents" className="w-[100%]">
 					<Providers>
 						<AuthWatcher />
 						<UserProvider>

@@ -4,3 +4,8 @@ export default {
     domains: ['res.cloudinary.com'],
   },
 };
+
+webpack: (config) => {
+  config.module.exprContextCritical = false;
+  return config;
+}

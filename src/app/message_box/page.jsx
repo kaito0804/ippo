@@ -11,7 +11,8 @@ import { isGroupFinished } from '@/utils/function/function';
 
 export default function MessageBox() {
 	const { userProfile }   = useUserContext();
-	const userId = userProfile?.id;
+	const userId            = userProfile?.id;
+	const admin             = userProfile?.admin;
 	const [joinedGroups, setJoinedGroups] = useState([]);
 	const [chatUsers, setChatUsers]       = useState([]);
 	const [selectTab, setSelectTab]       = useState("group");
@@ -21,42 +22,58 @@ export default function MessageBox() {
 		if (!userId) return;
 
 		const getJoinedGroups = async () => {
-			const { data, error } = await supabase
-				.from("group_members")
-				.select("group_id(*)")
-				.eq("user_id", userId);
+			try {
+				let data = [];
+				if (admin) {
+					// 管理者の場合は全グループを取得
+					const { data: allGroups, error } = await supabase
+						.from("groups")
+						.select("*")
+						.order("start_date", { ascending: true });
+					
+					if (error) throw error;
+					data = allGroups.map((group) => ({ group_id: group }));
+				} else {
+					// 通常ユーザーは参加しているグループのみ
+					const { data: joined, error } = await supabase
+						.from("group_members")
+						.select("group_id(*)")
+						.eq("user_id", userId);
 
-			if (error || !data) {
+					if (error) throw error;
+					data = joined;
+				}
+
+				// --- 未読件数を取得 ---
+				const { data: unreadCounts, error: unreadError } = await supabase.rpc("get_unread_counts", {
+					p_user_id: userId,
+				});
+				if (unreadError) console.error("未読件数取得エラー:", unreadError);
+
+				const unreadMap = Object.fromEntries(
+					(unreadCounts || []).map((item) => [item.group_id, item.unread_count])
+				);
+
+				// --- グループ情報と未読件数を統合 ---
+				const groupData = data.map((item) => {
+					const group = item.group_id;
+					return {
+						...group,
+						unread_count: unreadMap[group.id] || 0,
+					};
+				});
+
+				setJoinedGroups(groupData);
+			} catch (error) {
 				console.error("グループ取得エラー:", error);
 				setJoinedGroups([]);
-				return;
+			} finally {
+				setLoading(false);
 			}
-
-			// --- 未読件数を取得 ---
-			const { data: unreadCounts, error: unreadError } = await supabase.rpc("get_unread_counts", {
-				p_user_id: userId,
-			});
-			if (unreadError) console.error("未読件数取得エラー:", unreadError);
-
-			const unreadMap = Object.fromEntries(
-				(unreadCounts || []).map((item) => [item.group_id, item.unread_count])
-			);
-
-			// --- グループ情報と未読件数を統合 ---
-			const groupData = data.map((item) => {
-				const group = item.group_id;
-				return {
-					...group,
-					unread_count: unreadMap[group.id] || 0,
-				};
-			});
-
-			setJoinedGroups(groupData);
-			setLoading(false);
 		};
 
 		getJoinedGroups();
-	}, [userId]);
+	}, [userId, admin]);
 
 
 	useEffect(() => {
@@ -94,10 +111,10 @@ export default function MessageBox() {
 	function getTimeAgo(utcDateString) {
 		if (!utcDateString) return "";
 
-		const date = new Date(utcDateString); // UTCとしてパース
-		const now  = new Date();              // ローカル（JST）
+		const date = new Date(utcDateString);
+		const now  = new Date();              
 
-		const diff    = now.getTime() - date.getTime(); // ミリ秒差
+		const diff    = now.getTime() - date.getTime(); 
 		const minutes = Math.floor(diff / 60000);
 		const hours   = Math.floor(minutes / 60);
 		const days    = Math.floor(hours / 24);
@@ -119,15 +136,15 @@ export default function MessageBox() {
 				<p className="text-xl text-[#ff7a00] font-bold animate-pulse">読み込み中です...</p>
 			</div>
 
-			<div className="header-notitle-adjust">
-				<div className={`${selectTab == 'group' ? 'select-group' : 'select-user'} select-tab `}>
+			<div className="header-adjust h-adjust overflow-y-scroll">
+				<div className={`${selectTab == 'group' ? 'select-group' : 'select-user'} select-tab fixed content-bg-color`}>
 					<div onClick={() => setSelectTab("group")} className="w-[50%] flex items-center justify-center text-[14px]">イベントグループ</div>
 					<div onClick={() => setSelectTab("users")} className="w-[50%] flex items-center justify-center text-[14px]">DM</div>
 				</div>
 
 				{/*イベントグループ*/}
 				{selectTab == 'group' && (
-					<ul className="w-[100%] flex flex-col justify-center">
+					<ul className="w-[100%] flex flex-col justify-center mt-[41px]">
 						{joinedGroups.length ? (
 							[...joinedGroups]
 							.sort((a, b) => {
@@ -172,7 +189,7 @@ export default function MessageBox() {
 
 				{/*DM*/}
 				{selectTab == 'users' && (
-					<ul>
+					<ul className="w-[100%] flex flex-col justify-center mt-[41px]">
 						{chatUsers.length > 0 ? chatUsers.map((chatUser) => (
 							<li key={chatUser.partner_id}>
 								<Link href={`/message_detail?user=${chatUser.partner_id}`} className="flex items-center justify-between border-b border-gray-200 py-[14px] px-[14px]">

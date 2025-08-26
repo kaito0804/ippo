@@ -78,7 +78,7 @@ export default function FirstSetPrf() {
 		<div className='firstSet font-zen-maru-gothic flex flex-col items-center justify-center w-full h-screen bg-[#FEFAF1]'>
 			
 			{stage !== "7" && (
-				<p className='text-[22px] font-bold text-[#f26a21]'>{stage}/{email ? "5" : "6"}</p>
+				<p className='text-[22px] font-bold text-[#f26a21]'>{stage}/{userProfile?.email ? "5" : "6"}</p>
 			)}
 
 			{stage === "1" ? (
