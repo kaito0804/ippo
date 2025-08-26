@@ -49,7 +49,7 @@ export const UserProvider = ({ children }) => {
 				liff.logout();
 				localStorage.clear();
 				sessionStorage.clear();
-				setUserProfile(null);
+				setUserProfile(null); 
 				} catch (e) {
 				console.error("LIFF セッション削除エラー:", e);
 				}
