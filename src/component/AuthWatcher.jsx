@@ -18,6 +18,7 @@ export default function AuthWatcher() {
         supabase.auth.getSession().then(({ data }) => setSupaSession(data.session));
         const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
             setSupaSession(session);
+           
         });
         return () => {
             listener.subscription.unsubscribe();
@@ -29,7 +30,7 @@ export default function AuthWatcher() {
     useEffect(() => {
         if (status === 'loading') return;
 
-        hasChecked.current = true;
+        
         
         console.log('🔑 Supabase Auth 経由でユーザー取得:', supaSession);
         console.log('📱 LINE LIFF 経由でユーザー取得:', session);
@@ -44,6 +45,7 @@ export default function AuthWatcher() {
         }
 
         if (hasChecked.current) return; 
+        hasChecked.current = true;
 
         // ログイン成功時にlast_loginを更新
         const updateLoginTime = async () => {
