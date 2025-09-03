@@ -17,14 +17,20 @@ const GroupSlider = ({ title, groups, setDialogGroup, setImgLoading}) => {
 
 	/*スライド画像の横幅取得*/
 	useEffect(() => {
+		if (!groups || groups.length === 0) {
+			// groups が空なら即ロード完了扱い
+			setImgLoading(true);
+			return;
+		}
+
 		if (!slideRef.current) return;
 
 		const img = slideRef.current.querySelector('img');
 		if (img && !img.complete) {
-		img.onload = () => {
-			setSlideWidth(slideRef.current.offsetWidth);
-			setImgLoading(true);
-		};
+			img.onload = () => {
+				setSlideWidth(slideRef.current.offsetWidth);
+				setImgLoading(true);
+			};
 		} else {
 			// すでに読み込み済みの場合
 			setSlideWidth(slideRef.current.offsetWidth);
@@ -32,9 +38,10 @@ const GroupSlider = ({ title, groups, setDialogGroup, setImgLoading}) => {
 		}
 	}, [groups]);
 
+
 	return (
 		<div className="flex flex-col items-center justify-center w-[100%] mt-[40px]">
-			<p style={{ width: slideWidth }} className="text-[18px] font-bold">{title}</p>
+			<p style={{ width: slideWidth > 0 ? `${slideWidth}px` : '200px' }} className="text-[18px] font-bold">{title}</p>
 			{groups.length === 0 ? (
 				<li>{title}の開催予定はありません。</li>
 			) : (

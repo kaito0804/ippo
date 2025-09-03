@@ -30,8 +30,6 @@ export default function AuthWatcher() {
     useEffect(() => {
         if (status === 'loading') return;
 
-        
-        
         console.log('🔑 Supabase Auth 経由でユーザー取得:', supaSession);
         console.log('📱 LINE LIFF 経由でユーザー取得:', session);
         const loggedIn = session || supaSession;
