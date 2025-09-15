@@ -18,7 +18,7 @@ import { useUserContext } from '@/utils/userContext';
 import { areaList, hobbyList } from "@/utils/data/prfList";
 
 
-export default function NewPostDialog({openDialog, closeDialog, placeName }) {
+export default function NewPostDialog({group, openEditDialog, closeDialog, placeName }) {
 
 	const { userProfile }               = useUserContext();
 	const userId                        = userProfile?.id;
@@ -115,7 +115,6 @@ export default function NewPostDialog({openDialog, closeDialog, placeName }) {
 
 			const { error: memberError } = await supabase.from('group_members').insert({
 				group_id: groupData.id,
-				GP_id: groupData.group_id, 
 				group_name: groupData.name,
 				user_id: userId,
 				created_by: userId,
@@ -128,26 +127,6 @@ export default function NewPostDialog({openDialog, closeDialog, placeName }) {
 				alert('グループは作成されましたが、ホストの参加登録に失敗しました');
 			}
 
-			// 通知メール
-			/* awsアカウント作成後に実装
-			if (emailSend) {
-				const { data: matchedUsers, error: matchError } = await supabase
-					.from("user_profiles")
-					.select("id, email, display_name")
-					.eq("mail_receive_flg", true)
-					.or(`area.eq.${area},hobby.ov.{${theme.join(",")}}`);
-
-				if (matchError) {
-					console.error("通知対象取得エラー:", matchError);
-				} else if (matchedUsers.length > 0) {
-					await fetch("/api/sendMail", {
-						method: "POST",
-						headers: { "Content-Type": "application/json" },
-						body: JSON.stringify({ users: matchedUsers, group: groupData }),
-					});
-				}
-			}
-			*/
 
 			alert('登録完了！');
 
@@ -189,12 +168,12 @@ export default function NewPostDialog({openDialog, closeDialog, placeName }) {
 				</div>
 			)}
 
-			<div className="content-bg-color fixed flex flex-col items-center w-full h-[calc(100%-91px)] px-[20px] py-[12px] gap-[12px] transition-all duration-300 z-[1000]"
-				 style={openDialog ? {bottom:'0'} : {bottom:'-100%'}}>
+			<div className="content-bg-color fixed flex flex-col items-center w-full h-[calc(100%-91px)] px-[20px] py-[12px] gap-[12px] transition-all duration-300 left-0 z-[1000]"
+				 style={openEditDialog ? {bottom:'0'} : {bottom:'-100%'}}>
 
 				<div className="w-[100%] text-[18px] font-bold">イベントを作成</div>
 
-				{openDialog && (
+				{openEditDialog && (
 				<div className="flex flex-col items-center w-[100%] py-[12px] gap-[28px] overflow-y-scroll">
 					<form 
 						ref={formRef}
@@ -206,11 +185,11 @@ export default function NewPostDialog({openDialog, closeDialog, placeName }) {
 						<label className="flex flex-col justify-center w-[100%] gap-[2px]">
 							<p className="text-[14px] font-bold">イベント名</p>
 							<input 
-								type="text" name="groupName" placeholder="イベント名を記入"value={name} onChange={e => setName(e.target.value)} required 
+								type="text" name="groupName" placeholder="イベント名を記入" value={group.name} onChange={e => setName(e.target.value)} required 
 								className="px-[10px] py-[10px] bg-[#fff] rounded-[5px] text-[16px]" />
 						</label>
 						
-						<MyEditor  key={editorKey} content={description} onChange={setDescription} />
+						<MyEditor key={editorKey} content={description} onChange={setDescription} />
 
 						<div className="flex justify-center items-center w-[100%] gap-[6px]">
 							<div className="flex flex-col justify-center w-[33%] gap-[2px]">

@@ -7,15 +7,17 @@ import { useRouter } from 'next/navigation';
 import { useUserContext }   from '@/utils/userContext';
 
 //コンポーネント
-import Header        from "@/component/Header";
-import NewPostDialog from '@/component/NewPostDialog';
+import Header         from "@/component/Header";
+import NewPostDialog  from '@/component/NewPostDialog';
+import SelectEditPost from '@/component/SelectEditPost';
 
 export default function EventSetting() {
 
 	const router = useRouter();
 	const { userProfile } = useUserContext();
 	const isHost = userProfile?.is_host;
-	const [openDialog, setOpenDialog]     = useState(false);
+	const [openDialog, setOpenDialog] = useState(false);
+	const [openSelectEditDialog, setOpenSelectEditDialog] = useState(false);
 
 	useEffect(() => {
 		if (isHost === false) {
@@ -40,10 +42,11 @@ export default function EventSetting() {
 						<p className='text-[12px] mt-[2px]'>※管理者専用ページ</p>
 						<div className='flex flex-col justify-center items-center mt-[30px]'>
 							<div onClick={() => setOpenDialog(true)} className='flex justify-center items-center w-[220px] py-[12px] bg-[#F26A21] text-[#fff] rounded-[100px] text-[16px] font-bold'>イベントを作成</div>
-							<div className='flex justify-center items-center w-[220px] mt-[20px] py-[12px] bg-[#fff] text-[#F26A21] border border-[#F26A21] rounded-[100px] text-[16px] font-bold'>イベントを編集</div>
+							<div onClick={() => setOpenSelectEditDialog(true)} className='flex justify-center items-center w-[220px] mt-[20px] py-[12px] bg-[#fff] text-[#F26A21] border border-[#F26A21] rounded-[100px] text-[16px] font-bold'>イベントを編集</div>
 						</div>
 					</div>
 					<NewPostDialog openDialog={openDialog} closeDialog={() => setOpenDialog(false)}/>
+					<SelectEditPost openSelectEditDialog={openSelectEditDialog} closeDialog={() => setOpenSelectEditDialog(false)}/>
 				</div>
 			) : (
 				<div className="header-adjust">

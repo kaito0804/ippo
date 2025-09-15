@@ -3,13 +3,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Splide, SplideSlide } from '@splidejs/react-splide';
 import '@splidejs/splide/css';
 
-const GroupSlider = ({ title, groups, setDialogGroup, setImgLoading}) => {
+const GroupSlider = ({ title, groups, setDialogGroup, setImgLoading, isFetched}) => {
 
 	const [slideWidth, setSlideWidth] = useState(0);
 	const slideRef = useRef(null);
 	
 	const optimizeImage = (url, options = {}) => {
-		const { width = 480, height = 300 } = options;
+		const { width = 460, height = 225 } = options;
 		if (!url.includes('/upload/')) return url;
 		const transformation = `w_${width},h_${height},c_fill,f_auto,q_auto`;
 		return url.replace('/upload/', `/upload/${transformation}/`);
@@ -17,9 +17,10 @@ const GroupSlider = ({ title, groups, setDialogGroup, setImgLoading}) => {
 
 	/*スライド画像の横幅取得*/
 	useEffect(() => {
-		if (!groups || groups.length === 0) {
-			// groups が空なら即ロード完了扱い
-			setImgLoading(true);
+		if (!isFetched) return; // 取得が終わるまでは判定しない
+
+		if (groups.length === 0) {
+			setImgLoading(true); // 空配列ならロード完了
 			return;
 		}
 
@@ -68,7 +69,7 @@ const GroupSlider = ({ title, groups, setDialogGroup, setImgLoading}) => {
 								>
 								<div
 									className="w-[100%] h-[100%] bg-cover bg-center bg-no-repeat rounded-[10px]"
-									style={{ backgroundImage: `url('${optimizeImage(group.image_url)}')` }}
+									style={{ backgroundImage: `url('${optimizeImage(group.image_url)}')`, aspectRatio: '92/45' }}
 								></div>
 								</div>
 							</SplideSlide>

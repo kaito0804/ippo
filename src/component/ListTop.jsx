@@ -15,6 +15,8 @@ export default function ListTop() {
 	const [group, setGroup]   = useState({ thisMonth: [], nextMonth: [] });
 	const [dialogGroup, setDialogGroup] = useState();
 	const [imgLoading, setImgLoading] = useState(false);
+	const [isFetched, setIsFetched] = useState(false); 
+
 
 	useEffect(() => {
 		const GetGroups                = async () => {
@@ -76,7 +78,7 @@ export default function ListTop() {
 				recommend: recommendedGroup || null,
 			});
 
-			console.log("おすすめ:", recommendedGroup);
+			setIsFetched(true);
 		};
 
 		GetGroups();
@@ -85,7 +87,7 @@ export default function ListTop() {
 
 	// 画像の最適化関数
 	const optimizeImage = (url, options = {}) => {
-		const { width = 480, height = 300 } = options;
+		const { width = 460, height = 225 } = options;
 		if (!url.includes('/upload/')) return url;
 		const transformation = `w_${width},h_${height},c_fill,f_auto,q_auto`;
 		return url.replace('/upload/', `/upload/${transformation}/`);
@@ -106,8 +108,8 @@ export default function ListTop() {
 						<p className="text-[18px] font-bold">おすすめ</p>
 						<div
 						onClick={() => {setDialogGroup(group.recommend);}}
-						className="w-[335px] h-[200px] mt-[5px] bg-cover bg-center bg-no-repeat rounded-[8px]"
-						style={{ backgroundImage: `url('${optimizeImage(group.recommend.image_url)}')` }}
+						className="w-[335px] mt-[5px] bg-cover bg-center bg-no-repeat rounded-[8px]"
+						style={{ backgroundImage: `url('${optimizeImage(group.recommend.image_url)}')`, aspectRatio: '92/45' }}
 
 						></div>
 					</div>
@@ -116,8 +118,8 @@ export default function ListTop() {
 					)}
 				</div>
 
-				<GroupSlider title="今月" groups={group.thisMonth} setDialogGroup={setDialogGroup} setImgLoading={setImgLoading}/>
-				<GroupSlider title="来月" groups={group.nextMonth} setDialogGroup={setDialogGroup} setImgLoading={setImgLoading}/>
+				<GroupSlider title="今月" groups={group.thisMonth} setDialogGroup={setDialogGroup} setImgLoading={setImgLoading} isFetched={isFetched}/>
+				<GroupSlider title="来月" groups={group.nextMonth} setDialogGroup={setDialogGroup} setImgLoading={setImgLoading} isFetched={isFetched}/>
 
 				<ListDetailDialog group={dialogGroup} setGroup={setDialogGroup}/>
 

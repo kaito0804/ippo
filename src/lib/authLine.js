@@ -60,6 +60,7 @@ export async function verifyLiffIdToken(idToken) {
     return decoded;
 
   } catch (err) {
+	console.log('ID Token:', idToken);
     console.error('❌ トークン検証例外:', err.message);
     return null;
   }

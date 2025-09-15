@@ -396,7 +396,8 @@ export default function MessageDetailClient({ groupId, anotherUserId }) {
 			? {
 				content: newMsg,
 				user_id: userId,
-				group_id: groupId,        
+				group_id: groupId,    
+				GP_id: group.group_id,    
 				image_url: imageUrl,
 			}
 			: {

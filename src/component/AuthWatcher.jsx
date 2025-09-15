@@ -3,42 +3,64 @@ import { useEffect, useState, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter, usePathname } from 'next/navigation';
 import { supabase } from '@/utils/supabase/supabaseClient';
+import liff from '@line/liff';
 
 export default function AuthWatcher() {
+    const [supaProfile, setSupaProfile] = useState(null); // Supabase用
+    const [lineProfile, setLineProfile] = useState(null); // LINE LIFF用
     const { data: session, status }     = useSession();
-    const [supaSession, setSupaSession] = useState(null);
+    const [authChecked, setAuthChecked] = useState(false); // <- 追加
     const router     = useRouter();
     const pathname   = usePathname();
     const hasChecked = useRef(false); 
 
-    // Supabase セッション監視
     useEffect(() => {
-        if (hasChecked.current) return; 
-       
-        supabase.auth.getSession().then(({ data }) => setSupaSession(data.session));
-        const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-            setSupaSession(session);
-           
-        });
-        return () => {
-            listener.subscription.unsubscribe();
+        const initAuth = async () => {
+            try {
+                //Supabase
+                const { data: supaData } = await supabase.auth.getSession();
+                if (supaData.session) {
+                    setSupaProfile(supaData.session.user);
+                }
+
+                //LINE LIFF
+                try {
+                    if (liff.isLoggedIn()) {
+                    const profile = await liff.getProfile();
+                    console.log('📱 LINE LIFF22:', profile.userId);
+                    setLineProfile(profile);
+                    return;
+                    }
+                } catch (err) {
+                    console.error('❌ LINE LIFF 認証エラー:', err);
+                }
+            } catch (err) {
+                console.error("❌ initAuth エラー:", err);
+            } finally {
+                setAuthChecked(true); // 認証チェック完了
+            }
         };
-        
+
+        initAuth();
     }, []);
+
 
     // ページ遷移制御
     useEffect(() => {
-        if (status === 'loading') return;
+        
+        //すでにチェック済み or 認証チェックがまだの場合は何もしない
+        if (hasChecked.current || !authChecked || status === 'loading') return;
 
-        console.log('🔑 Supabase Auth 経由でユーザー取得:', supaSession);
-        console.log('📱 LINE LIFF 経由でユーザー取得:', session);
-        const loggedIn = session || supaSession;
+        const profile = supaProfile || lineProfile;
 
+        console.log('🔑 Supabase Auth 経由でユーザー取得:', supaProfile);
+        console.log('📱 LINE LIFF 経由でユーザー取得:', lineProfile);
+        
         if (pathname === '/') {
-            if (loggedIn) router.push('/top');
+            if (profile) router.push('/top');
             console.log('✅ 認証成功');
         } else {
-            if (!loggedIn) router.push('/');
+            if (!profile) router.push('/');
             console.log('❌ 認証失敗');
         }
 
@@ -49,11 +71,13 @@ export default function AuthWatcher() {
         const updateLoginTime = async () => {
             let userId, column;
 
-            if (session?.user?.id) {
-                userId = session.user.id;  
+            if (lineProfile?.userId) {
+                // LINEログイン
+                userId = lineProfile.userId;
                 column = 'line_id';
-            } else if (supaSession?.user?.id) {
-                userId = supaSession.user.id;
+            } else if (supaProfile?.id) {
+                // Supabaseログイン
+                userId = supaProfile.id;
                 column = 'id';
             } else {
                 console.error("❌ ユーザーIDを特定できません");
@@ -72,8 +96,9 @@ export default function AuthWatcher() {
             }
         };
 
-        updateLoginTime();
-    }, [session, status, supaSession, pathname, router]);
+        if (profile) updateLoginTime();
+        hasChecked.current = true;
+    }, [lineProfile, supaProfile, pathname, router]);
 
     return null;
 }

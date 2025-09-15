@@ -1,5 +1,7 @@
 "use client";
 
+import { supabase } from '@/utils/supabase/supabaseClient';
+import { signOut as nextAuthSignOut } from 'next-auth/react';
 import { useUserContext } from '@/utils/userContext';
 import Link from 'next/link';
 
@@ -7,6 +9,29 @@ export default function Header() {
 
 	const { userProfile } = useUserContext();
 	const isHost = userProfile?.is_host;
+
+	const  logout = async () => {
+		try {
+			// 1. Supabase ログアウト
+			const { error: supaError } = await supabase.auth.signOut();
+			if (supaError) console.error('Supabase ログアウト失敗:', supaError.message);
+
+			// 2. LINE LIFF ログアウト
+			if (window.liff && window.liff.isLoggedIn()) {
+			window.liff.logout();
+			console.log('✅ LIFF ログアウト成功');
+			}
+
+			// 3. NextAuth セッション破棄
+			await nextAuthSignOut({ redirect: false }); // redirect しない場合
+			console.log('✅ NextAuth セッション破棄成功');
+
+			// 4. 最終的にトップページにリダイレクト
+			window.location.href = '/';
+		} catch (err) {
+			console.error('ログアウト処理中にエラー:', err);
+		}
+	};
 
 	return (
 		<div className='fixed top-0 left-0 w-[100%] bg-[#fefaf1] z-50'>
@@ -40,6 +65,11 @@ export default function Header() {
 				</div>
             </div>
 
+			{isHost && (
+				<div onClick={logout} className='fixed bottom-[15px] right-[15px] w-[38px] h-[38px] bg-[#fff] border border-[#ebebeb] bg-size-[20px] bg-position-[center] bg-no-repeat rounded-[100px] '
+					style={{backgroundImage: `url("https://res.cloudinary.com/dnehmdy45/image/upload/v1751433532/log-out_u96vkj.svg")`}}>
+				</div>
+			)}
 			
 		</div>
 	);
