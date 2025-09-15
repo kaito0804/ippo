@@ -32,7 +32,7 @@ const GroupSlider = ({ title, groups, setDialogGroup, setImgLoading}) => {
 				setImgLoading(true);
 			};
 		} else {
-			// すでに読み込み済みの場合
+			//すでに読み込み済みの場合
 			setSlideWidth(slideRef.current.offsetWidth);
 			setImgLoading(true);
 		}
@@ -43,20 +43,20 @@ const GroupSlider = ({ title, groups, setDialogGroup, setImgLoading}) => {
 		<div className="flex flex-col items-center justify-center w-[100%] mt-[40px]">
 			<p style={{ width: slideWidth > 0 ? `${slideWidth}px` : '200px' }} className="text-[18px] font-bold">{title}</p>
 			{groups.length === 0 ? (
-				<li>{title}の開催予定はありません。</li>
+				<p className="">{title}の開催予定はありません。</p>
 			) : (
 				<div className="w-[100%] max-w-[600px] mt-[10px]">
 					<Splide
 						options={ {
-							type   : groups.length > 1 ? 'loop' : 'slide',
-							gap    : '20px',
-							perPage: 1.5,
-							perMove: 1,
-							focus  : 'center',
-							arrows : false,
-							speed: 350,       
-							flickPower: 20,    
-							flickVelocity: 0.05
+							type          : groups.length > 1 ? 'loop' : 'slide',
+							gap           : '20px',
+							perPage       : 1.5,
+							perMove       : 1,
+							focus         : 'center',
+							arrows        : false,
+							speed         : 350,       
+							flickPower    : 20,    
+							flickVelocity : 0.05
 						} }
 					>
 						{groups.map((group, idx) => (

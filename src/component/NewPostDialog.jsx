@@ -30,7 +30,7 @@ export default function NewPostDialog({openDialog, closeDialog, placeName }) {
 	const [goal, setGoal]               = useState('');
 	const [description, setDescription] = useState('');
 	const [memberCount, setMemberCount] = useState(0);
-	const [noLimitMemberCount, setNoLimitMemberCount] = useState('');
+	const [noLimitMemberCount, setNoLimitMemberCount] = useState(false);
 	const [thumImage, setThumImage]     = useState(null);
 	const [editorKey, setEditorKey]     = useState(0);
 	const [price, setPrice]             = useState('');

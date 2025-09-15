@@ -1,16 +1,16 @@
 "use client";
 
 //react/next.js用ライブラリ
-import { useEffect } from "react";
+import { useEffect }      from "react";
 
 //データベース関連
-import { supabase }         from '@/utils/supabase/supabaseClient';
-import { useUserContext }   from '@/utils/userContext';
+import { supabase }       from '@/utils/supabase/supabaseClient';
+import { useUserContext } from '@/utils/userContext';
 
 //コンポーネント
-import Header           from "@/component/Header";
-import FirstSetPrf      from "@/component/FirstSetPrf";
-import ListTop          from "@/component/ListTop";
+import Header             from "@/component/Header";
+import FirstSetPrf        from "@/component/FirstSetPrf";
+import ListTop            from "@/component/ListTop";
 
 
 export default function Top() {
@@ -26,7 +26,7 @@ export default function Top() {
 
             if (user) {
                 const { id, email, user_metadata } = user;
-                const display_name = user_metadata?.full_name || user_metadata?.name || "No Name";
+                const display_name                 = user_metadata?.full_name || user_metadata?.name || "No Name";
 
                 // 既存プロフィールを確認
                 const { data: existingProfile, error: selectError } = await supabase
@@ -69,9 +69,7 @@ export default function Top() {
             ) : userProfile?.first_set ? (
                 <div className="flex flex-col justify-center items-center w-[100%] header-adjust h-adjust">
                     <Header title="HOME"/>
-
                     <ListTop/>
-                  
                 </div>
             ) : (
                 <FirstSetPrf />
