@@ -47,11 +47,9 @@ export default function AuthWatcher() {
 
     // ページ遷移制御
     useEffect(() => {
-        
-        //すでにチェック済み or 認証チェックがまだの場合は何もしない
-        if (hasChecked.current || !authChecked || status === 'loading') return;
-
         const profile = supaProfile || lineProfile;
+        if (!profile) return;
+        if (hasChecked.current) return; 
 
         console.log('🔑 Supabase Auth 経由でユーザー取得:', supaProfile);
         console.log('📱 LINE LIFF 経由でユーザー取得:', lineProfile);
