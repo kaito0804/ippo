@@ -12,21 +12,21 @@ export default function Header() {
 
 	const  logout = async () => {
 		try {
-			// 1. Supabase ログアウト
+			//Supabase ログアウト
 			const { error: supaError } = await supabase.auth.signOut();
 			if (supaError) console.error('Supabase ログアウト失敗:', supaError.message);
 
-			// 2. LINE LIFF ログアウト
+			//LINE LIFF ログアウト
 			if (window.liff && window.liff.isLoggedIn()) {
 			window.liff.logout();
 			console.log('✅ LIFF ログアウト成功');
 			}
 
-			// 3. NextAuth セッション破棄
+			//NextAuth セッション破棄
 			await nextAuthSignOut({ redirect: false }); // redirect しない場合
 			console.log('✅ NextAuth セッション破棄成功');
 
-			// 4. 最終的にトップページにリダイレクト
+			//最終的にトップページにリダイレクト
 			window.location.href = '/';
 		} catch (err) {
 			console.error('ログアウト処理中にエラー:', err);

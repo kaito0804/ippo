@@ -18,13 +18,13 @@ import { useUserContext } from '@/utils/userContext';
 import { areaList, hobbyList } from "@/utils/data/prfList";
 
 
-export default function NewPostDialog({group, openEditDialog, closeDialog, placeName }) {
+export default function EditPostDialog({group, openEditDialog, closeDialog, closeSelectEditDialog }) {
 
 	const { userProfile }               = useUserContext();
 	const userId                        = userProfile?.id;
 	const [name, setName]               = useState('');
 	const [startDate, setStartDate]     = useState('');
-	const [startTime, setStartTime]     = useState('12:00');
+	const [startTime, setStartTime]     = useState('');
 	const [duration, setDuration]       = useState(''); 
 	const [venue, setVenue]             = useState('');
 	const [goal, setGoal]               = useState('');
@@ -38,18 +38,33 @@ export default function NewPostDialog({group, openEditDialog, closeDialog, place
 	const [theme, setTheme]             = useState([]); 
 	const fileInputRef                  = useRef(null);
 	const [previewUrl, setPreviewUrl]   = useState(null);
-	const [emailSend, setEmailSend]     = useState(true);
 	const [isLoading, setIsLoading]     = useState(false);
 	const formRef                       = useRef(null);
 	
 	const maxLimit = 40; //定員無制限時の最大参加人数
 
-
 	useEffect(() => {
-		if (placeName) {
-			setVenue(placeName);
+		if (openEditDialog && group) {
+			setStartDate(group.start_date ? new Date(group.start_date) : null);
+			setStartTime(group.start_time || '');
+			if (group.duration) {
+				const [h, m] = group.duration.split(':').map(Number);
+				setDuration(h * 60 + m);
+			} else {
+				setDuration(0);
+			}
+			setDescription(group.description || '');
+			setName(group.name || '');
+			setVenue(group.venue || '');
+			setGoal(group.goal || '');
+			setMemberCount(group.member_count || 0);
+			setNoLimitMemberCount(group.noLimitFlg || false);
+			setPrice(group.price || '');
+			setArea(group.area || '');
+    		setTheme(group.theme?.map(String) || []);
+			setPreviewUrl(group.image_url || null);
 		}
-	}, [placeName]);
+	}, [openEditDialog, group]);
 
 	const fileChange = async (e) => {
 		const file = e.target.files[0];
@@ -65,13 +80,14 @@ export default function NewPostDialog({group, openEditDialog, closeDialog, place
 		setDuration((prev) => Math.max(0, prev + step * 30));
 	};
 
-	 const formatDuration = (min) => {
+	const formatDuration = (min) => {
+		if (!min) return '00:00';
 		const h = Math.floor(min / 60);
 		const m = min % 60;
 		return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
 	};
 
-	const submit = async (e) => {
+	const submit_edit = async (e) => {
 		e.preventDefault();
 		setIsLoading(true);
 
@@ -88,75 +104,44 @@ export default function NewPostDialog({group, openEditDialog, closeDialog, place
 
 			const memberCountLimit = noLimitMemberCount ? maxLimit : memberCount;
 
-			const { data: groupData, error } = await supabase.from('groups').insert({
-				created_by : userId,
+			const { data: groupData, error } = await supabase
+			.from('groups')
+			.update({
 				name,
-				description, 
-				start_date   : startDate,
-				start_time   : startTime, 
-				duration     : formatDuration(duration),      
-				venue        : venue,  
-				goal         : goal,   
-				image_url    : imageUrl, 
-				area         : area,
-				theme        : theme,        
-				member_count : memberCountLimit,
-				noLimitFlg   : noLimitMemberCount,
-				price        : price
+				description,
+				start_date: startDate,
+				start_time: startTime,
+				duration: formatDuration(duration),
+				venue,
+				goal,
+				image_url: imageUrl || group.image_url, //新しい画像がなければ既存画像を残す
+				area,
+				theme,
+				member_count: memberCountLimit,
+				noLimitFlg: noLimitMemberCount,
+				price
 			})
+			.eq('id', group.id) //更新対象を指定
 			.select()
 			.single();
 
 			if (error || !groupData) {
-				console.error('登録エラー:', error);
-				alert('登録に失敗しました');
+				console.error('更新エラー:', error);
+				alert('更新に失敗しました');
 				return;
 			}
 
-			const { error: memberError } = await supabase.from('group_members').insert({
-				group_id: groupData.id,
-				group_name: groupData.name,
-				user_id: userId,
-				created_by: userId,
-				joined_at: new Date().toISOString(),
-				last_read_at: new Date().toISOString(),
-			});
+			alert('更新完了！');
 
-			if (memberError) {
-				console.error('ホスト登録エラー:', memberError);
-				alert('グループは作成されましたが、ホストの参加登録に失敗しました');
-			}
-
-
-			alert('登録完了！');
-
-			// フォーム初期化
-			setName('');
-			setStartDate('');
-			setStartTime('12:00');
-			setDuration('');
-			setVenue('');
-			setGoal('');
-			setArea('');
-			setTheme([]);
-			setDescription('');
-			setEditorKey(prev => prev + 1);
-			setMemberCount(0);
-			setNoLimitMemberCount(false);
-			setPrice('');
-			setThumImage(null);
-			setPreviewUrl(null);
-			if (fileInputRef.current) {
-				fileInputRef.current.value = '';
-			}
 		} catch (err) {
 			console.error('予期せぬエラー:', err);
 			alert('エラーが発生しました');
 		} finally {
 			setIsLoading(false);
-			closeDialog();
+			window.location.reload();	 
 		}
 	};
+
 
 
 
@@ -177,15 +162,14 @@ export default function NewPostDialog({group, openEditDialog, closeDialog, place
 				<div className="flex flex-col items-center w-[100%] py-[12px] gap-[28px] overflow-y-scroll">
 					<form 
 						ref={formRef}
-						onSubmit={submit} 
+						onSubmit={submit_edit} 
 						className="flex flex-col items-center w-[100%] gap-[28px] overflow-y-scroll"	
 					>
 						
-
 						<label className="flex flex-col justify-center w-[100%] gap-[2px]">
 							<p className="text-[14px] font-bold">イベント名</p>
 							<input 
-								type="text" name="groupName" placeholder="イベント名を記入" value={group.name} onChange={e => setName(e.target.value)} required 
+								type="text" name="groupName" placeholder="イベント名を記入" value={name} onChange={e => setName(e.target.value)} required 
 								className="px-[10px] py-[10px] bg-[#fff] rounded-[5px] text-[16px]" />
 						</label>
 						
@@ -220,23 +204,22 @@ export default function NewPostDialog({group, openEditDialog, closeDialog, place
 							<label className="relative flex flex-col justify-center w-[33%] gap-[2px]">
 								<p className="text-[14px] font-bold">所要時間</p>
 								<input
-								type="text" 
-								value={formatDuration(duration)}
-								onChange={(e) => {
-									const val = e.target.value;
-									const match = val.match(/^(\d{1,2}):(\d{2})$/);
-									if (match) {
-									const h = parseInt(match[1], 10);
-									const m = parseInt(match[2], 10);
-									if (m >= 0 && m < 60) {
-										const totalMin = h * 60 + m;
-										setDuration(totalMin);
-									}
-									} else if (val === '') {
+									type="text"
+									value={formatDuration(duration)}
+									onChange={(e) => {
+										const val = e.target.value;
+										const match = val.match(/^(\d{1,2}):(\d{2})$/);
+										if (match) {
+										const h = parseInt(match[1], 10);
+										const m = parseInt(match[2], 10);
+										if (m >= 0 && m < 60) {
+											setDuration(h * 60 + m); // stateは分
+										}
+										} else if (val === '') {
 										setDuration(0);
-									}
-								}}
-								className="px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[16px]"
+										}
+									}}
+									className="px-[10px] py-[5px] bg-[#fff] rounded-[5px] text-[16px]"
 								/>
 
 								<div className="absolute flex flex-col justify-between items-center h-[30px] top-[25px] right-[5px]">
@@ -317,21 +300,21 @@ export default function NewPostDialog({group, openEditDialog, closeDialog, place
 							<p className="text-[14px] font-bold">テーマ</p>
 							<div className="flex flex-wrap gap-[10px]">
 								{hobbyList.map((item) => (
-									<label key={item.id} className="flex items-center gap-[6px]">
-										<input
-											type="checkbox"
-											value={item.id}
-											checked={theme.includes(item.id)}
-											onChange={(e) => {
-												if (e.target.checked) {
-													setTheme([...theme, item.id]);
-												} else {
-													setTheme(theme.filter(t => t !== item.id));
-												}
-											}}
-										/>
-										<span>{item.label}</span>
-									</label>
+								<label key={item.id} className="flex items-center gap-[6px]">
+									<input
+									type="checkbox"
+									value={item.id}
+									checked={theme.includes(String(item.id))} // 型を揃える
+									onChange={(e) => {
+										if (e.target.checked) {
+										setTheme([...theme, String(item.id)]);
+										} else {
+										setTheme(theme.filter(t => t !== String(item.id)));
+										}
+									}}
+									/>
+									<span>{item.label}</span>
+								</label>
 								))}
 							</div>
 						</label>
@@ -350,7 +333,6 @@ export default function NewPostDialog({group, openEditDialog, closeDialog, place
 								onChange={fileChange}
 								ref={fileInputRef}
 								className="hidden"
-								required
 								/>
 							</label>
 
@@ -366,31 +348,11 @@ export default function NewPostDialog({group, openEditDialog, closeDialog, place
 							)}
 						</div>
 
-						<div className="flex flex-col justify-center items-center w-[100%]">
-							<p className="w-[100%] text-[14px] font-bold">メール通知設定</p>
-							<input 
-								type="checkbox" 
-								name="mail_send_flg" 
-								id="mail_send_flg" 
-								defaultChecked
-								value={emailSend}
-								onChange={(e) => setEmailSend(e.target.checked)}
-								className="hidden"
-							/>
-							<label htmlFor="mail_send_flg" className="prf-label left small mt-[7px]">メール通知</label>
-
-							{emailSend && (
-								<div className="notice flex justify-start items-center w-[100%] text-[13px] mt-[10px] px-[10px] py-[5px] bg-[#ffe3d1] text-[#333] p-[5px] rounded-[6px]">
-									エリア、テーマに該当するユーザーに、<br/>イベント開催のメール通知を送ります。
-								</div>
-							)}
-						</div>	
-
 					</form>
 					
 					<div className="flex justify-end items-center w-[100%] gap-[10px]">
 						<div onClick={closeDialog} className="flex justify-center items-center w-[100px] py-[8px] bg-[#fff] text-[#F26A21] border border-[#F26A21] rounded-[100px] text-[13px] font-bold">キャンセル</div>
-						<div onClick={() => formRef.current?.requestSubmit()} className="flex justify-center items-center w-[100px] py-[8px] bg-[#F26A21] text-[#fff] rounded-[100px] text-[13px] font-bold">作成</div>
+						<div onClick={() => formRef.current?.requestSubmit()} className="flex justify-center items-center w-[100px] py-[8px] bg-[#F26A21] text-[#fff] rounded-[100px] text-[13px] font-bold">更新</div>
 					</div>
 				</div>
 				)}

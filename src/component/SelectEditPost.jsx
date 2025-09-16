@@ -8,7 +8,9 @@ import { supabase } from '@/utils/supabase/supabaseClient';
 import { useUserContext } from '@/utils/userContext';
 
 //コンポーネント
+import {startDayJP} from '@/utils/function/function';
 import EditPostDialog from "@/component/EditPostDialog";
+import ListDetailDialog from '@/component/ListDetailDialog';
 
 
 export default function NewPostDialog({openSelectEditDialog, closeDialog }) {
@@ -18,6 +20,7 @@ export default function NewPostDialog({openSelectEditDialog, closeDialog }) {
 	const [myGroups, setMyGroups]       = useState([]);
 	const [editDialog, setEditDialog]   = useState(null);
 	const [openEditDialog, setOpenEditDialog] = useState(false);
+	const [openDetailDialog, setOpenDetailDialog] = useState(false);
 	const [isLoading, setIsLoading]     = useState(false);
 		
 	console.log(userId);
@@ -31,6 +34,7 @@ export default function NewPostDialog({openSelectEditDialog, closeDialog }) {
 			.from("groups")
 			.select("*")
 			.eq("created_by", userId)
+			.eq("is_finished", false)
 			.order("created_at", { ascending: false });
 
 			if (error) {
@@ -67,29 +71,30 @@ export default function NewPostDialog({openSelectEditDialog, closeDialog }) {
 						<ul className="flex flex-col items-center w-[100%] gap-[12px]">
 							{myGroups && myGroups.length > 0 ? (
 								myGroups.map((group) => (
-								<li onClick={() => {setEditDialog(group); setOpenEditDialog(true);}} key={group.id} className="flex items-center justify-between w-[100%] border-b border-gray-200 py-[14px] px-[14px]">
+								<li onClick={() => {setEditDialog(group); setOpenEditDialog(true);}} key={group.id} className="flex items-center justify-between w-[100%] border-b border-gray-200 py-[14px]">
 									<div className="flex items-center">
 										<div className="w-[50px] h-[50px] mr-[12px] bg-cover bg-center bg-no-repeat rounded-full" style={{ backgroundImage: `url(${group.image_url})` }}></div>
 									</div>
 
 									<div className="flex flex-col items-start justify-between w-[calc(100%-50px)] h-[100%] gap-[5px]">
-										<div className="flex items-center justify-between w-full">
+										<div className="flex items-center justify-start w-full">
 											<p className="text-[15px] font-bold">{group.name}</p>
-											<p className="text-[11px] text-gray-500"> </p>
+											<p className="text-[12px] ml-[5px]">{startDayJP(group.start_date)} {group.start_time.slice(0, 5)}~</p>
 										</div>
 										<div className="flex items-center justify-between w-full">
-											<p className="text-[13px] text-gray-500">
+											<p className="text-[13px] text-gray-500 line-clamp-2">
 												{group.description.replace(/<[^>]+>/g, '')}
 											</p>
 										</div>
 									</div>
+
+									<div onClick={(e) => {e.stopPropagation(); setOpenDetailDialog(group);}} className="w-[24px] h-[24px]  bg-center bg-cover bg-no-repeat" style={{backgroundImage: `url("https://res.cloudinary.com/dnehmdy45/image/upload/v1755134489/Info_orange_uxa89c.svg")`}}></div>
 								</li>
 								))
 							) : (
-								<li>グループはまだありません</li>
+								<p>編集可能なイベントはありません</p>
 							)}
 						</ul>
-
 						
 						<div className="flex justify-end items-center w-[100%] gap-[10px]">
 							<div onClick={closeDialog} className="flex justify-center items-center w-[100px] py-[8px] bg-[#fff] text-[#F26A21] border border-[#F26A21] rounded-[100px] text-[13px] font-bold">キャンセル</div>
@@ -97,7 +102,8 @@ export default function NewPostDialog({openSelectEditDialog, closeDialog }) {
 					</div>
 				)}
 
-				<EditPostDialog group={editDialog} openEditDialog={openEditDialog} closeDialog={() => setOpenEditDialog(false)} />
+				<EditPostDialog group={editDialog} openEditDialog={openEditDialog} closeDialog={() => setOpenEditDialog(false)} closeSelectEditDialog={closeDialog} />
+				<ListDetailDialog group={openDetailDialog} setGroup={setOpenDetailDialog}/>
 			</div>
 
 		</div>

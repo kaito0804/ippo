@@ -14,17 +14,17 @@ export default function MyEditor({ content = '', onChange }) {
                 emptyEditorClass: 'is-editor-empty',
             }),
         ],
-        content: content || '', // null防止
+        content,
         onUpdate: ({ editor }) => {
             onChange(editor.getHTML());
         },
     });
 
-    useEffect(() => {
-        return () => {
-            editor?.destroy();
-        };
-    }, [editor]);
+     useEffect(() => {
+        if (editor && content !== editor.getHTML()) {
+        editor.commands.setContent(content, false);
+        }
+    }, [content, editor]);
 
     if (!editor) {
         return <div>Loading editor...</div>;

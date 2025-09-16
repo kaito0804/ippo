@@ -1,18 +1,15 @@
 'use client';
 import { useEffect, useState, useRef } from 'react';
-import { useSession } from 'next-auth/react';
 import { useRouter, usePathname } from 'next/navigation';
 import { supabase } from '@/utils/supabase/supabaseClient';
 import liff from '@line/liff';
 
 export default function AuthWatcher() {
-    const [supaProfile, setSupaProfile] = useState(null); // Supabase用
-    const [lineProfile, setLineProfile] = useState(null); // LINE LIFF用
-    const { data: session, status }     = useSession();
-    const [authChecked, setAuthChecked] = useState(false); // <- 追加
-    const router     = useRouter();
-    const pathname   = usePathname();
-    const hasChecked = useRef(false); 
+    const [supaProfile, setSupaProfile] = useState(null); //Supabase用
+    const [lineProfile, setLineProfile] = useState(null); //LINE LIFF用
+    const router                        = useRouter();
+    const pathname                      = usePathname();
+    const hasChecked                    = useRef(false); 
 
     useEffect(() => {
         const initAuth = async () => {
@@ -36,9 +33,7 @@ export default function AuthWatcher() {
                 }
             } catch (err) {
                 console.error("❌ initAuth エラー:", err);
-            } finally {
-                setAuthChecked(true); // 認証チェック完了
-            }
+            } 
         };
 
         initAuth();
@@ -61,9 +56,6 @@ export default function AuthWatcher() {
             if (!profile) router.push('/');
             console.log('❌ 認証失敗');
         }
-
-        if (hasChecked.current) return; 
-        hasChecked.current = true;
 
         // ログイン成功時にlast_loginを更新
         const updateLoginTime = async () => {

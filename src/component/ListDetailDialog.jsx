@@ -7,6 +7,7 @@ import { useState, useEffect, useRef } from "react";
 import { useUserContext } from '@/utils/userContext';
 import {startDay, formatDurationHM} from '@/utils/function/function';
 import {groupListTemplate} from '@/utils/data/groupList';
+import {hobbyList} from '@/utils/data/prfList';
 import PaymentDialog from '@/component/paymentDialog';
 
 
@@ -15,6 +16,14 @@ export default function ListDetailDialog({group, setGroup}) {
  	const { userProfile } = useUserContext();
 	const userId          = userProfile.id;
 	const [open, setOpen] = useState(false);
+
+	// 画像の最適化関数
+	const optimizeImage = (url, options = {}) => {
+		const { width = 460, height = 225 } = options;
+		if (!url.includes('/upload/')) return url;
+		const transformation = `w_${width},h_${height},c_fill,f_auto,q_auto`;
+		return url.replace('/upload/', `/upload/${transformation}/`);
+	};
 
 	return (
 		<div className="listDetailDialog h-adjust content-bg-color" style={group ? {bottom:'0'} : {bottom:'-100%'}}>
@@ -25,20 +34,24 @@ export default function ListDetailDialog({group, setGroup}) {
 			{group ? (
 		
 				<div className="w-[100%] h-[100%]">
-					<div className="w-[100%] h-[202] bg-center bg-cover bg-no-repeat rounded-[8px]" style={{ backgroundImage: `url('${group.image_url}')` }} />
+					<div className="w-[100%] bg-center bg-cover bg-no-repeat rounded-[8px]" style={{ backgroundImage: `url('${optimizeImage(group.image_url)}')`, aspectRatio: '92/45' }}/>
 					<div className="flex flex-col items-center justify-start w-[100%] pt-[20px] pb-[80px]">
 						<p className="w-[100%] text-[16px] ">{startDay(group.start_date)} {group.start_time.slice(0, 5)} ~ <br/>{group.name}</p>
 						<p className="w-[100%] text-[14px] mt-[5px]">{group.venue} | By 散歩コミュニティ「IPPO」</p>
 						
 						<ul className="flex flex-wrap w-[100%] text-[12px] mt-[15px] gap-[10px]">
 							{group.theme && group.theme.length > 0 ? (
-								group.theme.map((theme, index) => (
-									<li key={index} className="px-[10px] py-[2px] border border-[#ff7a00] text-[#ff7a00] rounded-[100px]">{theme}</li>
-								))
+								group.theme.map((themeId, index) => {
+									const hobby = hobbyList.find(h => h.id === Number(themeId));
+									return (
+										<li key={index} className="px-[10px] py-[2px] border border-[#ff7a00] text-[#ff7a00] rounded-[100px]">{hobby ? hobby.label : '未設定'}</li>
+									);
+								})
 							) : (
 								<li className="px-[10px] py-[2px] border border-[#ff7a00] text-[#ff7a00] rounded-[100px]">散歩</li>
 							)}
 						</ul>
+
 
 						{/*金額*/}
 						<div className="flex flex-col items-start justify-between w-[100%] mt-[24px]">
