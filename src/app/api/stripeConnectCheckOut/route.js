@@ -19,8 +19,7 @@ export async function POST(req) {
    const session = await stripe.checkout.sessions.create(
 	{
 		payment_intent_data: {
-		application_fee_amount: Math.floor(price * 0.1), // ← 親アカウントの取り分
-		// 💡 destination は書かない！！！！！
+			application_fee_amount: Math.floor(price * 0.1), //親アカウントの取り分
 		},
 		line_items: [
 		{
