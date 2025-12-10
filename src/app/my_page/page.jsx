@@ -168,9 +168,9 @@ export default function UserPage() {
 			.eq("id", userId);
 
 			if (updateError) {
-			alert("プロフィール更新に失敗しました");
-			console.error(updateError);
-			return;
+				alert("プロフィール更新に失敗しました");
+				console.error(updateError);
+				return;
 			}
 
 			// 表示用profile state更新
