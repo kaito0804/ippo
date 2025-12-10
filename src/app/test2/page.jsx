@@ -7,9 +7,11 @@ const supabaseAdmin = createClient(
 );
 
 export default async function Test2Page({ searchParams }) {
-	const accountId = searchParams?.account_id || null;
-	const paySuccess = searchParams?.success || null;
-
+	const params = await searchParams;
+	const accountId = params.account_id || null;
+	const paySuccess = params.success || null;
+	console.log(params);
+	console.log("accountId", accountId);
 	// サーバー側で商品を取得
 	const { data: products } = await supabaseAdmin
 		.from("products")

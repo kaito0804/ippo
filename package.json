@@ -28,9 +28,9 @@
     "jwks-rsa": "^3.2.0",
     "next": "^16.0.8",
     "next-auth": "^4.24.11",
-    "react": "^19.0.0",
+    "react": "^19.2.1",
     "react-datepicker": "^8.4.0",
-    "react-dom": "^19.0.0",
+    "react-dom": "^19.2.1",
     "react-time-picker": "^8.0.2",
     "stripe": "^18.3.0"
   },

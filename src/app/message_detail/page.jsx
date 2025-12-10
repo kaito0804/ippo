@@ -1,9 +1,10 @@
 // MessageDetailPage.jsx
 import MessageDetailClient from '@/component/MessageDetailClient';
 
-export default function MessageDetailPage({ searchParams }) {
-	const groupId = searchParams?.groupId || null;
-	const anotherUserId = searchParams?.user || null;
+export default async function MessageDetailPage({ searchParams }) {
+	const params = await searchParams;
+	const groupId = params?.groupId || null;
+	const anotherUserId = params?.user || null;
 
 	return <MessageDetailClient groupId={groupId} anotherUserId={anotherUserId} />;
 }
